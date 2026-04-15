@@ -457,7 +457,7 @@ function hCrear(){return`
 <div>
   <div class="card card-g" style="margin-bottom:14px">
     <div class="fld"><label class="lbl">NOMBRE</label><input id="cn" class="inp" placeholder="María González" autocomplete="name"></div>
-    <div class="fld"><label class="lbl">EMAIL</label><input id="ce" class="inp" type="email" placeholder="cliente@email.com" autocomplete="email"></div>
+    <div class="fld"><label class="lbl">EMAIL (opcional, para tus registros)</label><input id="ce" class="inp" type="email" placeholder="cliente@email.com" autocomplete="email"></div>
     <div class="fld"><label class="lbl">TELÉFONO (WhatsApp)</label><input id="cp" class="inp" placeholder="+56912345678" autocomplete="tel"></div>
     <div id="cce" class="err" style="display:none"></div>
     <button id="ccb" class="bp">Generar Ticketera</button>
@@ -499,7 +499,7 @@ async function doCrear(){
     if(d.success){
       const link=`${location.origin}${location.pathname}#/ticketera/${d.folio}`;
       const waUrl=`https://wa.me/${phone.replace(/\D/g,'')}&text=${waMsg(d.folio,link,name)}`;
-      // Enviar email automático si hay email
+
       if(email){
         try{
           await fetch(`${SB}/functions/v1/balandra-email`,{
