@@ -3,448 +3,181 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#0a1628">
 <title>Ticketera Balandra</title>
-<meta name="description" content="Ticketera Electrónica Balandra · Radisson Hotel Puerto Varas">
-<link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <style>
-:root{
-  --navy:#0a1628; --navy2:#0d1e35; --navy3:#142540;
-  --gold:#D4AF37; --goldBg:rgba(212,175,55,.12); --goldBdr:rgba(212,175,55,.35);
-  --white:#f0f4f8; --muted:rgba(240,244,248,.6); --dim:rgba(240,244,248,.35);
-  --green:#00e87a; --gBg:rgba(0,232,122,.09); --gBdr:rgba(0,232,122,.4);
-  --red:#ff5f5f; --rBg:rgba(255,95,95,.09);
-  --card:rgba(255,255,255,.07); --cardBdr:rgba(255,255,255,.11);
-  --r:14px; --rsm:10px; --nav:68px;
-}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{height:100%;background:var(--navy)}
-body{font-family:'Inter',sans-serif;background:var(--navy);color:var(--white);min-height:100%;-webkit-font-smoothing:antialiased;overscroll-behavior:none}
-
-/* Layout */
-#app{display:flex;flex-direction:column;min-height:100vh}
-.topbar{background:var(--navy2);border-bottom:1px solid var(--goldBdr);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200}
-.brand{cursor:pointer}
-.brand-name{color:var(--gold);font-size:17px;font-weight:700;letter-spacing:2.5px;display:block}
-.brand-sub{color:var(--dim);font-size:10px;letter-spacing:.3px;margin-top:1px;display:block}
-.tbtn{padding:7px 13px;border-radius:8px;font-size:12px;font-weight:600;border:none;cursor:pointer;font-family:'Inter',sans-serif;min-height:36px}
-.tbtn-g{background:var(--goldBg);color:var(--gold)}
-.tbtn-d{background:var(--card);color:var(--muted)}
-.main{flex:1;padding:16px 16px calc(var(--nav) + 20px);max-width:600px;margin:0 auto;width:100%}
-
-/* Bottom nav */
-.bnav{position:fixed;bottom:0;left:0;right:0;height:var(--nav);background:var(--navy2);border-top:1px solid var(--cardBdr);display:flex;z-index:200;padding-bottom:env(safe-area-inset-bottom)}
-.bni{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;border:none;background:transparent;color:var(--dim);font-family:'Inter',sans-serif;padding:8px 4px;-webkit-tap-highlight-color:transparent;transition:color .15s}
-.bni:active{background:rgba(255,255,255,.04)}
-.bni.on{color:var(--gold)}
-.bni-ico{font-size:22px;line-height:1}
-.bni-lbl{font-size:10px;font-weight:700;letter-spacing:.5px}
-.bni-dot{width:5px;height:5px;border-radius:50%;background:var(--gold);opacity:0;margin-top:1px}
-.bni.on .bni-dot{opacity:1}
-
-/* Buttons */
-.bp{width:100%;padding:15px;border-radius:var(--rsm);background:var(--gold);border:none;color:var(--navy);font-size:15px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;min-height:52px;transition:opacity .15s}
-.bp:active{opacity:.85}
-.bp:disabled{background:var(--card);color:var(--dim);cursor:not-allowed}
-.bs{padding:10px 20px;border-radius:var(--rsm);background:transparent;border:1px solid var(--goldBdr);color:var(--gold);font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;min-height:42px}
-.bs:active{opacity:.75}
-.bg{padding:12px 24px;border-radius:var(--rsm);background:var(--green);border:none;color:var(--navy);font-size:14px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;min-height:46px}
-
-/* Inputs */
-.fld{margin-bottom:14px}
-.lbl{color:var(--muted);font-size:12px;font-weight:600;display:block;margin-bottom:7px;letter-spacing:.3px}
-.inp{width:100%;padding:13px 16px;border-radius:var(--rsm);border:1.5px solid var(--cardBdr);background:rgba(255,255,255,.06);color:var(--white);font-size:15px;font-family:'Inter',sans-serif;outline:none;transition:border-color .2s;min-height:50px;-webkit-appearance:none}
-.inp:focus{border-color:var(--goldBdr)}
-.inp-folio{font-family:'JetBrains Mono',monospace;font-size:20px;text-align:center;letter-spacing:4px;padding:16px}
-.inp-code{font-family:'JetBrains Mono',monospace;font-size:34px;text-align:center;letter-spacing:10px;padding:18px;min-height:72px}
-.err{color:var(--red);font-size:13px;text-align:center;padding:8px 0}
-
-/* Cards */
-.card{background:var(--card);border:1px solid var(--cardBdr);border-radius:var(--r);padding:18px}
-.card-g{border-color:var(--goldBdr)}
-.card-gr{background:var(--gBg);border-color:var(--gBdr)}
-
-/* Badges */
-.bdg{display:inline-block;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.8px}
-.ba{background:var(--gBg);border:1px solid var(--gBdr);color:var(--green)}
-.bc{background:var(--goldBg);border:1px solid var(--goldBdr);color:var(--gold)}
-.be{background:var(--rBg);border:1px solid rgba(255,95,95,.4);color:var(--red)}
-.bf{background:rgba(147,112,219,.1);border:1px solid rgba(147,112,219,.4);color:#c196f0}
-
-/* Folio header */
-.fhdr{background:var(--navy3);border:1px solid var(--goldBdr);border-radius:var(--r);padding:18px 20px;margin-bottom:16px}
-.feye{color:var(--gold);font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;margin-bottom:5px}
-.fnum{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;letter-spacing:3px}
-.fname{color:var(--muted);font-size:13px;margin-top:4px}
-.frow{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
-.fright{text-align:right;flex-shrink:0}
-.fexp{color:var(--dim);font-size:11px;margin-top:6px;line-height:1.4}
-
-/* Progress */
-.prog{margin-top:14px}
-.prog-row{display:flex;justify-content:space-between;margin-bottom:7px;font-size:12px}
-.prog-bg{background:rgba(255,255,255,.1);border-radius:4px;height:7px;overflow:hidden}
-.prog-bar{background:var(--gold);height:100%;border-radius:4px;transition:width .6s ease}
-
-/* Tickets */
+:root{--navy:#0a1628;--navy2:#0d1e35;--navy3:#142540;--gold:#D4AF37;--goldDim:rgba(212,175,55,.18);--goldBdr:rgba(212,175,55,.35);--white:#f0f4f8;--muted:rgba(240,244,248,.6);--dim:rgba(240,244,248,.35);--green:#00e87a;--red:#ff5f5f;--card:rgba(255,255,255,.07);--bdr:rgba(255,255,255,.1);--r:14px;--rs:10px;--sb:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:var(--navy);color:var(--white);font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;overscroll-behavior:none}
+#shell{display:flex;flex-direction:column;min-height:100dvh}
+#topbar{background:var(--navy2);border-bottom:1px solid var(--goldBdr);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200}
+.brand{cursor:pointer}.brand-name{color:var(--gold);font-size:17px;font-weight:700;letter-spacing:3px}.brand-sub{color:var(--dim);font-size:10px;margin-top:1px}
+#content{flex:1;padding:16px;max-width:600px;margin:0 auto;width:100%;padding-bottom:calc(76px + var(--sb))}
+#bnav{position:fixed;bottom:0;left:0;right:0;background:var(--navy2);border-top:1px solid var(--bdr);display:flex;padding-bottom:var(--sb);z-index:200}
+.nb{flex:1;display:flex;flex-direction:column;align-items:center;padding:10px 4px;gap:3px;cursor:pointer;border:none;background:none;color:var(--dim);font-family:'Inter',sans-serif;font-size:10px;font-weight:600;transition:color .15s}
+.nb.active{color:var(--gold)}.nb-icon{font-size:22px;line-height:1}
+.btn{display:inline-flex;align-items:center;justify-content:center;padding:10px 18px;border-radius:var(--rs);cursor:pointer;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;border:1px solid;transition:opacity .15s;min-height:44px}
+.btn:active{opacity:.75}.btn-gold{background:var(--gold);border-color:var(--gold);color:var(--navy)}.btn-ghost{background:transparent;border-color:var(--goldBdr);color:var(--gold)}.btn-dim{background:transparent;border-color:var(--bdr);color:var(--muted)}.btn-green{background:var(--green);border-color:var(--green);color:var(--navy)}.btn-full{width:100%;padding:16px;font-size:16px;border-radius:var(--r);min-height:52px}.btn:disabled{opacity:.4;cursor:not-allowed}
+.input{width:100%;padding:14px 16px;border-radius:var(--rs);border:1px solid var(--bdr);background:rgba(255,255,255,.06);color:var(--white);font-size:16px;font-family:'Inter',sans-serif;outline:none;transition:border-color .2s;min-height:52px}.input:focus{border-color:var(--goldBdr)}
+.input-folio{text-align:center;letter-spacing:4px;font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:700}
+.input-code{text-align:center;letter-spacing:10px;font-family:'JetBrains Mono',monospace;font-size:36px;font-weight:700;padding:20px 16px}
+.label{color:var(--muted);font-size:13px;font-weight:600;display:block;margin-bottom:8px}.field{margin-bottom:16px}.err{color:var(--red);font-size:13px;text-align:center;padding:8px 0}
+.card{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:18px}.card-gold{border-color:var(--goldBdr)}.card-green{background:rgba(0,232,122,.08);border-color:rgba(0,232,122,.35)}.card-red{background:rgba(255,95,95,.08);border-color:rgba(255,95,95,.3)}
+.badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.5px}.badge-active{background:rgba(0,232,122,.12);border:1px solid rgba(0,232,122,.4);color:var(--green)}.badge-completed{background:var(--goldDim);border:1px solid var(--goldBdr);color:var(--gold)}.badge-expired{background:rgba(255,95,95,.1);border:1px solid rgba(255,95,95,.35);color:var(--red)}
+/* home */
+.home-logo{font-size:56px;margin-bottom:16px;text-align:center}.home-title{color:var(--gold);font-size:26px;font-weight:700;margin-bottom:6px;text-align:center}.home-sub{color:var(--muted);font-size:13px;margin-bottom:28px;text-align:center;line-height:1.5}
+.home-feats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:20px}
+.feat{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:14px 10px;text-align:center}
+.feat-icon{font-size:22px;margin-bottom:8px}.feat-title{color:var(--gold);font-size:11px;font-weight:700;margin-bottom:4px}.feat-desc{color:var(--dim);font-size:10px;line-height:1.4}
+/* folio header */
+.fhdr{background:var(--navy3);border:1px solid var(--goldBdr);border-radius:var(--r);padding:18px;margin-bottom:14px}
+.feyebrow{color:var(--gold);font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;margin-bottom:4px}
+.fnum{font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:700;letter-spacing:3px}
+.fowner{color:var(--muted);font-size:13px;margin-top:4px}
+.fmeta{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.fexpiry{color:var(--dim);font-size:11px;text-align:right;line-height:1.5}
+.prog-wrap{margin-top:14px}.prog-meta{display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px}.prog-meta span:last-child{color:var(--gold);font-weight:700}
+.prog-bg{background:rgba(255,255,255,.1);border-radius:4px;height:6px;overflow:hidden}.prog-fill{background:var(--gold);height:100%;border-radius:4px;transition:width .6s ease}
+/* tickets */
 .tlist{display:flex;flex-direction:column;gap:10px}
-.tkt{background:var(--card);border:1px solid var(--goldBdr);border-radius:var(--r);padding:16px;display:flex;gap:14px;align-items:flex-start;position:relative;overflow:hidden}
-.tkt.used{opacity:.45;border-color:var(--cardBdr)}
-.tkt.last{border:2px solid var(--gold)}
-.tkt-seq{position:absolute;top:10px;right:12px;font-size:10px;color:var(--dim);font-weight:700;letter-spacing:.5px}
-.tkt-ico{font-size:34px;line-height:1;flex-shrink:0;margin-top:2px}
-.tkt-body{flex:1;min-width:0}
-.tkt-title{font-size:14px;font-weight:700;color:var(--white);margin-bottom:5px;padding-right:30px;line-height:1.3}
-.tkt-desc{font-size:11px;color:var(--muted);line-height:1.55;margin-bottom:11px}
-.coderow{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.vcode{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;letter-spacing:3px;color:var(--gold);background:var(--goldBg);padding:5px 12px;border-radius:7px;border:1px solid var(--goldBdr)}
-.vcode.dim{color:var(--dim);background:rgba(255,255,255,.03);border-color:var(--cardBdr)}
-.used-t{font-size:10px;color:var(--dim)}
-.stamp{position:absolute;top:50%;right:12px;transform:translateY(-50%) rotate(-12deg);border:2px solid rgba(255,95,95,.4);border-radius:4px;padding:2px 8px;color:rgba(255,95,95,.45);font-size:11px;font-weight:800;letter-spacing:2px;pointer-events:none}
-
-/* Stats */
-.sg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
-.sc{background:var(--card);border:1px solid var(--cardBdr);border-radius:var(--r);padding:18px;text-align:center}
-.sv{font-size:40px;font-weight:700;margin-top:6px;line-height:1}
-
-/* List */
-.lrow{background:var(--card);border:1px solid var(--cardBdr);border-radius:var(--rsm);padding:14px 16px;display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:border-color .15s}
-.lrow:active{border-color:var(--goldBdr);background:rgba(255,255,255,.09)}
-.lfolio{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--gold);font-weight:700}
-.lname{color:var(--muted);font-size:12px;margin-top:2px}
-
-/* Tabs */
-.tabs{display:flex;gap:6px;margin-bottom:20px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch}
-.tabs::-webkit-scrollbar{display:none}
-.tab{padding:8px 18px;border-radius:8px;font-size:13px;font-weight:600;border:1px solid var(--cardBdr);color:var(--muted);background:transparent;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap;min-height:38px;transition:all .15s}
-.tab.on{background:var(--gold);color:var(--navy);border-color:var(--gold)}
-
-/* Features home */
-.fgrid{display:flex;flex-direction:column;gap:10px;margin-top:20px}
-.fcard{background:var(--card);border:1px solid var(--cardBdr);border-radius:var(--r);padding:16px;display:flex;gap:14px;align-items:center}
-.fico{font-size:28px;flex-shrink:0}
-.ftit{color:var(--gold);font-size:13px;font-weight:700;margin-bottom:3px}
-.fdsc{color:var(--dim);font-size:12px;line-height:1.45}
-
-/* Gift */
-.gift{background:var(--goldBg);border:1px solid var(--goldBdr);border-radius:var(--r);padding:18px;text-align:center;margin-bottom:16px}
-
-/* Util */
-.stit{font-size:16px;font-weight:700;margin-bottom:14px}
-.r2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.tc{text-align:center}
-.mt12{margin-top:12px}
-.mt20{margin-top:20px}
+.tkt{position:relative;background:var(--card);border:1px solid var(--goldBdr);border-radius:var(--r);padding:16px;display:flex;gap:14px;align-items:flex-start;overflow:hidden}
+.tkt.used{opacity:.48;border-color:var(--bdr)}.tkt.final{border:2px solid var(--gold)}
+.tkt-icon{font-size:34px;line-height:1;flex-shrink:0}.tkt-num{position:absolute;top:10px;right:12px;font-size:11px;color:var(--dim);font-weight:700}
+.tkt-body{flex:1;min-width:0}.tkt-title{font-size:15px;font-weight:700;margin-bottom:5px;padding-right:36px;line-height:1.3}.tkt-desc{color:var(--muted);font-size:12px;line-height:1.55;margin-bottom:12px}
+.tkt-code-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.tkt-code{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:700;letter-spacing:3px;color:var(--gold);background:var(--goldDim);padding:5px 14px;border-radius:8px;border:1px solid var(--goldBdr)}
+.tkt-code.dimmed{color:var(--dim);background:rgba(255,255,255,.04);border-color:var(--bdr)}.tkt-used-at{font-size:11px;color:var(--dim)}
+.tkt-stamp{position:absolute;top:50%;right:14px;transform:translateY(-50%) rotate(-12deg);border:2px solid rgba(255,95,95,.4);border-radius:6px;padding:3px 10px;color:rgba(255,95,95,.4);font-size:12px;font-weight:800;letter-spacing:2px;pointer-events:none}
+.done-banner{background:var(--goldDim);border:1px solid var(--goldBdr);border-radius:var(--r);padding:20px;text-align:center;margin-bottom:14px}
+.done-banner h3{color:var(--gold);font-size:17px;margin-bottom:6px}.done-banner p{color:var(--muted);font-size:13px}
+/* validar */
+.val-title{color:var(--gold);font-size:22px;font-weight:700;margin-bottom:6px}.val-sub{color:var(--muted);font-size:13px;margin-bottom:24px}
+/* admin */
+.admin-tabs{display:flex;gap:6px;margin-bottom:20px}
+.atab{flex:1;padding:12px 6px;border-radius:var(--rs);border:1px solid var(--bdr);color:var(--muted);background:transparent;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;text-align:center;transition:all .15s;min-height:46px}
+.atab.active{background:var(--gold);border-color:var(--gold);color:var(--navy)}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+.stat{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:18px;text-align:center}
+.stat-n{font-size:40px;font-weight:700;line-height:1;margin-top:6px}
+.lrow{background:var(--card);border:1px solid var(--bdr);border-radius:var(--rs);padding:14px 16px;margin-bottom:8px;cursor:pointer;transition:border-color .15s;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.lrow:active{border-color:var(--goldBdr)}.lfolio{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;color:var(--gold)}.lname{color:var(--muted);font-size:12px;margin-top:2px}.lright{display:flex;gap:8px;align-items:center;flex-shrink:0}.lcount{color:var(--muted);font-size:12px}
+.clink{background:rgba(255,255,255,.05);border-radius:var(--rs);padding:12px 14px;word-break:break-all;font-size:12px;color:var(--gold);margin-bottom:14px;border:1px solid var(--goldBdr)}
+.copy-row{display:flex;gap:8px;flex-wrap:wrap}
+/* utils */
+.center{text-align:center}.hidden{display:none!important}.row{display:flex;gap:10px}.row>*{flex:1}
+.mt8{margin-top:8px}.mt12{margin-top:12px}.mt16{margin-top:16px}.mt20{margin-top:20px}
+.spinner{text-align:center;padding:40px 0;color:var(--muted);font-size:14px}
 </style>
 </head>
 <body>
-<div id="app">
-  <header class="topbar">
-    <div class="brand" onclick="nav('home')">
-      <span class="brand-name">BALANDRA</span>
-      <span class="brand-sub">Radisson Hotel · Puerto Varas</span>
+<div id="shell">
+  <header id="topbar">
+    <div class="brand" onclick="go('home')">
+      <div class="brand-name">BALANDRA</div>
+      <div class="brand-sub">Radisson · Puerto Varas</div>
     </div>
     <div id="tbr"></div>
   </header>
-  <main class="main" id="main"></main>
-  <nav class="bnav">
-    <button class="bni on" id="bn0" onclick="nav('home')">
-      <span class="bni-ico">🎟️</span><span class="bni-lbl">TICKET</span><span class="bni-dot"></span>
-    </button>
-    <button class="bni" id="bn1" onclick="nav('validar')">
-      <span class="bni-ico">✅</span><span class="bni-lbl">VALIDAR</span><span class="bni-dot"></span>
-    </button>
-    <button class="bni" id="bn2" onclick="nav('admin')">
-      <span class="bni-ico">⚙️</span><span class="bni-lbl">ADMIN</span><span class="bni-dot"></span>
-    </button>
+  <main id="content"></main>
+  <nav id="bnav">
+    <button class="nb" id="nb-home"   onclick="go('home')"  ><span class="nb-icon">🎟️</span>Mi Ticket</button>
+    <button class="nb" id="nb-validar"onclick="go('validar')"><span class="nb-icon">✅</span>Validar</button>
+    <button class="nb" id="nb-admin"  onclick="go('admin')" ><span class="nb-icon">⚙️</span>Admin</button>
   </nav>
 </div>
 <script>
 const SB='https://wrtljewcclhqogkedsib.supabase.co';
 const SK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndydGxqZXdjY2xocW9na2Vkc2liIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY4NDAzNTUsImV4cCI6MjA4MjQxNjM1NX0.FzxNYfIHE4R5IItHR-RfR5ebXU2lKP8R6s4zGNkxY_w';
-const PW='balandra2026';
-let ok=false;
-
-async function rpc(fn,p={}){
-  const r=await fetch(`${SB}/rest/v1/rpc/${fn}`,{method:'POST',headers:{apikey:SK,Authorization:'Bearer '+SK,'Content-Type':'application/json'},body:JSON.stringify(p)});
-  if(!r.ok)throw new Error(await r.text());
-  return r.json();
-}
-const fd=d=>d?new Date(d).toLocaleDateString('es-CL',{day:'2-digit',month:'long',year:'numeric'}):'—';
-const fdt=d=>d?new Date(d).toLocaleDateString('es-CL',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'}):'';
-
-function getR(){const h=location.hash.replace('#','').replace(/^\//,'');const[p,q]=h.split('/');return{p:p||'home',q:q||''}}
-function nav(p,q=''){location.hash=q?`/${p}/${q}`:`/${p}`}
-
+const APW='balandra2026';
+const BASE=location.origin+location.pathname.replace(/\/?$/,'/');
+let adminAuth=false;
+async function rpc(fn,p={}){const r=await fetch(`${SB}/rest/v1/rpc/${fn}`,{method:'POST',headers:{'apikey':SK,'Authorization':'Bearer '+SK,'Content-Type':'application/json'},body:JSON.stringify(p)});if(!r.ok)throw new Error(await r.text());return r.json()}
+function getR(){const h=location.hash.replace(/^#\/?/,'');const[page,param]=h.split('/');return{page:page||'home',param:param||''}}
+function go(page,param=''){location.hash=param?`/${page}/${param}`:`/${page}`}
+function fdate(d){if(!d)return'—';return new Date(d).toLocaleDateString('es-CL',{day:'2-digit',month:'long',year:'numeric'})}
+function fdtm(d){if(!d)return'';return new Date(d).toLocaleDateString('es-CL',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'})}
 window.addEventListener('hashchange',render);
 window.addEventListener('load',()=>{if(!location.hash)location.hash='/home';render()});
-
-function render(){
-  const{p,q}=getR();
-  // bottom nav
-  const on=p==='ticketera'?'bn0':p==='validar'?'bn1':p==='admin'?'bn2':'bn0';
-  ['bn0','bn1','bn2'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.toggle('on',id===on)});
-  // topbar
-  const tbr=document.getElementById('tbr');
-  tbr.innerHTML=p==='ticketera'?`<button class="tbtn tbtn-d" onclick="nav('home')">← Volver</button>`
-    :p==='admin'&&ok?`<button class="tbtn tbtn-d" onclick="ok=false;nav('home')">Salir</button>`:'';
-  // main
-  const m=document.getElementById('main');
-  if(p==='home'){m.innerHTML=hHome();bHome()}
-  else if(p==='ticketera'){m.innerHTML='<p class="tc" style="color:var(--muted);padding:40px 0">Cargando...</p>';loadTkt(q,m)}
-  else if(p==='validar'){m.innerHTML=hVal();bVal()}
-  else if(p==='admin'){m.innerHTML=ok?hAdmin():hLogin();ok?setTimeout(loadStats,80):bLogin()}
-  else{m.innerHTML=hHome();bHome()}
-}
-
+function render(){const{page,param}=getR();rnav(page);rtbr(page,param);const c=document.getElementById('content');if(page==='home')rHome(c);else if(page==='ticketera')rTicketera(c,param);else if(page==='validar')rValidar(c);else if(page==='admin')rAdmin(c);else rHome(c)}
+function rnav(page){['home','validar','admin'].forEach(p=>{const el=document.getElementById('nb-'+p);if(el)el.classList.toggle('active',page===p||(page==='ticketera'&&p==='home'))})}
+function rtbr(page,param){const el=document.getElementById('tbr');if(page==='ticketera'&&param)el.innerHTML=`<button class="btn btn-dim" style="padding:8px 12px;font-size:12px" onclick="rTicketera(document.getElementById('content'),'${param}')">⟳</button>`;else el.innerHTML=''}
 /* HOME */
-function hHome(){return`
-<div style="padding-top:8px">
-  <h1 style="font-size:22px;font-weight:700;color:var(--gold);margin-bottom:4px">Tu Ticketera</h1>
-  <p style="color:var(--muted);font-size:13px;margin-bottom:22px">Ingresa tu folio para ver tus beneficios</p>
-  <div class="card card-g" style="margin-bottom:24px">
-    <div class="fld">
-      <label class="lbl">NÚMERO DE FOLIO</label>
-      <input id="fi" class="inp inp-folio" placeholder="BAL-26-00001" maxlength="14" autocomplete="off" autocapitalize="characters" spellcheck="false">
-    </div>
-    <div id="he" class="err" style="display:none"></div>
-    <button id="hb" class="bp">Ver mi Ticketera →</button>
-  </div>
-  <div class="fgrid">
-    <div class="fcard"><div class="fico">🎁</div><div><p class="ftit">10 beneficios exclusivos</p><p class="fdsc">Descuentos y experiencias únicas en Balandra Restaurant</p></div></div>
-    <div class="fcard"><div class="fico">🔐</div><div><p class="ftit">Tickets seguros</p><p class="fdsc">Código único de 6 caracteres, infalsificable y de un solo uso</p></div></div>
-    <div class="fcard"><div class="fico">🥂</div><div><p class="ftit">Premio final</p><p class="fdsc">Botella de vino Casillero del Diablo al completar los 10 tickets</p></div></div>
-  </div>
-</div>`}
-
-function bHome(){
-  const fi=document.getElementById('fi'),hb=document.getElementById('hb');
-  fi.oninput=()=>fi.value=fi.value.toUpperCase();
-  fi.onkeydown=e=>e.key==='Enter'&&doHome();
-  hb.onclick=doHome;
-}
-async function doHome(){
-  const fi=document.getElementById('fi'),he=document.getElementById('he'),hb=document.getElementById('hb');
-  if(!fi||!fi.value.trim())return;
-  hb.textContent='Buscando...';hb.disabled=true;he.style.display='none';
-  try{const d=await rpc('balandra_get_ticketera',{p_folio:fi.value.trim().toUpperCase()});
-    if(d.success)nav('ticketera',d.folio);
-    else{he.textContent=d.error||'Ticketera no encontrada';he.style.display='block'}}
-  catch{he.textContent='Error de conexión. Intenta nuevamente.';he.style.display='block'}
-  hb.textContent='Ver mi Ticketera →';hb.disabled=false;
-}
-
+function rHome(c){c.innerHTML=`<div style="padding-top:20px">
+<div class="home-logo">🎟️</div>
+<h1 class="home-title">Ticketera Electrónica</h1>
+<p class="home-sub">Balandra Restaurant<br>Radisson Hotel · Puerto Varas</p>
+<div class="card card-gold">
+  <label class="label">Ingresa tu número de folio</label>
+  <input id="fi" class="input input-folio" placeholder="BAL-26-00001" maxlength="14" autocapitalize="characters" autocorrect="off" spellcheck="false">
+  <div id="he" class="err hidden"></div>
+  <button id="lb" class="btn btn-gold btn-full mt12">Ver mi Ticketera →</button>
+</div>
+<div class="home-feats">
+  <div class="feat"><div class="feat-icon">🎁</div><p class="feat-title">10 beneficios</p><p class="feat-desc">Descuentos y experiencias exclusivas</p></div>
+  <div class="feat"><div class="feat-icon">🔐</div><p class="feat-title">Código único</p><p class="feat-desc">Ticket infalsificable de 6 letras</p></div>
+  <div class="feat"><div class="feat-icon">🥂</div><p class="feat-title">Premio final</p><p class="feat-desc">Botella de vino al completar</p></div>
+</div></div>`;
+const inp=document.getElementById('fi'),btn=document.getElementById('lb'),err=document.getElementById('he');
+inp.oninput=()=>inp.value=inp.value.toUpperCase();
+inp.onkeydown=e=>{if(e.key==='Enter')loadF()};
+btn.onclick=loadF}
+async function loadF(){const inp=document.getElementById('fi'),err=document.getElementById('he'),btn=document.getElementById('lb'),v=inp.value.trim().toUpperCase();if(!v)return;btn.textContent='Buscando...';btn.disabled=true;err.classList.add('hidden');try{const d=await rpc('balandra_get_ticketera',{p_folio:v});if(d.success)go('ticketera',d.folio);else{err.textContent=d.error||'No encontrada';err.classList.remove('hidden')}}catch{err.textContent='Error de conexión.';err.classList.remove('hidden')}btn.textContent='Ver mi Ticketera →';btn.disabled=false}
 /* TICKETERA */
-async function loadTkt(folio,m){
-  if(!folio){m.innerHTML=`<div class="tc" style="padding:40px"><p style="color:var(--red);margin-bottom:16px">Folio no indicado</p><button class="bs" onclick="nav('home')">← Inicio</button></div>`;return}
-  try{
-    const d=await rpc('balandra_get_ticketera',{p_folio:folio.toUpperCase()});
-    if(!d.success){m.innerHTML=`<div class="tc" style="padding:40px"><p style="color:var(--red);font-size:15px;margin-bottom:16px">✗ ${d.error||'No encontrada'}</p><button class="bs" onclick="nav('home')">← Inicio</button></div>`;return}
-    m.innerHTML=hTkt(d);
-  }catch{m.innerHTML=`<div class="tc" style="padding:40px;color:var(--red)">Error de conexión</div>`}
-}
-function hTkt(t){
-  const pct=Math.round((t.used_tickets/t.total_tickets)*100);
-  const sm={active:'ba',completed:'bc',expired:'be',gifted:'bf'};
-  const sl={active:'ACTIVA',completed:'COMPLETADA',expired:'VENCIDA',gifted:'REGALADA'};
-  const comp=t.status==='completed'?`<div class="gift"><div style="font-size:38px;margin-bottom:8px">🎉</div><p style="color:var(--gold);font-size:16px;font-weight:700;margin-bottom:4px">¡Ticketera Completada!</p><p style="color:var(--muted);font-size:12px">Retira tu botella de vino · Folio <strong style="color:var(--gold)">${t.folio}</strong></p></div>`:'';
-  const tkts=(t.tickets||[]).map(tk=>{
-    const u=tk.status==='used',ls=tk.ticket_number===10&&!u;
-    return`<div class="tkt ${u?'used':''} ${ls?'last':''}">
-      ${u?'<div class="stamp">USADO</div>':''}
-      <div class="tkt-seq">#${tk.ticket_number}/10</div>
-      <div class="tkt-ico">${tk.benefit_icon}</div>
-      <div class="tkt-body">
-        <p class="tkt-title">${tk.benefit_title}</p>
-        <p class="tkt-desc">${tk.benefit_description}</p>
-        <div class="coderow">
-          <span class="vcode ${u?'dim':''}">${tk.validation_code}</span>
-          ${u&&tk.used_at?`<span class="used-t">${fdt(tk.used_at)}</span>`:''}
-        </div>
-      </div>
-    </div>`}).join('');
-  return`${comp}
-<div class="fhdr">
-  <div class="frow">
-    <div><p class="feye">Folio de Ticketera</p><p class="fnum">${t.folio}</p><p class="fname">${t.owner_name||'Cliente Balandra'}${t.owner_email?' · '+t.owner_email:''}</p></div>
-    <div class="fright"><span class="bdg ${sm[t.status]||'ba'}">${sl[t.status]||t.status.toUpperCase()}</span><p class="fexp">Válida hasta<br>${fd(t.expiry_date)}</p></div>
-  </div>
-  <div class="prog">
-    <div class="prog-row"><span style="color:var(--muted)">Progreso</span><span style="color:var(--gold);font-weight:700">${t.used_tickets}/${t.total_tickets} usados</span></div>
-    <div class="prog-bg"><div class="prog-bar" style="width:${pct}%"></div></div>
-  </div>
-</div>
-<div class="tlist">${tkts}</div>
-<div class="tc mt20" style="padding-bottom:10px"><button class="bs" onclick="loadTkt('${t.folio}',document.getElementById('main'))">↺ Actualizar</button></div>`
-}
-
+async function rTicketera(c,folio){if(!folio){go('home');return}c.innerHTML='<div class="spinner">Cargando tu ticketera...</div>';try{const d=await rpc('balandra_get_ticketera',{p_folio:folio.toUpperCase()});if(!d.success){c.innerHTML=`<div class="center" style="padding-top:40px"><p style="color:var(--red);font-size:16px;margin-bottom:16px">✗ ${d.error||'No encontrada'}</p><button class="btn btn-ghost" onclick="go('home')">Volver</button></div>`;return}
+const pct=Math.round((d.used_tickets/d.total_tickets)*100),exp=fdate(d.expiry_date);
+const smap={active:'badge-active',completed:'badge-completed',expired:'badge-expired'};
+const slab={active:'ACTIVA',completed:'COMPLETADA',expired:'VENCIDA'};
+const done=d.status==='completed'?`<div class="done-banner"><div style="font-size:44px;margin-bottom:10px">🎉</div><h3>¡Completaste tu Ticketera!</h3><p>Retira tu botella de vino en caja<br>presentando el folio <strong style="color:var(--gold)">${d.folio}</strong></p></div>`:'';
+const tkts=(d.tickets||[]).map(t=>{const used=t.status==='used',final=t.ticket_number===10,uat=t.used_at?fdtm(t.used_at):'';return`<div class="tkt ${used?'used':''} ${final&&!used?'final':''}">
+${used?'<div class="tkt-stamp">USADO</div>':''}
+<div class="tkt-num">#${t.ticket_number}/10</div>
+<div class="tkt-icon">${t.benefit_icon}</div>
+<div class="tkt-body">
+  <p class="tkt-title">${t.benefit_title}</p>
+  <p class="tkt-desc">${t.benefit_description}</p>
+  <div class="tkt-code-row"><span class="tkt-code${used?' dimmed':''}">${t.validation_code}</span>${used&&uat?`<span class="tkt-used-at">${uat}</span>`:''}</div>
+</div></div>`}).join('');
+c.innerHTML=`${done}<div class="fhdr"><div class="fmeta"><div><p class="feyebrow">Folio</p><p class="fnum">${d.folio}</p><p class="fowner">${d.owner_name||'Cliente Balandra'}</p></div><div style="text-align:right"><span class="badge ${smap[d.status]||'badge-active'}">${slab[d.status]||d.status}</span><p class="fexpiry">Válida hasta<br>${exp}</p></div></div><div class="prog-wrap"><div class="prog-meta"><span style="color:var(--muted)">Progreso</span><span>${d.used_tickets}/${d.total_tickets} usados</span></div><div class="prog-bg"><div class="prog-fill" style="width:${pct}%"></div></div></div></div><div class="tlist">${tkts}</div>`}catch{c.innerHTML='<p class="center" style="color:var(--red);padding:40px">Error de conexión.</p>'}}
 /* VALIDAR */
-function hVal(){return`
-<div>
-  <h1 class="stit">Validar Ticket</h1>
-  <p style="color:var(--muted);font-size:13px;margin-bottom:22px">Código de 6 letras del ticket del cliente</p>
-  <div id="vres"></div>
-  <div id="vfrm" class="card card-g">
-    <div class="fld">
-      <label class="lbl">CÓDIGO DEL TICKET</label>
-      <input id="vc" class="inp inp-code" placeholder="XXXXXX" maxlength="6" autocapitalize="characters" autocomplete="off" spellcheck="false">
-    </div>
-    <div class="r2" style="margin-bottom:14px">
-      <div class="fld" style="margin-bottom:0"><label class="lbl">GARZÓN</label><input id="vs" class="inp" placeholder="Tu nombre"></div>
-      <div class="fld" style="margin-bottom:0"><label class="lbl">MESA</label><input id="vt" class="inp" placeholder="N°"></div>
-    </div>
-    <div id="ve" class="err" style="display:none"></div>
-    <button id="vb" class="bp">Quemar Ticket 🔥</button>
-  </div>
-</div>`}
-function bVal(){
-  const vc=document.getElementById('vc'),vb=document.getElementById('vb');
-  vc.oninput=()=>vc.value=vc.value.toUpperCase();
-  vc.onkeydown=e=>e.key==='Enter'&&doVal();
-  vb.onclick=doVal;
-}
-async function doVal(){
-  const code=(document.getElementById('vc')||{}).value||'';
-  const staff=(document.getElementById('vs')||{}).value||'Caja';
-  const table=(document.getElementById('vt')||{}).value||null;
-  const ve=document.getElementById('ve'),vb=document.getElementById('vb'),vres=document.getElementById('vres'),vfrm=document.getElementById('vfrm');
-  if(code.length<4){ve.textContent='Código debe tener 6 caracteres';ve.style.display='block';return}
-  vb.textContent='Validando...';vb.disabled=true;ve.style.display='none';
-  try{
-    const d=await rpc('balandra_use_ticket',{p_code:code.toUpperCase(),p_staff:staff,p_table:table});
-    if(d.success){
-      vfrm.style.display='none';
-      const last=d.remaining===0;
-      vres.innerHTML=`<div class="card card-gr"><div class="tc" style="padding:20px 10px">
-        <div style="font-size:52px;margin-bottom:12px;line-height:1">${last?'🎉':'✅'}</div>
-        <p style="color:var(--green);font-size:20px;font-weight:700;margin-bottom:6px">${last?'¡Completada!':'Ticket Válido'}</p>
-        <p style="color:var(--white);font-size:16px;font-weight:700;margin-bottom:6px">${d.benefit}</p>
-        <p style="color:var(--muted);font-size:13px;margin-bottom:2px">Folio <strong style="color:var(--gold)">${d.folio}</strong> · #${d.ticket_number}</p>
-        ${d.owner?`<p style="color:var(--muted);font-size:13px">Cliente: ${d.owner}</p>`:''}
-        <div style="background:rgba(255,255,255,.06);border-radius:10px;padding:14px;margin:14px 0">
-          ${last?`<p style="color:var(--gold);font-weight:700;font-size:14px">📦 Entregar botella de vino</p>`
-            :`<p style="color:var(--muted);font-size:13px">Quedan <strong style="color:var(--gold);font-size:20px">${d.remaining}</strong> ticket(s)</p>`}
-        </div>
-        <button class="bg" onclick="nav('validar')">Validar Otro</button>
-      </div></div>`}
-    else{ve.textContent=d.error||'Error';ve.style.display='block';vb.textContent='Quemar Ticket 🔥';vb.disabled=false}
-  }catch{ve.textContent='Error de conexión.';ve.style.display='block';vb.textContent='Quemar Ticket 🔥';vb.disabled=false}
-}
-
-/* ADMIN LOGIN */
-function hLogin(){return`
-<div style="max-width:340px;margin:30px auto">
-  <div class="tc" style="margin-bottom:24px">
-    <div style="font-size:44px;margin-bottom:12px">🔐</div>
-    <h1 class="stit" style="margin:0">Administración</h1>
-    <p style="color:var(--muted);font-size:13px;margin-top:4px">Solo personal Balandra</p>
-  </div>
-  <div class="card card-g">
-    <div class="fld"><label class="lbl">CONTRASEÑA</label><input id="ap" type="password" class="inp" style="text-align:center;font-size:18px;letter-spacing:4px" placeholder="••••••••"></div>
-    <div id="ae" class="err" style="display:none"></div>
-    <button id="alb" class="bp">Ingresar</button>
-  </div>
-</div>`}
-function bLogin(){
-  const ap=document.getElementById('ap'),alb=document.getElementById('alb');
-  ap.onkeydown=e=>e.key==='Enter'&&doLogin();
-  alb.onclick=doLogin;
-}
-function doLogin(){
-  const p=(document.getElementById('ap')||{}).value||'',ae=document.getElementById('ae');
-  if(p===PW){ok=true;document.getElementById('main').innerHTML=hAdmin();setTimeout(loadStats,80);bAdminCreate()}
-  else{ae.textContent='Contraseña incorrecta';ae.style.display='block'}
-}
-
+function rValidar(c){c.innerHTML=`<div style="padding-top:8px"><h2 class="val-title">Validar Ticket</h2><p class="val-sub">Ingresa el código de 6 caracteres del ticket del cliente</p><div id="vres"></div><div id="vform"><div class="field"><label class="label">Código del ticket</label><input id="vc" class="input input-code" placeholder="XXXXXX" maxlength="6" autocapitalize="characters" autocorrect="off" spellcheck="false" inputmode="text"></div><div class="row field"><div><label class="label">Garzón / Cajero</label><input id="vs" class="input" placeholder="Tu nombre" style="font-size:15px"></div><div style="max-width:90px"><label class="label">Mesa</label><input id="vt" class="input" placeholder="12" style="font-size:15px"></div></div><div id="verr" class="err hidden"></div><button id="vbtn" class="btn btn-gold btn-full">Quemar Ticket 🔥</button></div></div>`;
+const vc=document.getElementById('vc'),btn=document.getElementById('vbtn');
+vc.oninput=()=>vc.value=vc.value.toUpperCase();
+vc.onkeydown=e=>{if(e.key==='Enter')quemar()};
+btn.onclick=quemar;
+setTimeout(()=>vc.focus(),200)}
+async function quemar(){const code=(document.getElementById('vc')||{}).value||'',staff=(document.getElementById('vs')||{}).value||'Caja',table=(document.getElementById('vt')||{}).value||null,err=document.getElementById('verr'),btn=document.getElementById('vbtn'),res=document.getElementById('vres'),form=document.getElementById('vform');
+if(code.length<4){err.textContent='El código debe tener 6 caracteres';err.classList.remove('hidden');return}
+btn.textContent='Validando...';btn.disabled=true;err.classList.add('hidden');
+try{const d=await rpc('balandra_use_ticket',{p_code:code.toUpperCase(),p_staff:staff,p_table:table});
+if(d.success){form.classList.add('hidden');const last=d.remaining===0;
+res.innerHTML=`<div class="card card-green center" style="padding:28px 20px"><div style="font-size:60px;margin-bottom:14px">${last?'🎉':'✅'}</div><p style="color:var(--green);font-size:22px;font-weight:700;margin-bottom:8px">${last?'¡Ticketera Completa!':'Ticket Válido'}</p><p style="font-size:17px;font-weight:600;margin-bottom:6px">${d.benefit}</p><p style="color:var(--muted);font-size:13px;margin-bottom:4px">Folio <strong style="color:var(--gold)">${d.folio}</strong> · Ticket #${d.ticket_number}</p>${d.owner?`<p style="color:var(--muted);font-size:13px;margin-bottom:8px">Cliente: ${d.owner}</p>`:''}<div style="display:inline-block;background:rgba(255,255,255,.06);border-radius:20px;padding:8px 20px;color:var(--muted);font-size:13px;margin:12px 0 20px">${last?'🍾 <strong style="color:var(--gold)">Entregar botella de vino</strong>':`Quedan <strong style="color:var(--gold);font-size:18px">${d.remaining}</strong> ticket(s)`}</div><button class="btn btn-green btn-full" onclick="rValidar(document.getElementById('content'))">Validar Otro Ticket</button></div>`}
+else{err.textContent=d.error||'Error desconocido';err.classList.remove('hidden');btn.textContent='Quemar Ticket 🔥';btn.disabled=false}}
+catch{err.textContent='Error de conexión.';err.classList.remove('hidden');btn.textContent='Quemar Ticket 🔥';btn.disabled=false}}
 /* ADMIN */
-function hAdmin(){return`
-<div>
-  <div class="tabs">
-    <button class="tab on" id="at0" onclick="sTab('db',this)">Dashboard</button>
-    <button class="tab" id="at1" onclick="sTab('cr',this)">Nueva Ticketera</button>
-    <button class="tab" id="at2" onclick="sTab('li',this)">Listado</button>
-  </div>
-  <div id="ap0">${hDash()}</div>
-  <div id="ap1" style="display:none">${hCrear()}</div>
-  <div id="ap2" style="display:none"><div id="larea"><p style="color:var(--muted)">Cargando...</p></div></div>
-</div>`}
-function sTab(n,el){
-  const map={db:0,cr:1,li:2};const i=map[n];
-  [0,1,2].forEach(j=>{document.getElementById('ap'+j).style.display=j===i?'block':'none';document.getElementById('at'+j).classList.toggle('on',j===i)});
-  if(n==='db')loadStats();if(n==='li')loadListado();if(n==='cr')bAdminCreate();
-}
-function bAdminCreate(){const b=document.getElementById('ccb');if(b)b.onclick=doCrear}
-function hDash(){return`
-<div class="sg">
-  <div class="sc"><p class="lbl">Total ticketeras</p><p class="sv" style="color:var(--gold)" id="s0">—</p></div>
-  <div class="sc"><p class="lbl">Activas</p><p class="sv" style="color:var(--green)" id="s1">—</p></div>
-  <div class="sc"><p class="lbl">Completadas</p><p class="sv" style="color:var(--gold)" id="s2">—</p></div>
-  <div class="sc"><p class="lbl">Tickets usados</p><p class="sv" style="color:#64b5f6" id="s3">—</p></div>
-</div>
-<div class="tc"><button class="bs" onclick="loadStats()">↺ Actualizar</button></div>`}
-function hCrear(){return`
-<div>
-  <div class="card card-g" style="margin-bottom:14px">
-    <div class="fld"><label class="lbl">NOMBRE</label><input id="cn" class="inp" placeholder="María González"></div>
-    <div class="fld"><label class="lbl">EMAIL</label><input id="ce" class="inp" type="email" placeholder="cliente@email.com"></div>
-    <div class="fld"><label class="lbl">TELÉFONO</label><input id="cp" class="inp" placeholder="+56912345678"></div>
-    <div id="cce" class="err" style="display:none"></div>
-    <button id="ccb" class="bp">Generar Ticketera</button>
-  </div>
-  <div id="ccr"></div>
-</div>`}
-
-async function loadStats(){
-  try{const s=await rpc('balandra_get_stats');[s.total_ticketeras,s.activas,s.completadas,s.tickets_usados].forEach((v,i)=>{const el=document.getElementById('s'+i);if(el)el.textContent=v||0})}catch{}
-}
-async function loadListado(){
-  const area=document.getElementById('larea');if(!area)return;
-  try{
-    const list=await rpc('balandra_list_ticketeras');const arr=Array.isArray(list)?list:[];
-    if(!arr.length){area.innerHTML='<p style="color:var(--muted);text-align:center;padding:20px">Sin ticketeras aún.</p>';return}
-    const sm={active:'ba',completed:'bc',expired:'be',gifted:'bf'};
-    const sl={active:'ACTIVA',completed:'COMPLETADA',expired:'VENCIDA',gifted:'REGALADA'};
-    area.innerHTML=arr.map(t=>`<div class="lrow" onclick="nav('ticketera','${t.folio}')">
-      <div><p class="lfolio">${t.folio}</p><p class="lname">${t.owner_name||'Sin nombre'}${t.owner_email?' · '+t.owner_email:''}</p></div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0">
-        <span class="bdg ${sm[t.status]||'ba'}">${sl[t.status]||t.status}</span>
-        <span style="color:var(--dim);font-size:11px">${t.used_tickets}/${t.total_tickets}</span>
-      </div>
-    </div>`).join('');
-  }catch{area.innerHTML='<p class="err">Error cargando.</p>'}
-}
-async function doCrear(){
-  const name=(document.getElementById('cn')||{}).value||'';
-  const email=(document.getElementById('ce')||{}).value||'';
-  const phone=(document.getElementById('cp')||{}).value||'';
-  const cce=document.getElementById('cce'),ccb=document.getElementById('ccb'),ccr=document.getElementById('ccr');
-  ccb.textContent='Generando...';ccb.disabled=true;cce.style.display='none';
-  try{
-    const d=await rpc('balandra_create_ticketera',{p_owner_name:name,p_owner_email:email,p_owner_phone:phone});
-    if(d.success){
-      const link=`${location.origin}${location.pathname}#/ticketera/${d.folio}`;
-      ccr.innerHTML=`<div class="card card-gr">
-        <p style="color:var(--green);font-weight:700;font-size:14px;margin-bottom:12px">✓ Creada exitosamente</p>
-        <p style="font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:700;letter-spacing:3px;color:var(--gold);margin-bottom:4px">${d.folio}</p>
-        <p style="color:var(--muted);font-size:12px;margin-bottom:16px">Válida hasta: ${fd(d.expiry_date)}</p>
-        <div style="background:rgba(255,255,255,.05);border-radius:10px;padding:12px;margin-bottom:16px">
-          <p style="color:var(--dim);font-size:11px;margin-bottom:5px">Link del cliente:</p>
-          <p style="font-size:12px;word-break:break-all;color:var(--gold)">${link}</p>
-        </div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button class="bs" onclick="navigator.clipboard&&navigator.clipboard.writeText('${d.folio}').then(()=>alert('Folio copiado ✓'))">Copiar Folio</button>
-          <button class="bs" onclick="navigator.clipboard&&navigator.clipboard.writeText('${link}').then(()=>alert('Link copiado ✓'))">Copiar Link</button>
-        </div>
-      </div>`;
-      ['cn','ce','cp'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=''});
-    }else{cce.textContent=d.error||'Error al crear';cce.style.display='block'}
-  }catch{cce.textContent='Error de conexión';cce.style.display='block'}
-  ccb.textContent='Generar Ticketera';ccb.disabled=false;
-}
+function rAdmin(c){if(!adminAuth){rAdminLogin(c);return}
+c.innerHTML=`<div><div class="admin-tabs"><button class="atab active" id="at-d" onclick="asw('d',this)">Dashboard</button><button class="atab" id="at-c" onclick="asw('c',this)">Nueva</button><button class="atab" id="at-l" onclick="asw('l',this)">Listado</button></div><div id="ap-d">${dashH()}</div><div id="ap-c" class="hidden">${crearH()}</div><div id="ap-l" class="hidden"><div id="la" class="spinner">Cargando...</div></div><div class="center mt16"><button class="btn btn-dim" style="font-size:12px" onclick="adminAuth=false;go('home')">Cerrar sesión</button></div></div>`;
+loadStats();document.getElementById('cbtn').onclick=crearT}
+function asw(n,el){['d','c','l'].forEach(x=>{document.getElementById('ap-'+x).classList.toggle('hidden',x!==n);document.getElementById('at-'+x).classList.toggle('active',x===n)});if(n==='l')loadL();if(n==='d')loadStats()}
+function dashH(){return`<div class="stat-grid"><div class="stat"><p class="label">Ticketeras</p><p class="stat-n" style="color:var(--gold)" id="s1">—</p></div><div class="stat"><p class="label">Activas</p><p class="stat-n" style="color:var(--green)" id="s2">—</p></div><div class="stat"><p class="label">Completadas</p><p class="stat-n" style="color:var(--gold)" id="s3">—</p></div><div class="stat"><p class="label">Tickets usados</p><p class="stat-n" style="color:#64b5f6" id="s4">—</p></div></div><div class="center"><button class="btn btn-ghost" onclick="loadStats()">⟳ Actualizar</button></div>`}
+function crearH(){return`<div><div class="field"><label class="label">Nombre del cliente</label><input id="cn" class="input" placeholder="María González" style="font-size:16px"></div><div class="field"><label class="label">Email</label><input id="ce" class="input" type="email" placeholder="cliente@email.com" style="font-size:16px"></div><div class="field"><label class="label">Teléfono</label><input id="cp" class="input" type="tel" placeholder="+56912345678" style="font-size:16px"></div><div id="cce" class="err hidden"></div><button id="cbtn" class="btn btn-gold btn-full">Generar Ticketera</button><div id="cres"></div></div>`}
+async function loadStats(){try{const s=await rpc('balandra_get_stats');[['s1','total_ticketeras'],['s2','activas'],['s3','completadas'],['s4','tickets_usados']].forEach(([id,k])=>{const el=document.getElementById(id);if(el)el.textContent=s[k]??'0'})}catch{}}
+async function loadL(){const a=document.getElementById('la');if(!a)return;try{const list=await rpc('balandra_list_ticketeras');const arr=Array.isArray(list)?list:[];if(!arr.length){a.innerHTML='<p class="center" style="color:var(--muted);padding:20px">Sin ticketeras aún.</p>';return}const sm={active:'badge-active',completed:'badge-completed',expired:'badge-expired'};const sl={active:'ACTIVA',completed:'COMPLETADA',expired:'VENCIDA'};a.innerHTML=arr.map(t=>`<div class="lrow" onclick="go('ticketera','${t.folio}')"><div><div class="lfolio">${t.folio}</div><div class="lname">${t.owner_name||'Sin nombre'}${t.owner_email?' · '+t.owner_email:''}</div></div><div class="lright"><span class="lcount">${t.used_tickets}/${t.total_tickets}</span><span class="badge ${sm[t.status]||'badge-active'}">${sl[t.status]||t.status}</span></div></div>`).join('')}catch{a.innerHTML='<p class="center" style="color:var(--red)">Error.</p>'}}
+async function crearT(){const name=document.getElementById('cn').value.trim(),email=document.getElementById('ce').value.trim(),phone=document.getElementById('cp').value.trim(),err=document.getElementById('cce'),btn=document.getElementById('cbtn'),res=document.getElementById('cres');
+btn.textContent='Generando...';btn.disabled=true;err.classList.add('hidden');
+try{const d=await rpc('balandra_create_ticketera',{p_owner_name:name,p_owner_email:email,p_owner_phone:phone});
+if(d.success){const link=`${BASE}#/ticketera/${d.folio}`,exp=fdate(d.expiry_date);
+res.innerHTML=`<div class="card card-green mt12"><p style="color:var(--green);font-weight:700;margin-bottom:10px">✓ Ticketera creada</p><p style="font-family:'JetBrains Mono',monospace;font-size:26px;font-weight:700;letter-spacing:3px;color:var(--gold)">${d.folio}</p><p style="color:var(--muted);font-size:12px;margin-top:4px;margin-bottom:14px">Válida hasta ${exp}</p><p style="color:var(--dim);font-size:11px;margin-bottom:6px">Link del cliente:</p><div class="clink">${link}</div><div class="copy-row"><button class="btn btn-green" onclick="cp('${d.folio}')">Copiar folio</button><button class="btn btn-ghost" onclick="cp('${link}')">Copiar link</button></div></div>`;
+document.getElementById('cn').value='';document.getElementById('ce').value='';document.getElementById('cp').value='';loadStats()}
+else{err.textContent=d.error||'Error al crear';err.classList.remove('hidden')}}
+catch{err.textContent='Error de conexión.';err.classList.remove('hidden')}
+btn.textContent='Generar Ticketera';btn.disabled=false}
+function rAdminLogin(c){c.innerHTML=`<div style="padding-top:40px;text-align:center"><div style="font-size:48px;margin-bottom:14px">🔐</div><h2 style="color:var(--gold);font-size:22px;font-weight:700;margin-bottom:24px">Administración</h2><div class="card card-gold"><div class="field"><label class="label">Contraseña</label><input id="apin" type="password" class="input" style="text-align:center;font-size:20px;letter-spacing:4px" placeholder="••••••••"></div><div id="aerr" class="err hidden"></div><button id="aln" class="btn btn-gold btn-full">Ingresar</button></div></div>`;
+const inp=document.getElementById('apin');inp.onkeydown=e=>{if(e.key==='Enter')doL()};document.getElementById('aln').onclick=doL;setTimeout(()=>inp.focus(),200)}
+function doL(){const p=(document.getElementById('apin')||{}).value||'',e=document.getElementById('aerr');if(p===APW){adminAuth=true;rAdmin(document.getElementById('content'))}else{e.textContent='Contraseña incorrecta';e.classList.remove('hidden')}}
+function cp(t){if(navigator.clipboard)navigator.clipboard.writeText(t)}
 </script>
 </body>
 </html>
