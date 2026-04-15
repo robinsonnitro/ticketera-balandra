@@ -212,10 +212,10 @@ function render(){
     return;
   }
 
-  bnav.style.display='flex';
-  m.className='main main-nav';
+  // Garzón: sin nav inferior. Admin: con nav entre validar y admin
+  bnav.style.display=p==='admin'?'flex':'none';
+  m.className=p==='admin'?'main main-nav':'main';
   ['bn0','bn1'].forEach(id=>document.getElementById(id).classList.remove('on'));
-  if(p==='validar')document.getElementById('bn0').classList.add('on');
   if(p==='admin')document.getElementById('bn1').classList.add('on');
 
   if(p==='validar'){
