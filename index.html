@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ticketera Balandra · Radisson Puerto Varas</title>
+<meta name="description" content="Ticketera Electrónica Balandra Restaurant - Hotel Radisson Puerto Varas">
+<meta name="theme-color" content="#0a1628">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0a1628;
+  --navy2:#0d1e35;
+  --navy3:#142540;
+  --gold:#D4AF37;
+  --gold2:#E8C84A;
+  --goldBg:rgba(212,175,55,0.1);
+  --goldBorder:rgba(212,175,55,0.35);
+  --white:#f0f4f8;
+  --muted:rgba(240,244,248,0.6);
+  --dimmed:rgba(240,244,248,0.35);
+  --green:#00e87a;
+  --greenBg:rgba(0,232,122,0.08);
+  --greenBorder:rgba(0,232,122,0.35);
+  --red:#ff5f5f;
+  --redBg:rgba(255,95,95,0.08);
+  --cardBg:rgba(255,255,255,0.06);
+  --cardBorder:rgba(255,255,255,0.1);
+  --radius:12px;
+  --radiusSm:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--navy);color:var(--white);font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased}
+a{color:var(--gold);text-decoration:none}
+
+/* Layout */
+.app{display:flex;flex-direction:column;min-height:100vh}
+.header{background:var(--navy2);border-bottom:1px solid var(--goldBorder);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;position:sticky;top:0;z-index:100}
+.brand{display:flex;align-items:center;gap:10px;cursor:pointer}
+.brand-name{color:var(--gold);font-size:18px;font-weight:600;letter-spacing:3px}
+.brand-sub{color:var(--dimmed);font-size:11px;letter-spacing:.5px}
+.hdr-actions{display:flex;gap:6px;flex-wrap:wrap}
+.main{flex:1;padding:20px;max-width:860px;margin:0 auto;width:100%}
+
+/* Buttons */
+.btn{padding:6px 14px;border-radius:7px;cursor:pointer;font-size:12px;font-family:'Inter',sans-serif;font-weight:500;border:1px solid;transition:opacity .15s}
+.btn:hover{opacity:.85}
+.btn-ghost{background:transparent;border-color:var(--goldBorder);color:var(--gold)}
+.btn-dim{background:transparent;border-color:var(--cardBorder);color:var(--muted)}
+.btn-gold{background:var(--gold);border-color:var(--gold);color:var(--navy);font-weight:600}
+.btn-primary{width:100%;padding:13px;border-radius:var(--radiusSm);background:var(--gold);border:none;color:var(--navy);font-size:15px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:opacity .15s}
+.btn-primary:hover{opacity:.9}
+.btn-primary:disabled{background:var(--cardBg);color:var(--dimmed);cursor:not-allowed;border:1px solid var(--cardBorder)}
+.btn-success{background:var(--green);border-color:var(--green);color:var(--navy);font-weight:600}
+
+/* Cards */
+.card{background:var(--cardBg);border:1px solid var(--cardBorder);border-radius:var(--radius);padding:20px}
+.card-gold{border-color:var(--goldBorder)}
+.card-green{background:var(--greenBg);border-color:var(--greenBorder)}
+.card-red{background:var(--redBg);border-color:rgba(255,95,95,.4)}
+
+/* Inputs */
+.input{width:100%;padding:10px 14px;border-radius:var(--radiusSm);border:1px solid var(--cardBorder);background:rgba(255,255,255,.06);color:var(--white);font-size:14px;font-family:'Inter',sans-serif;transition:border-color .2s;outline:none}
+.input:focus{border-color:var(--goldBorder)}
+.input-xl{font-size:20px;text-align:center;letter-spacing:4px;font-family:'JetBrains Mono',monospace;padding:14px}
+.input-code{font-size:32px;text-align:center;letter-spacing:10px;font-family:'JetBrains Mono',monospace;padding:16px}
+.label{color:var(--muted);font-size:12px;display:block;margin-bottom:6px;font-weight:500}
+.err{color:var(--red);font-size:13px;text-align:center;margin:8px 0}
+.field{margin-bottom:14px}
+
+/* Badges */
+.badge{display:inline-block;padding:3px 12px;border-radius:20px;font-size:11px;font-weight:600;letter-spacing:.5px}
+.badge-active{background:var(--greenBg);border:1px solid var(--greenBorder);color:var(--green)}
+.badge-completed{background:var(--goldBg);border:1px solid var(--goldBorder);color:var(--gold)}
+.badge-expired{background:var(--redBg);border:1px solid rgba(255,95,95,.4);color:var(--red)}
+.badge-gifted{background:rgba(147,112,219,.1);border:1px solid rgba(147,112,219,.4);color:#c196f0}
+
+/* Tabs */
+.tabs{display:flex;gap:6px;margin-bottom:24px;border-bottom:1px solid var(--cardBorder);padding-bottom:12px;flex-wrap:wrap}
+.tab{padding:7px 18px;border-radius:7px;cursor:pointer;font-size:13px;border:1px solid var(--cardBorder);color:var(--muted);background:transparent;font-family:'Inter',sans-serif;font-weight:500;transition:all .15s}
+.tab:hover{border-color:var(--goldBorder);color:var(--gold)}
+.tab.active{background:var(--gold);color:var(--navy);border-color:var(--gold)}
+
+/* Grid */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.grid-auto{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px}
+
+/* Folio header */
+.folio-header{background:var(--navy3);border:1px solid var(--goldBorder);border-radius:16px;padding:20px 24px;margin-bottom:20px}
+.folio-label{color:var(--gold);font-size:10px;letter-spacing:3px;text-transform:uppercase;margin-bottom:4px;font-weight:600}
+.folio-val{font-family:'JetBrains Mono',monospace;font-size:26px;font-weight:600;letter-spacing:3px;color:var(--white)}
+.folio-meta{color:var(--muted);font-size:13px;margin-top:4px}
+
+/* Progress */
+.progress-wrap{margin-top:16px}
+.progress-meta{display:flex;justify-content:space-between;margin-bottom:6px;font-size:12px}
+.progress-bar-bg{background:rgba(255,255,255,.1);border-radius:4px;height:6px;overflow:hidden}
+.progress-bar{background:var(--gold);height:100%;border-radius:4px;transition:width .6s ease}
+
+/* Ticket cards */
+.ticket-card{position:relative;background:rgba(255,255,255,.07);border:1px solid var(--goldBorder);border-radius:var(--radius);padding:16px;display:flex;gap:14px;align-items:flex-start;overflow:hidden;transition:border-color .2s,opacity .2s}
+.ticket-card:hover:not(.used){border-color:var(--gold)}
+.ticket-card.used{opacity:.5;border-color:var(--cardBorder)}
+.ticket-card.ticket-last:not(.used){border:2px solid var(--gold)}
+.ticket-icon{font-size:32px;line-height:1;flex-shrink:0;margin-top:2px}
+.ticket-num{position:absolute;top:10px;right:12px;font-size:10px;color:var(--dimmed);font-weight:600;letter-spacing:.5px}
+.ticket-title{color:var(--white);font-size:14px;font-weight:600;margin-bottom:4px;padding-right:28px}
+.ticket-desc{color:var(--muted);font-size:11px;line-height:1.55;margin-bottom:11px}
+.vcode{font-family:'JetBrains Mono',monospace;letter-spacing:3px;font-size:13px;color:var(--gold);background:var(--goldBg);padding:4px 12px;border-radius:6px;border:1px solid var(--goldBorder);display:inline-block}
+.vcode.dimmed{color:var(--dimmed);background:rgba(255,255,255,.03);border-color:var(--cardBorder)}
+.stamp{position:absolute;top:50%;right:14px;transform:translateY(-50%) rotate(-12deg);border:2px solid rgba(255,95,95,.45);border-radius:4px;padding:2px 8px;color:rgba(255,95,95,.45);font-size:11px;font-weight:700;letter-spacing:2px;pointer-events:none}
+
+/* Stat cards */
+.stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px}
+.stat-card{background:var(--cardBg);border:1px solid var(--cardBorder);border-radius:var(--radius);padding:20px;text-align:center}
+.stat-val{font-size:38px;font-weight:600;margin-top:6px;line-height:1}
+
+/* Listado rows */
+.list-row{background:var(--cardBg);border:1px solid var(--cardBorder);border-radius:10px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:6px;cursor:pointer;transition:border-color .15s}
+.list-row:hover{border-color:var(--goldBorder)}
+.list-folio{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--gold);letter-spacing:1px}
+.list-name{color:var(--muted);font-size:12px;margin-left:10px}
+
+/* Home info cards */
+.info-card{background:var(--cardBg);border:1px solid var(--cardBorder);border-radius:var(--radius);padding:16px;text-align:center}
+.info-icon{font-size:22px;margin-bottom:8px}
+.info-title{color:var(--gold);font-size:12px;font-weight:600;margin-bottom:4px}
+.info-desc{color:var(--dimmed);font-size:11px;line-height:1.5}
+
+/* Gift banner */
+.gift-banner{background:var(--goldBg);border:1px solid var(--goldBorder);border-radius:var(--radius);padding:16px;text-align:center;margin-bottom:16px}
+
+/* Validation success */
+.val-success{text-align:center;padding:28px 20px}
+.val-check{font-size:52px;margin-bottom:12px}
+.val-benefit{color:var(--white);font-size:18px;font-weight:600;margin-bottom:6px}
+.val-meta{color:var(--muted);font-size:13px;margin-bottom:4px}
+.remaining-box{background:rgba(255,255,255,.05);border-radius:8px;padding:12px;margin:14px 0}
+
+/* Mobile */
+@media(max-width:520px){
+  .grid2,.grid3{grid-template-columns:1fr}
+  .grid-auto{grid-template-columns:1fr}
+  .stat-grid{grid-template-columns:1fr 1fr}
+  .folio-val{font-size:20px}
+  .hdr-actions .btn-dim{display:none}
+}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <header class="header">
+    <div class="brand" onclick="navigateTo('home')">
+      <span class="brand-name">BALANDRA</span>
+      <span class="brand-sub">Hotel Radisson · Puerto Varas</span>
+    </div>
+    <div class="hdr-actions" id="hdr-actions"></div>
+  </header>
+  <main class="main" id="main"></main>
+</div>
+
+<script>
+const SB='https://wrtljewcclhqogkedsib.supabase.co';
+const SK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndydGxqZXdjY2xocW9na2Vkc2liIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY4NDAzNTUsImV4cCI6MjA4MjQxNjM1NX0.FzxNYfIHE4R5IItHR-RfR5ebXU2lKP8R6s4zGNkxY_w';
+const ADMIN_PW='balandra2026';
+let adminAuth=false;
+
+async function rpc(fn,params={}){
+  const r=await fetch(`${SB}/rest/v1/rpc/${fn}`,{
+    method:'POST',
+    headers:{'apikey':SK,'Authorization':'Bearer '+SK,'Content-Type':'application/json'},
+    body:JSON.stringify(params)
+  });
+  if(!r.ok)throw new Error(await r.text());
+  return r.json();
+}
+
+function fmtDate(d){if(!d)return'—';return new Date(d).toLocaleDateString('es-CL',{day:'2-digit',month:'long',year:'numeric'})}
+function fmtShort(d){if(!d)return'';return new Date(d).toLocaleDateString('es-CL',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'})}
+
+// Simple hash router
+function getRoute(){
+  const h=location.hash.replace('#','').replace(/^\//,'');
+  const parts=h.split('/');
+  return{page:parts[0]||'home',param:parts[1]||''};
+}
+function navigateTo(page,param=''){
+  location.hash=param?`/${page}/${param}`:`/${page}`;
+}
+
+window.addEventListener('hashchange',render);
+window.addEventListener('load',()=>{
+  if(!location.hash)location.hash='/home';
+  render();
+});
+
+function render(){
+  const {page,param}=getRoute();
+  renderHeader(page);
+  const m=document.getElementById('main');
+  if(page==='home')m.innerHTML=homeHTML();
+  else if(page==='ticketera')renderTicketera(param,m);
+  else if(page==='validar')m.innerHTML=validarHTML();
+  else if(page==='admin')m.innerHTML=adminAuth?adminHTML():adminLoginHTML();
+  else m.innerHTML=homeHTML();
+  attachEvents(page,param);
+}
+
+function renderHeader(page){
+  const el=document.getElementById('hdr-actions');
+  let h='';
+  if(page!=='home')h+=`<button class="btn btn-ghost" onclick="navigateTo('home')">Inicio</button>`;
+  if(page!=='validar')h+=`<button class="btn btn-dim" onclick="navigateTo('validar')">&#x2713; Validar</button>`;
+  h+=`<button class="btn btn-dim" onclick="navigateTo('admin')">${adminAuth?'&#x2699; Admin':'Admin'}</button>`;
+  el.innerHTML=h;
+}
+
+/* ======= HOME ======= */
+function homeHTML(){
+  return`
+<div style="text-align:center;padding-top:40px;max-width:500px;margin:0 auto">
+  <div style="font-size:52px;margin-bottom:14px">🎟️</div>
+  <h1 style="font-size:28px;font-weight:600;color:var(--gold);margin-bottom:8px">Ticketera Electrónica</h1>
+  <p style="color:var(--muted);font-size:14px;margin-bottom:36px">Balandra Restaurant · Radisson Hotel Puerto Varas</p>
+
+  <div class="card card-gold" style="margin-bottom:24px">
+    <p class="label" style="text-align:center;margin-bottom:10px">Ingresa tu número de folio</p>
+    <input id="folio-inp" class="input input-xl" placeholder="BAL-26-00001" maxlength="14" style="margin-bottom:10px">
+    <div id="home-err" class="err" style="display:none"></div>
+    <button id="load-btn" class="btn-primary">Ver mi Ticketera →</button>
+  </div>
+
+  <div class="grid3">
+    <div class="info-card">
+      <div class="info-icon">🎁</div>
+      <p class="info-title">10 beneficios</p>
+      <p class="info-desc">Descuentos exclusivos y experiencias únicas en Balandra</p>
+    </div>
+    <div class="info-card">
+      <div class="info-icon">🔐</div>
+      <p class="info-title">Tickets seguros</p>
+      <p class="info-desc">Cada ticket tiene código único e infalsificable de 6 caracteres</p>
+    </div>
+    <div class="info-card">
+      <div class="info-icon">🥂</div>
+      <p class="info-title">Premio final</p>
+      <p class="info-desc">Botella de vino Casillero del Diablo al completar todos tus tickets</p>
+    </div>
+  </div>
+</div>`;
+}
+
+async function loadTicketera(){
+  const inp=document.getElementById('folio-inp');
+  const err=document.getElementById('home-err');
+  const btn=document.getElementById('load-btn');
+  if(!inp||!inp.value.trim())return;
+  btn.textContent='Buscando...';btn.disabled=true;err.style.display='none';
+  try{
+    const d=await rpc('balandra_get_ticketera',{p_folio:inp.value.trim().toUpperCase()});
+    if(d.success)navigateTo('ticketera',d.folio);
+    else{err.textContent=d.error||'Ticketera no encontrada';err.style.display='block';}
+  }catch(e){err.textContent='Error de conexión. Intenta nuevamente.';err.style.display='block';}
+  btn.textContent='Ver mi Ticketera →';btn.disabled=false;
+}
+
+/* ======= TICKETERA ======= */
+async function renderTicketera(folio,container){
+  if(!folio){container.innerHTML='<p style="color:var(--muted);text-align:center;padding:40px">Folio no indicado.</p>';return;}
+  container.innerHTML='<p style="color:var(--muted);text-align:center;padding:40px">Cargando ticketera...</p>';
+  try{
+    const d=await rpc('balandra_get_ticketera',{p_folio:folio.toUpperCase()});
+    if(!d.success){container.innerHTML=`<div style="text-align:center;padding:40px"><p style="color:var(--red);font-size:16px;margin-bottom:12px">&#x2715; ${d.error||'No encontrada'}</p><button class="btn btn-ghost" onclick="navigateTo('home')">Volver al inicio</button></div>`;return;}
+    container.innerHTML=ticketeraHTML(d);
+  }catch(e){container.innerHTML='<p style="color:var(--red);text-align:center;padding:40px">Error de conexión.</p>';}
+}
+
+function ticketeraHTML(t){
+  const pct=Math.round((t.used_tickets/t.total_tickets)*100);
+  const expiry=fmtDate(t.expiry_date);
+  const statusMap={active:'badge-active',completed:'badge-completed',expired:'badge-expired',gifted:'badge-gifted'};
+  const statusLabel={active:'ACTIVA',completed:'COMPLETADA',expired:'VENCIDA',gifted:'REGALADA'};
+  const sb=statusMap[t.status]||'badge-active';
+  const sl=statusLabel[t.status]||t.status.toUpperCase();
+  const tickets=(t.tickets||[]).map(tk=>ticketCardHTML(tk)).join('');
+  const completedBanner=t.status==='completed'?`<div class="gift-banner"><div style="font-size:36px;margin-bottom:8px">🎉</div><p style="color:var(--gold);font-size:16px;font-weight:600;margin-bottom:4px">¡Felicitaciones! Completaste tu ticketera</p><p style="color:var(--muted);font-size:13px">Retira tu botella de vino en caja presentando el folio <strong style="color:var(--gold)">${t.folio}</strong></p></div>`:'';
+
+  return`
+${completedBanner}
+<div class="folio-header">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:14px">
+    <div>
+      <p class="folio-label">Folio de Ticketera</p>
+      <p class="folio-val">${t.folio}</p>
+      <p class="folio-meta">${t.owner_name||'Cliente Balandra'}${t.owner_email?` · ${t.owner_email}`:''}</p>
+    </div>
+    <div style="text-align:right">
+      <span class="badge ${sb}">${sl}</span>
+      <p style="color:var(--dimmed);font-size:11px;margin-top:8px">Válida hasta<br>${expiry}</p>
+    </div>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-meta">
+      <span style="color:var(--muted)">Progreso de tickets</span>
+      <span style="color:var(--gold);font-weight:600">${t.used_tickets} / ${t.total_tickets} usados</span>
+    </div>
+    <div class="progress-bar-bg"><div class="progress-bar" style="width:${pct}%"></div></div>
+  </div>
+</div>
+
+<div class="grid-auto">${tickets}</div>
+
+<div style="text-align:center;margin-top:20px;padding-bottom:30px">
+  <button class="btn btn-ghost" onclick="renderTicketera('${t.folio}',document.getElementById('main'))">&#x21bb; Actualizar</button>
+</div>`;
+}
+
+function ticketCardHTML(t){
+  const used=t.status==='used';
+  const isLast=t.ticket_number===10;
+  const usedStamp=used?'<div class="stamp">USADO</div>':'';
+  const lastGlow=isLast&&!used?'ticket-last':'';
+  const meta=used&&t.used_at?`<span style="font-size:10px;color:var(--dimmed);margin-left:8px">${fmtShort(t.used_at)}</span>`:'';
+  return`
+<div class="ticket-card ${used?'used':''} ${lastGlow}">
+  ${usedStamp}
+  <div class="ticket-num">#${t.ticket_number}/10</div>
+  <div class="ticket-icon">${t.benefit_icon}</div>
+  <div style="flex:1;min-width:0">
+    <p class="ticket-title">${t.benefit_title}</p>
+    <p class="ticket-desc">${t.benefit_description}</p>
+    <div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px">
+      <span class="${used?'vcode dimmed':'vcode'}">${t.validation_code}</span>
+      ${meta}
+    </div>
+  </div>
+</div>`;
+}
+
+/* ======= VALIDADOR ======= */
+function validarHTML(){
+  return`
+<div style="max-width:420px;margin:20px auto">
+  <h2 style="color:var(--gold);font-size:20px;font-weight:600;text-align:center;margin-bottom:8px">Validar Ticket</h2>
+  <p style="color:var(--muted);font-size:13px;text-align:center;margin-bottom:24px">Ingresa el código de 6 caracteres del ticket</p>
+  <div id="val-result"></div>
+  <div id="val-form" class="card card-gold">
+    <div class="field">
+      <label class="label">Código del ticket</label>
+      <input id="val-code" class="input input-code" placeholder="XXXXXX" maxlength="6" autocapitalize="characters" autocomplete="off">
+    </div>
+    <div class="grid2" style="margin-bottom:14px">
+      <div>
+        <label class="label">Cajero / Garzón</label>
+        <input id="val-staff" class="input" placeholder="Tu nombre">
+      </div>
+      <div>
+        <label class="label">N° Mesa</label>
+        <input id="val-table" class="input" placeholder="Ej: 12">
+      </div>
+    </div>
+    <div id="val-err" class="err" style="display:none"></div>
+    <button id="val-btn" class="btn-primary">Quemar Ticket &#x1F525;</button>
+  </div>
+</div>`;
+}
+
+async function quemar(){
+  const code=(document.getElementById('val-code')||{}).value||'';
+  const staff=(document.getElementById('val-staff')||{}).value||'Caja';
+  const table=(document.getElementById('val-table')||{}).value||null;
+  const err=document.getElementById('val-err');
+  const btn=document.getElementById('val-btn');
+  const res=document.getElementById('val-result');
+  const form=document.getElementById('val-form');
+  if(code.length<4){err.textContent='El código debe tener 6 caracteres';err.style.display='block';return;}
+  btn.textContent='Validando...';btn.disabled=true;err.style.display='none';
+  try{
+    const d=await rpc('balandra_use_ticket',{p_code:code.toUpperCase(),p_staff:staff,p_table:table});
+    if(d.success){
+      form.style.display='none';
+      const isLast=d.remaining===0;
+      res.innerHTML=`
+<div class="card card-green val-success">
+  <div class="val-check">${isLast?'🎉':'✅'}</div>
+  <p style="color:var(--green);font-size:20px;font-weight:700;margin-bottom:6px">${isLast?'¡Ticketera Completada!':'Ticket Validado'}</p>
+  <p class="val-benefit">${d.benefit}</p>
+  <p class="val-meta">Folio <strong style="color:var(--gold)">${d.folio}</strong> · Ticket #${d.ticket_number}</p>
+  ${d.owner?`<p class="val-meta">Cliente: ${d.owner}</p>`:''}
+  <div class="remaining-box">
+    ${isLast
+      ?`<p style="color:var(--gold);font-size:13px;font-weight:600">&#x1F4E6; Entregar botella de vino al cliente</p>`
+      :`<p style="color:var(--muted);font-size:13px">Quedan <strong style="color:var(--gold);font-size:16px">${d.remaining}</strong> ticket(s) disponibles</p>`}
+  </div>
+  <button class="btn btn-success" onclick="resetValidar()">Validar Otro Ticket</button>
+</div>`;
+    }else{
+      err.textContent=d.error||'Error desconocido';err.style.display='block';
+      btn.textContent='Quemar Ticket 🔥';btn.disabled=false;
+    }
+  }catch(e){err.textContent='Error de conexión. Intenta nuevamente.';err.style.display='block';btn.textContent='Quemar Ticket 🔥';btn.disabled=false;}
+}
+
+function resetValidar(){document.getElementById('main').innerHTML=validarHTML();attachEvents('validar','');}
+
+/* ======= ADMIN LOGIN ======= */
+function adminLoginHTML(){
+  return`
+<div style="max-width:320px;margin:60px auto;text-align:center">
+  <div style="font-size:44px;margin-bottom:14px">🔐</div>
+  <h2 style="color:var(--gold);font-size:20px;font-weight:600;margin-bottom:24px">Panel de Administración</h2>
+  <div class="card card-gold">
+    <div class="field">
+      <label class="label">Contraseña</label>
+      <input id="ap" type="password" class="input" style="text-align:center" placeholder="••••••••">
+    </div>
+    <div id="ae" class="err" style="display:none"></div>
+    <button id="al-btn" class="btn-primary">Ingresar</button>
+  </div>
+</div>`;
+}
+
+function doAdminLogin(){
+  const p=(document.getElementById('ap')||{}).value||'';
+  const e=document.getElementById('ae');
+  if(p===ADMIN_PW){adminAuth=true;document.getElementById('main').innerHTML=adminHTML();attachEvents('admin','');loadStats();}
+  else{e.textContent='Contraseña incorrecta';e.style.display='block';}
+}
+
+/* ======= ADMIN ======= */
+function adminHTML(){
+  return`
+<div>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;flex-wrap:wrap;gap:8px">
+    <h2 style="color:var(--gold);font-size:20px;font-weight:600">Panel Administración</h2>
+    <button class="btn btn-dim btn-ghost" onclick="adminAuth=false;navigateTo('home')">Cerrar sesión</button>
+  </div>
+  <div class="tabs">
+    <button class="tab active" id="tab-db" onclick="switchTab('db',this)">Dashboard</button>
+    <button class="tab" id="tab-cr" onclick="switchTab('cr',this)">Nueva Ticketera</button>
+    <button class="tab" id="tab-li" onclick="switchTab('li',this)">Listado</button>
+  </div>
+  <div id="panel-db">${dashboardHTML()}</div>
+  <div id="panel-cr" style="display:none">${crearHTML()}</div>
+  <div id="panel-li" style="display:none"><div id="listado-area"><p style="color:var(--muted)">Cargando...</p></div></div>
+</div>`;
+}
+
+function switchTab(name,el){
+  ['db','cr','li'].forEach(t=>{
+    document.getElementById('panel-'+t).style.display=t===name?'block':'none';
+    document.getElementById('tab-'+t).classList.toggle('active',t===name);
+  });
+  if(name==='db')loadStats();
+  if(name==='li')loadListado();
+}
+
+function dashboardHTML(){
+  return`
+<div class="stat-grid">
+  <div class="stat-card"><p class="label">Total ticketeras</p><p class="stat-val" style="color:var(--gold)" id="s-total">—</p></div>
+  <div class="stat-card"><p class="label">Activas</p><p class="stat-val" style="color:var(--green)" id="s-act">—</p></div>
+  <div class="stat-card"><p class="label">Completadas</p><p class="stat-val" style="color:var(--gold)" id="s-comp">—</p></div>
+  <div class="stat-card"><p class="label">Tickets usados</p><p class="stat-val" style="color:#64b5f6" id="s-used">—</p></div>
+</div>
+<div style="text-align:center"><button class="btn btn-ghost" onclick="loadStats()">&#x21bb; Actualizar</button></div>`;
+}
+
+function crearHTML(){
+  return`
+<div style="max-width:420px">
+  <div class="card card-gold" style="margin-bottom:14px">
+    <div class="field"><label class="label">Nombre del cliente</label><input id="cn" class="input" placeholder="Ej: María González"></div>
+    <div class="field"><label class="label">Email</label><input id="ce" class="input" type="email" placeholder="cliente@email.com"></div>
+    <div class="field"><label class="label">Teléfono</label><input id="cp" class="input" placeholder="+56912345678"></div>
+    <div id="cc-err" class="err" style="display:none"></div>
+    <button id="cc-btn" class="btn-primary">Generar Ticketera</button>
+  </div>
+  <div id="cc-res"></div>
+</div>`;
+}
+
+async function loadStats(){
+  try{
+    const s=await rpc('balandra_get_stats');
+    ['total_ticketeras','activas','completadas','tickets_usados'].forEach((k,i)=>{
+      const ids=['s-total','s-act','s-comp','s-used'];
+      const el=document.getElementById(ids[i]);
+      if(el)el.textContent=s[k]||0;
+    });
+  }catch(e){}
+}
+
+async function loadListado(){
+  const area=document.getElementById('listado-area');
+  if(!area)return;
+  try{
+    const list=await rpc('balandra_list_ticketeras');
+    const arr=Array.isArray(list)?list:[];
+    if(!arr.length){area.innerHTML='<p style="color:var(--muted);text-align:center;padding:20px">Sin ticketeras aún.</p>';return;}
+    const statusMap={active:'badge-active',completed:'badge-completed',expired:'badge-expired',gifted:'badge-gifted'};
+    const statusLabel={active:'ACTIVA',completed:'COMPLETADA',expired:'VENCIDA',gifted:'REGALADA'};
+    area.innerHTML=arr.map(t=>`
+<div class="list-row" onclick="navigateTo('ticketera','${t.folio}')">
+  <div>
+    <span class="list-folio">${t.folio}</span>
+    <span class="list-name">${t.owner_name||'Sin nombre'}</span>
+    ${t.owner_email?`<span style="color:var(--dimmed);font-size:11px;display:block;margin-top:2px;padding-left:0">${t.owner_email}</span>`:''}
+  </div>
+  <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+    <span style="color:var(--muted);font-size:12px">${t.used_tickets}/${t.total_tickets}</span>
+    <span class="badge ${statusMap[t.status]||'badge-active'}">${statusLabel[t.status]||t.status}</span>
+  </div>
+</div>`).join('');
+  }catch(e){area.innerHTML='<p style="color:var(--red);text-align:center">Error cargando el listado.</p>';}
+}
+
+async function createTicketera(){
+  const name=(document.getElementById('cn')||{}).value||'';
+  const email=(document.getElementById('ce')||{}).value||'';
+  const phone=(document.getElementById('cp')||{}).value||'';
+  const err=document.getElementById('cc-err');
+  const btn=document.getElementById('cc-btn');
+  const res=document.getElementById('cc-res');
+  btn.textContent='Generando...';btn.disabled=true;err.style.display='none';
+  try{
+    const d=await rpc('balandra_create_ticketera',{p_owner_name:name,p_owner_email:email,p_owner_phone:phone});
+    if(d.success){
+      const link=`${location.origin}/#/ticketera/${d.folio}`;
+      res.innerHTML=`
+<div class="card card-green">
+  <p style="color:var(--green);font-weight:600;font-size:14px;margin-bottom:10px">&#x2713; Ticketera creada exitosamente</p>
+  <p style="font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;letter-spacing:3px;color:var(--gold);margin-bottom:4px">${d.folio}</p>
+  <p style="color:var(--muted);font-size:12px;margin-bottom:14px">Válida hasta: ${fmtDate(d.expiry_date)}</p>
+  <div style="background:rgba(255,255,255,.05);border-radius:8px;padding:10px;margin-bottom:14px">
+    <p style="color:var(--dimmed);font-size:11px;margin-bottom:4px">Link para el cliente:</p>
+    <a href="${link}" style="font-size:12px;word-break:break-all">${link}</a>
+  </div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <button class="btn btn-success" onclick="navigator.clipboard&&navigator.clipboard.writeText('${d.folio}')">Copiar Folio</button>
+    <button class="btn btn-ghost" onclick="navigator.clipboard&&navigator.clipboard.writeText('${link}')">Copiar Link</button>
+    <button class="btn btn-ghost" onclick="navigateTo('ticketera','${d.folio}')">Ver Ticketera</button>
+  </div>
+</div>`;
+      document.getElementById('cn').value='';
+      document.getElementById('ce').value='';
+      document.getElementById('cp').value='';
+    }else{err.textContent=d.error||'Error al crear';err.style.display='block';}
+  }catch(e){err.textContent='Error de conexión';err.style.display='block';}
+  btn.textContent='Generar Ticketera';btn.disabled=false;
+}
+
+/* ======= EVENTS ======= */
+function attachEvents(page){
+  if(page==='home'){
+    const btn=document.getElementById('load-btn');
+    const inp=document.getElementById('folio-inp');
+    if(btn)btn.onclick=loadTicketera;
+    if(inp){
+      inp.oninput=()=>{inp.value=inp.value.toUpperCase();};
+      inp.onkeydown=e=>{if(e.key==='Enter')loadTicketera();};
+    }
+  }
+  if(page==='validar'){
+    const btn=document.getElementById('val-btn');
+    const code=document.getElementById('val-code');
+    if(btn)btn.onclick=quemar;
+    if(code){code.oninput=()=>{code.value=code.value.toUpperCase();};code.onkeydown=e=>{if(e.key==='Enter')quemar();};}
+  }
+  if(page==='adminLogin'){
+    const btn=document.getElementById('al-btn');
+    const inp=document.getElementById('ap');
+    if(btn)btn.onclick=doAdminLogin;
+    if(inp)inp.onkeydown=e=>{if(e.key==='Enter')doAdminLogin();};
+  }
+  if(page==='admin'){
+    const btn=document.getElementById('cc-btn');
+    if(btn)btn.onclick=createTicketera;
+    loadStats();
+  }
+}
+</script>
+</body>
+</html>
