@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Club Balandra · Ticketera Digital</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --gold: #C9A96E;
+      --gold-light: #E0C490;
+      --gold-dim: rgba(201,169,110,0.15);
+      --dark: #0A0A0A;
+      --dark-2: #121212;
+      --dark-3: #1C1C1C;
+      --dark-4: #262626;
+      --text: #F0EDE8;
+      --text-mid: #A89E92;
+      --text-dim: #5C5550;
+      --border: rgba(201,169,110,0.2);
+      --border-hover: rgba(201,169,110,0.5);
+      --success: #5C9B6B;
+      --error: #C96E6E;
+      --radius: 12px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Barlow', sans-serif;
+      background: var(--dark);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 0;
+      overflow-x: hidden;
+    }
+
+    /* ── BACKGROUND ── */
+    .bg-texture {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      background:
+        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(201,169,110,0.08) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 30% at 100% 100%, rgba(201,169,110,0.04) 0%, transparent 60%);
+    }
+
+    /* ── CONTAINER ── */
+    .container {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 480px;
+      padding: 0 20px 60px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    /* ── HEADER ── */
+    header {
+      text-align: center;
+      padding: 40px 0 32px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .logos {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+    }
+
+    .logos img {
+      height: 32px;
+      width: auto;
+      object-fit: contain;
+      filter: brightness(0) invert(1);
+      opacity: 0.9;
+    }
+
+    .logo-sep {
+      width: 1px;
+      height: 28px;
+      background: var(--border);
+    }
+
+    .header-title {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .header-label {
+      font-family: 'Barlow', sans-serif;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+
+    h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: 32px;
+      line-height: 1.1;
+      color: var(--text);
+      letter-spacing: 0.5px;
+    }
+
+    h1 em {
+      font-style: italic;
+      color: var(--gold-light);
+    }
+
+    .header-sub {
+      font-size: 13px;
+      color: var(--text-mid);
+      font-weight: 300;
+      letter-spacing: 0.3px;
+    }
+
+    /* ── RESTAURANT BADGE ── */
+    .restaurant-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      background: var(--gold-dim);
+      border: 1px solid var(--border);
+      border-radius: 40px;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+
+    .restaurant-badge::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--gold);
+    }
+
+    /* ── TABS ── */
+    .tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      background: var(--dark-3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 4px;
+      gap: 4px;
+      margin-bottom: 20px;
+    }
+
+    .tab-btn {
+      padding: 10px 12px;
+      border: none;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--text-dim);
+      font-family: 'Barlow', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+
+    .tab-btn.active {
+      background: var(--gold);
+      color: var(--dark);
+    }
+
+    /* ── CARD ── */
+    .card {
+      background: var(--dark-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .card-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px;
+      font-weight: 400;
+      color: var(--text);
+    }
+
+    .card-title em {
+      font-style: italic;
+      color: var(--gold-light);
+    }
+
+    .card-desc {
+      font-size: 13px;
+      color: var(--text-mid);
+      line-height: 1.6;
+      font-weight: 300;
+    }
+
+    /* ── FORM ── */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: var(--text-mid);
+    }
+
+    input {
+      width: 100%;
+      padding: 13px 16px;
+      background: var(--dark-4);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: 'Barlow', sans-serif;
+      font-size: 15px;
+      font-weight: 400;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      -webkit-appearance: none;
+    }
+
+    input::placeholder { color: var(--text-dim); }
+
+    input:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(201,169,110,0.08);
+    }
+
+    input.error {
+      border-color: var(--error);
+      box-shadow: 0 0 0 3px rgba(201,110,110,0.08);
+    }
+
+    .field-hint {
+      font-size: 11px;
+      color: var(--text-dim);
+      font-weight: 300;
+    }
+
+    /* ── BUTTONS ── */
+    .btn-primary {
+      width: 100%;
+      padding: 15px 20px;
+      background: var(--gold);
+      border: none;
+      border-radius: 8px;
+      color: var(--dark);
+      font-family: 'Barlow', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-primary:hover { background: var(--gold-light); transform: translateY(-1px); }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    .btn-secondary {
+      width: 100%;
+      padding: 13px 20px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-mid);
+      font-family: 'Barlow', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--border-hover);
+      color: var(--text);
+    }
+
+    .btn-whatsapp {
+      width: 100%;
+      padding: 14px 20px;
+      background: #25D366;
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      font-family: 'Barlow', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+
+    .btn-whatsapp:hover { background: #1ebe5b; }
+
+    /* ── ERROR MESSAGE ── */
+    .msg-box {
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      line-height: 1.5;
+      display: none;
+    }
+
+    .msg-box.error {
+      background: rgba(201,110,110,0.1);
+      border: 1px solid rgba(201,110,110,0.3);
+      color: #E89090;
+    }
+
+    .msg-box.info {
+      background: rgba(201,169,110,0.08);
+      border: 1px solid var(--border);
+      color: var(--text-mid);
+    }
+
+    /* ── SUCCESS SCREEN ── */
+    .success-screen {
+      display: none;
+      flex-direction: column;
+      gap: 24px;
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .success-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: rgba(92,155,107,0.15);
+      border: 1px solid rgba(92,155,107,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto;
+      font-size: 28px;
+    }
+
+    .success-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 26px;
+      font-weight: 300;
+      text-align: center;
+      color: var(--text);
+    }
+
+    .folio-box {
+      background: var(--dark-3);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .folio-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+
+    .folio-number {
+      font-family: 'Barlow', sans-serif;
+      font-size: 24px;
+      font-weight: 600;
+      letter-spacing: 3px;
+      color: var(--gold);
+    }
+
+    .folio-hint {
+      font-size: 11px;
+      color: var(--text-dim);
+      font-weight: 300;
+    }
+
+    /* ── TICKETERA LIST (multi-ticketera) ── */
+    .ticketera-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .ticketera-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      background: var(--dark-3);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+
+    .ticketera-item:hover {
+      border-color: var(--border-hover);
+      background: var(--dark-4);
+    }
+
+    .ti-left { display: flex; flex-direction: column; gap: 3px; }
+    .ti-folio {
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      color: var(--gold);
+    }
+    .ti-name { font-size: 12px; color: var(--text-mid); font-weight: 300; }
+
+    .ti-right { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; }
+    .ti-progress {
+      font-size: 12px;
+      color: var(--text-mid);
+    }
+    .ti-status {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 20px;
+    }
+    .ti-status.active { background: rgba(92,155,107,0.15); color: #5C9B6B; }
+    .ti-status.completed { background: rgba(201,169,110,0.15); color: var(--gold); }
+
+    .ti-arrow { color: var(--text-dim); font-size: 16px; margin-left: 8px; }
+
+    /* ── DIVIDER ── */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--text-dim);
+      font-size: 11px;
+      letter-spacing: 1px;
+    }
+
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ── BENEFITS STRIP ── */
+    .benefits-strip {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .benefit-chip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      background: var(--dark-3);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+
+    .benefit-chip .icon { font-size: 16px; }
+    .benefit-chip .text { font-size: 11px; color: var(--text-mid); font-weight: 400; line-height: 1.3; }
+
+    /* ── SPINNER ── */
+    .spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(0,0,0,0.3);
+      border-top-color: var(--dark);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    .btn-secondary .spinner {
+      border-color: rgba(201,169,110,0.3);
+      border-top-color: var(--gold);
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center;
+      padding: 24px 0 0;
+      font-size: 11px;
+      color: var(--text-dim);
+      font-weight: 300;
+      line-height: 1.8;
+    }
+
+    footer a { color: var(--gold); text-decoration: none; }
+
+    /* ── PANEL ANIMATIONS ── */
+    .panel { display: none; flex-direction: column; gap: 20px; }
+    .panel.active { display: flex; animation: fadeIn 0.3s ease; }
+
+    /* ── CHECK DUPLICATE WARNING ── */
+    .duplicate-warning {
+      display: none;
+      background: rgba(201,169,110,0.08);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 12px;
+      color: var(--text-mid);
+      line-height: 1.6;
+    }
+
+    .duplicate-warning a {
+      color: var(--gold);
+      cursor: pointer;
+      text-decoration: underline;
+    }
+
+    @media (min-width: 480px) {
+      .container { padding: 0 24px 80px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="bg-texture"></div>
+
+<div class="container">
+
+  <!-- HEADER -->
+  <header>
+    <div class="logos">
+      <img src="https://www.radissonpuertovaras.com/images/balandra_sin_fondo.png"
+           alt="Balandra" id="logo-restaurant"
+           onerror="this.style.display='none'">
+      <div class="logo-sep"></div>
+      <img src="https://www.radissonpuertovaras.com/logos/radisson-logo.png"
+           alt="Radisson"
+           onerror="this.src='https://www.radissonpuertovaras.com/logos/parkinn-logo.png'; this.onerror=null;">
+    </div>
+
+    <div class="header-title">
+      <span class="header-label" id="club-label">Club Balandra</span>
+      <h1>Tu <em>Ticketera</em><br>Digital</h1>
+      <p class="header-sub" id="header-sub">Regístrate y accede a tus beneficios exclusivos</p>
+    </div>
+
+    <div class="restaurant-badge" id="restaurant-badge">Balandra Bar & Restaurant</div>
+  </header>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab-btn active" id="tab-reg" onclick="switchTab('registro')">Soy Nuevo</button>
+    <button class="tab-btn" id="tab-acc" onclick="switchTab('acceder')">Ya tengo ticketera</button>
+  </div>
+
+  <!-- ═══ PANEL REGISTRO ═══ -->
+  <div class="panel active card" id="panel-registro">
+
+    <div>
+      <p class="card-title">Crea tu <em>ticketera</em></p>
+      <p class="card-desc" style="margin-top:6px;">
+        Regístrate y recibe al instante tu carnet digital con 10 beneficios exclusivos para disfrutar en el restaurante.
+      </p>
+    </div>
+
+    <div class="benefits-strip">
+      <div class="benefit-chip"><span class="icon">🥂</span><span class="text">Botella de vino gratis</span></div>
+      <div class="benefit-chip"><span class="icon">🍽️</span><span class="text">Buffet dominical</span></div>
+      <div class="benefit-chip"><span class="icon">🏷️</span><span class="text">Descuentos exclusivos</span></div>
+      <div class="benefit-chip"><span class="icon">🎁</span><span class="text">10 beneficios en total</span></div>
+    </div>
+
+    <div class="divider">Tus datos</div>
+
+    <div class="form-group">
+      <label for="reg-nombre">Nombre completo *</label>
+      <input type="text" id="reg-nombre" placeholder="Ej: María González" autocomplete="name">
+    </div>
+
+    <div class="form-group">
+      <label for="reg-phone">Teléfono WhatsApp *</label>
+      <input type="tel" id="reg-phone" placeholder="+56 9 XXXX XXXX" autocomplete="tel">
+      <span class="field-hint">Te enviaremos el link de tu ticketera por WhatsApp</span>
+    </div>
+
+    <div class="form-group">
+      <label for="reg-email">Email <span style="color:var(--text-dim);font-weight:300;font-size:10px;">(opcional)</span></label>
+      <input type="email" id="reg-email" placeholder="tu@email.com" autocomplete="email">
+    </div>
+
+    <div class="duplicate-warning" id="dup-warning">
+      ⚠️ Ya encontramos una ticketera con ese número de teléfono.
+      <a onclick="switchTab('acceder')">¿Quieres acceder a tu ticketera existente?</a>
+      O continúa para crear una nueva.
+    </div>
+
+    <div class="msg-box error" id="reg-error"></div>
+
+    <button class="btn-primary" id="btn-registro" onclick="registrar()">
+      🎫 Crear mi Ticketera
+    </button>
+
+  </div>
+
+  <!-- ═══ PANEL ACCEDER ═══ -->
+  <div class="panel card" id="panel-acceder">
+
+    <div>
+      <p class="card-title">Accede a tu <em>ticketera</em></p>
+      <p class="card-desc" style="margin-top:6px;">
+        Ingresa el número de teléfono con el que te registraste para acceder a tus beneficios.
+      </p>
+    </div>
+
+    <div class="form-group">
+      <label for="acc-phone">Teléfono WhatsApp</label>
+      <input type="tel" id="acc-phone" placeholder="+56 9 XXXX XXXX" autocomplete="tel">
+    </div>
+
+    <div class="msg-box error" id="acc-error"></div>
+
+    <button class="btn-primary" id="btn-acceder" onclick="acceder()">
+      🔍 Buscar mi Ticketera
+    </button>
+
+    <div class="divider">o</div>
+
+    <div class="form-group">
+      <label for="acc-folio">Ingresar folio directamente</label>
+      <input type="text" id="acc-folio" placeholder="BAL-26-00001" autocomplete="off"
+             style="text-transform:uppercase; letter-spacing:2px;">
+    </div>
+
+    <button class="btn-secondary" id="btn-folio" onclick="accederFolio()">
+      Ir con mi folio →
+    </button>
+
+    <p style="font-size:12px;color:var(--text-dim);text-align:center;font-weight:300;">
+      ¿No tienes ticketera aún?
+      <a href="#" onclick="switchTab('registro')" style="color:var(--gold);text-decoration:none;">Regístrate gratis →</a>
+    </p>
+
+  </div>
+
+  <!-- ═══ SUCCESS SCREEN ═══ -->
+  <div class="success-screen card" id="success-screen">
+
+    <div class="success-icon">✓</div>
+
+    <div style="text-align:center;">
+      <p class="success-title" id="success-title">¡Tu ticketera<br><em>está lista!</em></p>
+      <p class="card-desc" style="margin-top:8px;text-align:center;" id="success-name"></p>
+    </div>
+
+    <div class="folio-box">
+      <span class="folio-label">Tu número de ticketera</span>
+      <span class="folio-number" id="folio-display">—</span>
+      <span class="folio-hint">Guarda este número, lo necesitarás para acceder</span>
+    </div>
+
+    <button class="btn-primary" id="btn-abrir" onclick="abrirTicketera()">
+      Abrir mi Ticketera →
+    </button>
+
+    <a id="btn-whatsapp-share" class="btn-whatsapp" target="_blank">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+      </svg>
+      Compartir por WhatsApp
+    </a>
+
+    <div class="divider"></div>
+
+    <!-- Multi-ticketera (acceso con varias) -->
+    <div id="multi-section" style="display:none;flex-direction:column;gap:12px;">
+      <p class="card-desc" style="text-align:center;">Encontramos <span id="multi-count"></span> ticketeras asociadas a tu número:</p>
+      <div class="ticketera-list" id="ticketera-list"></div>
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>Balandra Bar & Restaurant · Radisson Puerto Varas</p>
+    <p style="margin-top:4px;">
+      <a href="https://www.radissonpuertovaras.com/restaurantes.html">← Volver al sitio</a>
+    </p>
+  </footer>
+
+</div>
+
+<script>
+  // ═══════════════════════════════════════════════════
+  // CONFIGURACIÓN
+  // ═══════════════════════════════════════════════════
+  const SUPABASE_URL = 'https://wrtljewcclhqogkedsib.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndydGxqZXdjY2xocW9na2Vkc2liIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY4NDAzNTUsImV4cCI6MjA4MjQxNjM1NX0.FzxNYfIHE4R5IItHR-RfR5ebXU2lKP8R6s4zGNkxY_w';
+  const TICKETERA_BASE = 'https://ticketera-balandra.vercel.app/#/ticketera/';
+
+  // Detectar restaurante desde URL param ?r=bal|est
+  const params = new URLSearchParams(window.location.search);
+  const r = params.get('r') || 'bal';
+  const modoInicial = params.get('modo') || 'registro';
+
+  const RESTAURANTE = r === 'est'
+    ? { nombre: 'Estación 505', club: 'Club Estación 505', badge: 'Restaurant Estación 505 · Park Inn', payRef: 'web-est-registro' }
+    : { nombre: 'Balandra', club: 'Club Balandra', badge: 'Balandra Bar & Restaurant', payRef: 'web-bal-registro' };
+
+  // Aplicar branding
+  document.getElementById('club-label').textContent = RESTAURANTE.club;
+  document.getElementById('restaurant-badge').innerHTML =
+    `<span style="width:6px;height:6px;border-radius:50%;background:var(--gold);display:inline-block;"></span> ${RESTAURANTE.badge}`;
+  document.title = `${RESTAURANTE.club} · Ticketera Digital`;
+
+  if (r === 'est') {
+    document.getElementById('logo-restaurant').src = 'https://www.radissonpuertovaras.com/logos/parkinn-logo.png';
+    document.getElementById('header-sub').textContent = 'Regístrate y accede a tus beneficios en Estación 505';
+  }
+
+  // Si viene con modo=acceder, cambiar tab
+  if (modoInicial === 'acceder') switchTab('acceder');
+
+  // Folio actual (para redirect y share)
+  let currentFolio = null;
+  let currentNombre = null;
+
+  // ═══════════════════════════════════════════════════
+  // TABS
+  // ═══════════════════════════════════════════════════
+  function switchTab(tab) {
+    const isReg = tab === 'registro';
+    document.getElementById('tab-reg').classList.toggle('active', isReg);
+    document.getElementById('tab-acc').classList.toggle('active', !isReg);
+    document.getElementById('panel-registro').classList.toggle('active', isReg);
+    document.getElementById('panel-acceder').classList.toggle('active', !isReg);
+    document.getElementById('success-screen').style.display = 'none';
+    clearErrors();
+  }
+
+  // ═══════════════════════════════════════════════════
+  // UTILS
+  // ═══════════════════════════════════════════════════
+  function normalizePhone(phone) {
+    let p = phone.replace(/[\s\-\(\)]/g, '');
+    if (p.startsWith('09')) p = '+569' + p.slice(2);
+    else if (p.startsWith('9') && p.length === 9) p = '+56' + p;
+    else if (p.startsWith('56') && !p.startsWith('+')) p = '+' + p;
+    return p;
+  }
+
+  function setLoading(btnId, loading) {
+    const btn = document.getElementById(btnId);
+    if (loading) {
+      btn._text = btn.innerHTML;
+      btn.innerHTML = '<span class="spinner"></span>';
+      btn.disabled = true;
+    } else {
+      btn.innerHTML = btn._text;
+      btn.disabled = false;
+    }
+  }
+
+  function showError(id, msg) {
+    const el = document.getElementById(id);
+    el.textContent = msg;
+    el.style.display = 'block';
+  }
+
+  function clearErrors() {
+    ['reg-error', 'acc-error'].forEach(id => {
+      const el = document.getElementById(id);
+      el.style.display = 'none';
+      el.textContent = '';
+    });
+    document.getElementById('dup-warning').style.display = 'none';
+  }
+
+  async function rpc(name, params) {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${name}`, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(params)
+    });
+    if (!res.ok) throw new Error('Error de conexión. Intenta nuevamente.');
+    return res.json();
+  }
+
+  // ═══════════════════════════════════════════════════
+  // MOSTRAR ÉXITO (1 ticketera)
+  // ═══════════════════════════════════════════════════
+  function showSuccess(folio, nombre, isNew) {
+    currentFolio = folio;
+    currentNombre = nombre;
+
+    document.getElementById('panel-registro').classList.remove('active');
+    document.getElementById('panel-acceder').classList.remove('active');
+
+    const ss = document.getElementById('success-screen');
+    ss.style.display = 'flex';
+    ss.style.animation = 'none';
+    void ss.offsetHeight;
+    ss.style.animation = '';
+
+    document.getElementById('folio-display').textContent = folio;
+    document.getElementById('success-title').innerHTML = isNew
+      ? '¡Tu ticketera<br><em>está lista!</em>'
+      : 'Aquí está tu<br><em>ticketera</em>';
+    document.getElementById('success-name').textContent = nombre ? `Bienvenido/a, ${nombre}` : '';
+    document.getElementById('multi-section').style.display = 'none';
+
+    // WhatsApp share
+    const link = TICKETERA_BASE + folio;
+    const msg = encodeURIComponent(
+      `🎫 *${RESTAURANTE.club}*\n\n¡Hola ${nombre || ''}! Aquí tienes tu ticketera digital:\n${link}\n\n_Guarda este link para acceder a tus beneficios_`
+    );
+    document.getElementById('btn-whatsapp-share').href = `https://wa.me/?text=${msg}`;
+
+    ss.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // ═══════════════════════════════════════════════════
+  // MOSTRAR MÚLTIPLES TICKETERAS
+  // ═══════════════════════════════════════════════════
+  function showMultiple(ticketeras) {
+    document.getElementById('panel-registro').classList.remove('active');
+    document.getElementById('panel-acceder').classList.remove('active');
+
+    const ss = document.getElementById('success-screen');
+    ss.style.display = 'flex';
+    document.getElementById('folio-display').textContent = '';
+    document.getElementById('success-title').innerHTML = `Tus <em>ticketeras</em>`;
+    document.getElementById('success-name').textContent = `Encontramos ${ticketeras.length} ticketeras asociadas`;
+    document.getElementById('btn-abrir').style.display = 'none';
+    document.getElementById('btn-whatsapp-share').style.display = 'none';
+    document.getElementById('folio-box') && (document.querySelector('.folio-box').style.display = 'none');
+
+    const multi = document.getElementById('multi-section');
+    const list = document.getElementById('ticketera-list');
+    document.getElementById('multi-count').textContent = ticketeras.length;
+    list.innerHTML = '';
+
+    ticketeras.forEach(t => {
+      const a = document.createElement('a');
+      a.className = 'ticketera-item';
+      a.href = TICKETERA_BASE + t.folio;
+      a.innerHTML = `
+        <div class="ti-left">
+          <span class="ti-folio">${t.folio}</span>
+          <span class="ti-name">${t.owner_name || ''}</span>
+        </div>
+        <div class="ti-right">
+          <span class="ti-progress">${t.used_tickets}/${t.total_tickets} usados</span>
+          <span class="ti-status ${t.status}">${t.status === 'active' ? 'Activa' : 'Completada'}</span>
+        </div>
+        <span class="ti-arrow">›</span>`;
+      list.appendChild(a);
+    });
+
+    multi.style.display = 'flex';
+    ss.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // ═══════════════════════════════════════════════════
+  // ABRIR TICKETERA
+  // ═══════════════════════════════════════════════════
+  function abrirTicketera() {
+    if (currentFolio) window.location.href = TICKETERA_BASE + currentFolio;
+  }
+
+  // ═══════════════════════════════════════════════════
+  // REGISTRAR
+  // ═══════════════════════════════════════════════════
+  async function registrar() {
+    clearErrors();
+    const nombre = document.getElementById('reg-nombre').value.trim();
+    const phone  = document.getElementById('reg-phone').value.trim();
+    const email  = document.getElementById('reg-email').value.trim();
+
+    // Validaciones
+    if (!nombre) { document.getElementById('reg-nombre').classList.add('error'); showError('reg-error', 'Por favor ingresa tu nombre completo.'); return; }
+    if (!phone)  { document.getElementById('reg-phone').classList.add('error'); showError('reg-error', 'Por favor ingresa tu número de teléfono.'); return; }
+
+    document.querySelectorAll('input').forEach(i => i.classList.remove('error'));
+    const normalPhone = normalizePhone(phone);
+
+    setLoading('btn-registro', true);
+
+    try {
+      // Check si ya existe una ticketera con ese teléfono
+      const check = await rpc('balandra_find_by_phone', { p_phone: normalPhone });
+      if (check.success && check.ticketeras && check.ticketeras.length > 0) {
+        document.getElementById('dup-warning').style.display = 'block';
+        // Continuar de todas formas (usuario puede tener múltiples)
+      }
+
+      // Crear ticketera
+      const result = await rpc('balandra_create_ticketera', {
+        p_owner_name: nombre,
+        p_owner_email: email || null,
+        p_owner_phone: normalPhone,
+        p_payment_ref: RESTAURANTE.payRef,
+        p_notes: `Registro web · ${RESTAURANTE.nombre} · ${new Date().toLocaleDateString('es-CL')}`
+      });
+
+      if (!result.success) throw new Error(result.error || 'No se pudo crear la ticketera.');
+
+      showSuccess(result.folio, result.owner_name, true);
+
+    } catch (e) {
+      showError('reg-error', e.message || 'Error inesperado. Por favor intenta nuevamente.');
+    } finally {
+      setLoading('btn-registro', false);
+    }
+  }
+
+  // ═══════════════════════════════════════════════════
+  // ACCEDER POR TELÉFONO
+  // ═══════════════════════════════════════════════════
+  async function acceder() {
+    clearErrors();
+    const phone = document.getElementById('acc-phone').value.trim();
+    if (!phone) {
+      document.getElementById('acc-phone').classList.add('error');
+      showError('acc-error', 'Por favor ingresa tu número de teléfono.');
+      return;
+    }
+    document.querySelectorAll('input').forEach(i => i.classList.remove('error'));
+    const normalPhone = normalizePhone(phone);
+
+    setLoading('btn-acceder', true);
+    try {
+      const result = await rpc('balandra_find_by_phone', { p_phone: normalPhone });
+      if (!result.success) throw new Error(result.error || 'No encontramos tu ticketera.');
+
+      const list = result.ticketeras;
+      if (list.length === 1) {
+        showSuccess(list[0].folio, list[0].owner_name, false);
+      } else {
+        showMultiple(list);
+      }
+    } catch (e) {
+      showError('acc-error', e.message);
+    } finally {
+      setLoading('btn-acceder', false);
+    }
+  }
+
+  // ═══════════════════════════════════════════════════
+  // ACCEDER POR FOLIO
+  // ═══════════════════════════════════════════════════
+  async function accederFolio() {
+    clearErrors();
+    const folio = document.getElementById('acc-folio').value.trim().toUpperCase();
+    if (!folio) {
+      document.getElementById('acc-folio').classList.add('error');
+      return;
+    }
+    setLoading('btn-folio', true);
+    try {
+      const result = await rpc('balandra_get_ticketera', { p_folio: folio });
+      if (!result.success) throw new Error(result.error || 'Folio no encontrado.');
+      showSuccess(result.folio, result.owner_name, false);
+    } catch (e) {
+      showError('acc-error', e.message);
+    } finally {
+      setLoading('btn-folio', false);
+    }
+  }
+
+  // ═══════════════════════════════════════════════════
+  // ENTER KEY
+  // ═══════════════════════════════════════════════════
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter') return;
+    if (document.getElementById('panel-registro').classList.contains('active')) registrar();
+    else if (document.getElementById('panel-acceder').classList.contains('active')) acceder();
+  });
+
+  // Phone format hint
+  ['reg-phone', 'acc-phone'].forEach(id => {
+    document.getElementById(id).addEventListener('input', function() {
+      this.classList.remove('error');
+      if (this.value && !this.value.startsWith('+') && !this.value.startsWith('0')) {
+        if (this.value.length === 1 && this.value === '9') this.value = '+569';
+      }
+    });
+  });
+</script>
+</body>
+</html>
