@@ -5,136 +5,147 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Mi Ticketera · Club Balandra</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Barlow:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,400&family=Barlow:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --gold:#C9A96E;--gold-l:#E0C490;--gold-d:rgba(201,169,110,.14);
+  --gold:#C9A96E;--gold-l:#E0C490;--gold-d:rgba(201,169,110,.13);
   --dark:#0A0A0A;--d2:#121212;--d3:#1C1C1C;--d4:#262626;
   --txt:#F0EDE8;--mid:#A89E92;--dim:#5C5550;
   --bdr:rgba(201,169,110,.2);--bdr-h:rgba(201,169,110,.5);
-  --ok:#5C9B6B;--err:#C96E6E;--r:12px;
+  --ok:#5C9B6B;--err:#C96E6E;--warn:#C9A030;--r:12px;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Barlow',sans-serif;background:var(--dark);color:var(--txt);min-height:100vh;overflow-x:hidden}
 .bg{position:fixed;inset:0;z-index:0;background:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(201,169,110,.07) 0%,transparent 70%)}
 
-/* ── GATE (pantalla de acceso) ── */
+/* ── GATE ── */
 #gate{position:fixed;inset:0;z-index:100;background:var(--dark);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;overflow-y:auto}
 .gate-inner{width:100%;max-width:420px;display:flex;flex-direction:column;gap:20px;align-items:center}
-.gate-logos{display:flex;align-items:center;gap:14px;margin-bottom:4px}
+.gate-logos{display:flex;align-items:center;gap:14px}
 .gate-logos img{height:28px;filter:brightness(0) invert(1);opacity:.9}
 .logo-sep{width:1px;height:24px;background:var(--bdr)}
 .gate-title{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;text-align:center;line-height:1.2}
 .gate-title em{font-style:italic;color:var(--gold-l)}
-.gate-sub{font-size:13px;color:var(--mid);text-align:center;font-weight:300;line-height:1.5}
-.gate-card{width:100%;background:var(--d2);border:1px solid var(--bdr);border-radius:var(--r);padding:24px;display:flex;flex-direction:column;gap:16px}
+.gate-card{width:100%;background:var(--d2);border:1px solid var(--bdr);border-radius:var(--r);padding:24px;display:flex;flex-direction:column;gap:15px}
 .fg{display:flex;flex-direction:column;gap:5px}
 label{font-size:10px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:var(--mid)}
 input{width:100%;padding:12px 15px;background:var(--d4);border:1px solid var(--bdr);border-radius:8px;color:var(--txt);font-family:'Barlow',sans-serif;font-size:15px;outline:none;transition:.2s;-webkit-appearance:none}
 input::placeholder{color:var(--dim)}
 input:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,169,110,.08)}
 input.bad{border-color:var(--err)}
-.pin-row{display:flex;gap:8px;align-items:flex-end}
+.pin-row{display:flex;gap:8px}
 .pin-row input{flex:1;letter-spacing:6px;font-size:20px;text-align:center;font-weight:600}
-.pin-eye{padding:12px 14px;background:var(--d4);border:1px solid var(--bdr);border-radius:8px;cursor:pointer;font-size:16px;transition:.2s;flex-shrink:0}
-.pin-eye:hover{border-color:var(--bdr-h)}
-.msg{padding:11px 15px;border-radius:8px;font-size:12px;line-height:1.5;display:none}
+.pin-eye{padding:12px 14px;background:var(--d4);border:1px solid var(--bdr);border-radius:8px;cursor:pointer;font-size:16px}
+.msg{padding:11px 14px;border-radius:8px;font-size:12px;line-height:1.5;display:none}
 .msg.err{background:rgba(201,110,110,.1);border:1px solid rgba(201,110,110,.3);color:#E89090}
 .btn{width:100%;padding:14px;border:none;border-radius:8px;font-family:'Barlow',sans-serif;font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center;gap:8px}
 .btn-p{background:var(--gold);color:var(--dark)}
 .btn-p:hover{background:var(--gold-l)}
 .btn-p:disabled{opacity:.5;cursor:not-allowed}
-.gate-link{font-size:12px;color:var(--dim);text-align:center;font-weight:300}
+.gate-link{font-size:12px;color:var(--dim);text-align:center}
 .gate-link a{color:var(--gold);text-decoration:none}
 .spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(0,0,0,.25);border-top-color:var(--dark);border-radius:50%;animation:sp .7s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
 
-/* ── TICKETERA (vista principal) ── */
-#app{display:none;position:relative;z-index:1;min-height:100vh;display:none;flex-direction:column}
-.top-bar{background:rgba(10,10,10,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--bdr);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
+/* ── APP ── */
+#app{display:none;position:relative;z-index:1;flex-direction:column;min-height:100vh}
+.top-bar{background:rgba(10,10,10,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--bdr);padding:12px 18px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
 .top-logos{display:flex;align-items:center;gap:10px}
-.top-logos img{height:22px;filter:brightness(0) invert(1);opacity:.85}
-.top-sep{width:1px;height:18px;background:var(--bdr)}
-.top-folio{font-size:11px;font-weight:600;letter-spacing:2px;color:var(--gold)}
-.btn-salir{padding:7px 14px;background:transparent;border:1px solid var(--bdr);border-radius:6px;color:var(--mid);font-family:'Barlow',sans-serif;font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:.2s}
-.btn-salir:hover{border-color:var(--bdr-h);color:var(--txt)}
-
-.content{padding:20px 20px 80px;max-width:480px;margin:0 auto;display:flex;flex-direction:column;gap:20px;width:100%}
+.top-logos img{height:20px;filter:brightness(0) invert(1);opacity:.85}
+.top-sep{width:1px;height:16px;background:var(--bdr)}
+.top-folio{font-size:10px;font-weight:600;letter-spacing:2px;color:var(--gold)}
+.btn-salir{padding:6px 12px;background:transparent;border:1px solid var(--bdr);border-radius:6px;color:var(--mid);font-family:'Barlow',sans-serif;font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;cursor:pointer}
+.content{padding:18px 18px 80px;max-width:480px;margin:0 auto;display:flex;flex-direction:column;gap:18px;width:100%}
 
 /* USER CARD */
-.user-card{background:var(--d2);border:1px solid var(--bdr);border-radius:var(--r);padding:20px;display:flex;flex-direction:column;gap:14px}
+.user-card{background:var(--d2);border:1px solid var(--bdr);border-radius:var(--r);padding:18px;display:flex;flex-direction:column;gap:12px}
 .user-top{display:flex;justify-content:space-between;align-items:flex-start}
-.user-name{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:400}
+.user-name{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:400}
 .user-name em{font-style:italic;color:var(--gold-l)}
-.status-badge{padding:4px 10px;border-radius:20px;font-size:9px;font-weight:600;letter-spacing:1px;text-transform:uppercase}
+.st-badge{padding:3px 9px;border-radius:20px;font-size:9px;font-weight:600;letter-spacing:1px;text-transform:uppercase}
 .st-active{background:rgba(92,155,107,.15);color:#5C9B6B;border:1px solid rgba(92,155,107,.3)}
 .st-completed{background:var(--gold-d);color:var(--gold);border:1px solid var(--bdr)}
-.progress-wrap{display:flex;flex-direction:column;gap:6px}
-.progress-top{display:flex;justify-content:space-between;align-items:center}
-.progress-lbl{font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim)}
-.progress-val{font-size:13px;font-weight:600;color:var(--gold)}
-.progress-bar{height:4px;background:var(--d4);border-radius:2px;overflow:hidden}
-.progress-fill{height:100%;background:linear-gradient(to right,var(--gold),var(--gold-l));border-radius:2px;transition:width .6s ease}
+.prog-wrap{display:flex;flex-direction:column;gap:5px}
+.prog-top{display:flex;justify-content:space-between}
+.prog-lbl{font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim)}
+.prog-val{font-size:12px;font-weight:600;color:var(--gold)}
+.prog-bar{height:3px;background:var(--d4);border-radius:2px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(to right,var(--gold),var(--gold-l));border-radius:2px;transition:width .6s}
 
-/* TICKETS */
-.section-lbl{font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--dim);padding:0 2px}
-.tickets-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.ticket{background:var(--d2);border:1px solid var(--bdr);border-radius:10px;padding:14px 12px;display:flex;flex-direction:column;gap:8px;cursor:pointer;transition:.2s;position:relative;overflow:hidden;-webkit-tap-highlight-color:transparent}
-.ticket:hover{border-color:var(--bdr-h)}
-.ticket.used{opacity:.45;cursor:default}
-.ticket.used:hover{border-color:var(--bdr)}
-.ticket::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--gold);opacity:0;transition:.2s}
-.ticket:not(.used):hover::before{opacity:.6}
-.t-num{font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim)}
-.t-icon{font-size:22px;line-height:1}
-.t-title{font-size:12px;font-weight:600;line-height:1.3;color:var(--txt)}
-.t-desc{font-size:10px;color:var(--dim);font-weight:300;line-height:1.4}
-.t-status{display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;margin-top:2px}
-.t-avail{color:var(--ok)}
-.t-avail::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--ok);display:inline-block}
-.t-used-lbl{color:var(--dim)}
-.t-used-lbl::before{content:'✓ '}
+/* AVISO NO ACUMULABLE */
+.no-acum-banner{background:rgba(201,160,48,.08);border:1px solid rgba(201,160,48,.25);border-radius:8px;padding:10px 13px;font-size:11px;color:#D4A838;line-height:1.5;display:flex;gap:8px;align-items:flex-start}
+.no-acum-banner span{flex-shrink:0;font-size:14px}
 
-/* MODAL DE TICKET (para usar) */
-#modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:200;display:none;align-items:flex-end;justify-content:center;padding:0}
-#modal-overlay.show{display:flex}
-.modal{background:var(--d2);border:1px solid var(--bdr);border-radius:20px 20px 0 0;width:100%;max-width:480px;padding:28px 24px 40px;display:flex;flex-direction:column;gap:18px;animation:slideUp .3s ease}
-@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
-.modal-handle{width:40px;height:3px;background:var(--dim);border-radius:2px;margin:0 auto -6px}
-.modal-title{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:300;text-align:center}
+/* SECTION LABEL */
+.sec-lbl{font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--dim)}
+
+/* TICKETS GRID */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ticket{background:var(--d2);border:1px solid var(--bdr);border-radius:10px;padding:13px 11px;display:flex;flex-direction:column;gap:7px;position:relative;overflow:hidden;transition:.2s}
+.ticket.avail{cursor:pointer}
+.ticket.avail:hover{border-color:var(--bdr-h)}
+.ticket.avail::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--gold);opacity:0;transition:.2s}
+.ticket.avail:hover::before{opacity:.5}
+.ticket.used{opacity:.38;cursor:default}
+.ticket.locked{opacity:.6;cursor:not-allowed;border-color:rgba(201,160,48,.2)}
+.t-num{font-size:8px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim)}
+.t-icon{font-size:20px;line-height:1}
+.t-title{font-size:11px;font-weight:600;line-height:1.3;color:var(--txt)}
+.t-status{font-size:9px;font-weight:600;letter-spacing:.7px;text-transform:uppercase;margin-top:1px}
+.ts-avail{color:var(--ok)}
+.ts-used{color:var(--dim)}
+.ts-locked{color:var(--warn)}
+.t-lock-reason{font-size:9px;color:var(--warn);line-height:1.3;font-weight:400;margin-top:1px}
+
+/* MODAL */
+#overlay{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:200;display:none;align-items:flex-end;justify-content:center}
+#overlay.show{display:flex}
+.modal{background:var(--d2);border:1px solid var(--bdr);border-radius:20px 20px 0 0;width:100%;max-width:480px;padding:26px 22px 38px;display:flex;flex-direction:column;gap:16px;animation:su .3s ease}
+@keyframes su{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-handle{width:36px;height:3px;background:var(--dim);border-radius:2px;margin:0 auto -4px}
+.modal-icon{font-size:40px;text-align:center}
+.modal-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;text-align:center}
 .modal-title em{font-style:italic;color:var(--gold-l)}
-.modal-icon{font-size:44px;text-align:center}
 .modal-desc{font-size:13px;color:var(--mid);text-align:center;line-height:1.6}
-.code-display{background:var(--d3);border:2px solid var(--gold);border-radius:12px;padding:22px;text-align:center;display:flex;flex-direction:column;gap:6px}
-.code-lbl{font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--dim)}
-.code-val{font-family:'Barlow',sans-serif;font-size:36px;font-weight:700;letter-spacing:8px;color:var(--gold)}
+
+/* CODE DISPLAY */
+.code-box{background:var(--d3);border:2px solid var(--gold);border-radius:12px;padding:20px;text-align:center;display:flex;flex-direction:column;gap:5px;cursor:pointer;active:opacity:.8}
+.code-lbl{font-size:8px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--dim)}
+.code-val{font-size:34px;font-weight:700;letter-spacing:8px;color:var(--gold)}
 .code-inst{font-size:11px;color:var(--mid);line-height:1.5}
+.copied-hint{font-size:10px;color:var(--ok);display:none}
+
+/* RESTRICTION NOTES en modal */
+.rest-list{background:rgba(201,160,48,.07);border:1px solid rgba(201,160,48,.2);border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:5px}
+.rest-list-title{font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--warn)}
+.rest-item{font-size:11px;color:#C4A040;line-height:1.4;display:flex;gap:6px}
+.rest-item::before{content:'•';flex-shrink:0}
+
+/* MODAL BUTTONS */
 .modal-btns{display:flex;flex-direction:column;gap:8px}
-.btn-modal-wa{width:100%;padding:13px;background:#25D366;border:none;border-radius:8px;color:#fff;font-family:'Barlow',sans-serif;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;text-decoration:none}
-.btn-modal-close{width:100%;padding:11px;background:transparent;border:1px solid var(--bdr);border-radius:8px;color:var(--mid);font-family:'Barlow',sans-serif;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;cursor:pointer}
+.btn-wa{padding:13px;background:#25D366;border:none;border-radius:8px;color:#fff;font-family:'Barlow',sans-serif;font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;width:100%}
+.btn-wa.blocked{background:var(--d3);border:1px solid var(--bdr);color:var(--dim);cursor:not-allowed}
+.btn-wa-reason{font-size:10px;color:var(--dim);text-align:center;font-weight:300;display:none}
+.btn-close{width:100%;padding:11px;background:transparent;border:1px solid var(--bdr);border-radius:8px;color:var(--mid);font-family:'Barlow',sans-serif;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;cursor:pointer}
 
-/* EXPIRY */
-.expiry-note{font-size:11px;color:var(--dim);text-align:center;font-weight:300;padding:4px 0}
+.expiry{font-size:11px;color:var(--dim);text-align:center;padding:2px 0}
 
-@media(min-width:480px){.content{padding:24px 24px 80px}}
+@media(min-width:480px){.content{padding:22px 22px 80px}}
 </style>
 </head>
 <body>
 <div class="bg"></div>
 
-<!-- ═══ GATE ═══ -->
+<!-- GATE -->
 <div id="gate">
   <div class="gate-inner">
     <div class="gate-logos">
-      <img id="gate-logo" src="https://www.radissonpuertovaras.com/images/balandra_sin_fondo.png" alt="Balandra">
+      <img src="https://www.radissonpuertovaras.com/images/balandra_sin_fondo.png" alt="Balandra">
       <div class="logo-sep"></div>
       <img src="https://www.radissonpuertovaras.com/logos/radisson-logo.png" alt="Radisson"
            onerror="this.src='https://www.radissonpuertovaras.com/logos/parkinn-logo.png';this.onerror=null">
     </div>
-    <div>
-      <p class="gate-title">Tu <em>Ticketera</em> Digital</p>
-      <p class="gate-sub" style="margin-top:8px">Ingresa tu RUT y PIN para acceder a tus beneficios</p>
-    </div>
+    <p class="gate-title">Tu <em>Ticketera</em> Digital</p>
     <div class="gate-card">
       <div class="fg">
         <label>RUT</label>
@@ -148,20 +159,17 @@ input.bad{border-color:var(--err)}
         </div>
       </div>
       <div class="msg err" id="g-err"></div>
-      <button class="btn btn-p" id="btn-ingresar" onclick="ingresar()">🔓 Ingresar</button>
-      <p class="gate-link">
-        ¿No tienes ticketera?
-        <a href="https://ticketera-balandra.vercel.app/registro.html">Regístrate aquí →</a>
-      </p>
+      <button class="btn btn-p" id="btn-ing" onclick="ingresar()">🔓 Ingresar</button>
+      <p class="gate-link">¿No tienes ticketera? <a href="registro.html">Regístrate aquí →</a></p>
     </div>
   </div>
 </div>
 
-<!-- ═══ APP ═══ -->
+<!-- APP -->
 <div id="app">
   <div class="top-bar">
     <div class="top-logos">
-      <img id="app-logo" src="https://www.radissonpuertovaras.com/images/balandra_sin_fondo.png" alt="">
+      <img src="https://www.radissonpuertovaras.com/images/balandra_sin_fondo.png" alt="">
       <div class="top-sep"></div>
       <span class="top-folio" id="app-folio">—</span>
     </div>
@@ -169,48 +177,59 @@ input.bad{border-color:var(--err)}
   </div>
 
   <div class="content">
-    <!-- User card -->
     <div class="user-card">
       <div class="user-top">
         <p class="user-name" id="app-name">—</p>
-        <span class="status-badge st-active" id="app-status">Activa</span>
+        <span id="app-st" class="st-badge st-active">Activa</span>
       </div>
-      <div class="progress-wrap">
-        <div class="progress-top">
-          <span class="progress-lbl">Beneficios usados</span>
-          <span class="progress-val" id="prog-val">0 / 10</span>
+      <div class="prog-wrap">
+        <div class="prog-top">
+          <span class="prog-lbl">Beneficios canjeados</span>
+          <span class="prog-val" id="prog-val">0 / 10</span>
         </div>
-        <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+        <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
       </div>
     </div>
 
-    <!-- Tickets -->
-    <p class="section-lbl">Tus 10 Beneficios</p>
-    <div class="tickets-grid" id="tickets-grid"></div>
+    <!-- Aviso anti-acumulación siempre visible -->
+    <div class="no-acum-banner">
+      <span>⚠️</span>
+      <div>
+        <strong>Beneficios no acumulables:</strong> Solo se puede canjear 1 beneficio de descuento por boleta o mesa. Si asisten varias personas con ticketera, cada beneficio se aplica en una visita/boleta distinta.
+      </div>
+    </div>
 
-    <!-- Expiry -->
-    <p class="expiry-note" id="expiry-note"></p>
+    <p class="sec-lbl">Tus 10 Beneficios</p>
+    <div class="grid" id="grid"></div>
+    <p class="expiry" id="expiry"></p>
   </div>
 </div>
 
-<!-- ═══ MODAL TICKET ═══ -->
-<div id="modal-overlay" onclick="closeModal(event)">
-  <div class="modal" id="modal">
+<!-- MODAL -->
+<div id="overlay" onclick="closeModal(event)">
+  <div class="modal">
     <div class="modal-handle"></div>
-    <p class="modal-icon" id="m-icon">🏷️</p>
+    <p class="modal-icon" id="m-icon">🎫</p>
     <p class="modal-title" id="m-title">Beneficio</p>
     <p class="modal-desc" id="m-desc"></p>
-    <div class="code-display">
+    <div class="code-box" id="code-box" onclick="copyCode()">
       <span class="code-lbl">Código — muestra al cajero</span>
       <span class="code-val" id="m-code">——</span>
-      <span class="code-inst">El cajero ingresa este código en su terminal para validar el beneficio</span>
+      <span class="code-inst">El cajero ingresa este código en su terminal para validar · Toca para copiar</span>
+      <span class="copied-hint" id="copied">✓ Copiado</span>
+    </div>
+    <!-- Restricciones del ticket -->
+    <div class="rest-list" id="m-rest" style="display:none">
+      <p class="rest-list-title">⚠ Condiciones de uso</p>
+      <div id="m-rest-items"></div>
     </div>
     <div class="modal-btns">
-      <a id="m-wa" class="btn-modal-wa" target="_blank">
+      <button class="btn-wa" id="m-wa-btn" onclick="regalar()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
         Regalar este beneficio
-      </a>
-      <button class="btn-modal-close" onclick="closeModal()">Cerrar</button>
+      </button>
+      <p class="btn-wa-reason" id="m-wa-reason"></p>
+      <button class="btn-close" onclick="closeModal()">Cerrar</button>
     </div>
   </div>
 </div>
@@ -219,16 +238,13 @@ input.bad{border-color:var(--err)}
 const SB_URL='https://wrtljewcclhqogkedsib.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndydGxqZXdjY2xocW9na2Vkc2liIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY4NDAzNTUsImV4cCI6MjA4MjQxNjM1NX0.FzxNYfIHE4R5IItHR-RfR5ebXU2lKP8R6s4zGNkxY_w';
 
-let ticketeraData=null;
+let DATA=null, ACTIVE_TICKET=null;
 
-// ── Sesión en sessionStorage ──
-const sesion=JSON.parse(sessionStorage.getItem('tbal')||'null');
-if(sesion){
-  // Restaurar sesión automáticamente
-  mostrarApp(sesion);
-}
+// ── Sesión ──
+const ses=JSON.parse(sessionStorage.getItem('tbal')||'null');
+if(ses) mostrarApp(ses);
 
-// ── RUT utils ──
+// ── RUT ──
 function normRUT(v){v=v.replace(/[.\s]/g,'').toUpperCase();if(!v.includes('-')&&v.length>1)v=v.slice(0,-1)+'-'+v.slice(-1);return v;}
 function fmtRUT(v){v=v.replace(/[.\s-]/g,'').toUpperCase();if(v.length<=1)return v;const dv=v.slice(-1),b=v.slice(0,-1);return b.replace(/\B(?=(\d{3})+(?!\d))/g,'.')+'-'+dv;}
 function validRUT(v){v=v.replace(/[.\s-]/g,'').toUpperCase();if(!/^[0-9]+[0-9K]$/.test(v)||v.length<7)return false;const b=v.slice(0,-1),dv=v.slice(-1);let s=0,m=2;for(let i=b.length-1;i>=0;i--){s+=parseInt(b[i])*m;m=m<7?m+1:2}const r=11-(s%11);return dv===(r===11?'0':r===10?'K':String(r));}
@@ -237,12 +253,7 @@ document.getElementById('g-rut').addEventListener('input',function(){
   this.value=fmtRUT(this.value.replace(/[^0-9kK]/g,''));
   this.classList.remove('bad');
 });
-
-function togglePin(){
-  const el=document.getElementById('g-pin');
-  el.type=el.type==='password'?'text':'password';
-  document.querySelector('.pin-eye').textContent=el.type==='password'?'👁':'🙈';
-}
+function togglePin(){const e=document.getElementById('g-pin');e.type=e.type==='password'?'text':'password';document.querySelector('.pin-eye').textContent=e.type==='password'?'👁':'🙈';}
 
 // ── LOGIN ──
 async function ingresar(){
@@ -253,7 +264,7 @@ async function ingresar(){
   document.querySelectorAll('#gate input').forEach(i=>i.classList.remove('bad'));
   if(!rut||!validRUT(rut)){document.getElementById('g-rut').classList.add('bad');err.textContent='RUT inválido.';err.style.display='block';return;}
   if(!pin||pin.length!==4){document.getElementById('g-pin').classList.add('bad');err.textContent='Ingresa tu PIN de 4 dígitos.';err.style.display='block';return;}
-  const btn=document.getElementById('btn-ingresar');
+  const btn=document.getElementById('btn-ing');
   btn._t=btn.innerHTML;btn.innerHTML='<span class="spin"></span>';btn.disabled=true;
   try{
     const res=await fetch(`${SB_URL}/rest/v1/rpc/balandra_access_ticketera`,{
@@ -264,76 +275,159 @@ async function ingresar(){
     if(!d.success){err.textContent=d.error||'Error al ingresar.';err.style.display='block';return;}
     sessionStorage.setItem('tbal',JSON.stringify(d));
     mostrarApp(d);
-  }catch(e){err.textContent='Error de conexión. Intenta nuevamente.';err.style.display='block';}
+  }catch(e){err.textContent='Error de conexión.';err.style.display='block';}
   finally{btn.innerHTML=btn._t;btn.disabled=false;}
 }
 
 // ── MOSTRAR APP ──
 function mostrarApp(d){
-  ticketeraData=d;
+  DATA=d;
   document.getElementById('gate').style.display='none';
   const app=document.getElementById('app');
-  app.style.display='flex';
-  app.style.flexDirection='column';
-
+  app.style.display='flex';app.style.flexDirection='column';
   document.getElementById('app-folio').textContent=d.folio||'—';
-  const nm=d.owner_name||'';
-  const parts=nm.split(' ');
-  document.getElementById('app-name').innerHTML=`${parts[0]||nm} <em>${parts.slice(1).join(' ')}</em>`;
-  const used=d.used_tickets||0,total=d.total_tickets||10;
+  const parts=(d.owner_name||'').split(' ');
+  document.getElementById('app-name').innerHTML=`${parts[0]||''} <em>${parts.slice(1).join(' ')}</em>`;
+  const used=d.used_tickets||0, total=d.total_tickets||10;
   document.getElementById('prog-val').textContent=`${used} / ${total}`;
   document.getElementById('prog-fill').style.width=`${(used/total)*100}%`;
-  const st=d.status==='completed';
-  const stEl=document.getElementById('app-status');
-  stEl.textContent=st?'Completada':'Activa';
-  stEl.className='status-badge '+(st?'st-completed':'st-active');
+  const comp=d.status==='completed';
+  const st=document.getElementById('app-st');
+  st.textContent=comp?'Completada':'Activa';
+  st.className='st-badge '+(comp?'st-completed':'st-active');
   if(d.expiry_date){
     const exp=new Date(d.expiry_date);
-    document.getElementById('expiry-note').textContent=`Válida hasta ${exp.toLocaleDateString('es-CL',{day:'numeric',month:'long',year:'numeric'})}`;
+    document.getElementById('expiry').textContent=`Válida hasta ${exp.toLocaleDateString('es-CL',{day:'numeric',month:'long',year:'numeric'})}`;
   }
-  renderTickets(d.tickets||[]);
+  renderGrid(d.tickets||[]);
 }
 
-// ── RENDER TICKETS ──
-function renderTickets(tickets){
-  const grid=document.getElementById('tickets-grid');
+// ── LÓGICA DE RESTRICCIONES ──
+function checkAccess(ticket, allTickets){
+  const usedNums=allTickets.filter(t=>t.status==='used').map(t=>t.ticket_number);
+
+  // Prerequisitos
+  const prereqs=ticket.prerequisite_ticket_numbers||[];
+  if(prereqs.length>0){
+    const missing=prereqs.filter(n=>!usedNums.includes(n));
+    if(missing.length>0){
+      const names=missing.map(n=>{const t=allTickets.find(x=>x.ticket_number===n);return t?`#${n} ${t.benefit_title}`:`#${n}`;});
+      return {ok:false,reason:`Debes canjear primero: ${names.join(' y ')}`};
+    }
+  }
+
+  // Último ticket
+  if(ticket.last_ticket_only){
+    const availOthers=allTickets.filter(t=>t.status==='available'&&t.ticket_number!==ticket.ticket_number);
+    if(availOthers.length>0)
+      return {ok:false,reason:`Solo disponible cuando sea el último beneficio (quedan ${availOthers.length} por usar)`};
+  }
+
+  return {ok:true};
+}
+
+// ── RENDER GRID ──
+function renderGrid(tickets){
+  const grid=document.getElementById('grid');
   grid.innerHTML='';
   tickets.forEach(t=>{
     const used=t.status==='used';
+    const access=used?null:checkAccess(t,tickets);
+    const locked=!used&&access&&!access.ok;
+
     const div=document.createElement('div');
-    div.className='ticket'+(used?' used':'');
+    div.className='ticket '+(used?'used':locked?'locked':'avail');
+
+    let statusHtml='';
+    if(used) statusHtml=`<span class="t-status ts-used">✓ ${fmtDate(t.used_at)}</span>`;
+    else if(locked) statusHtml=`<span class="t-status ts-locked">🔒 Bloqueado</span><span class="t-lock-reason">${access.reason}</span>`;
+    else statusHtml=`<span class="t-status ts-avail">● Disponible</span>`;
+
     div.innerHTML=`
       <span class="t-num">Beneficio #${t.ticket_number}</span>
       <span class="t-icon">${t.benefit_icon||'🎫'}</span>
       <span class="t-title">${t.benefit_title}</span>
-      <span class="t-desc">${t.benefit_description||''}</span>
-      <span class="t-status ${used?'t-used-lbl':'t-avail'}">${used?formatDate(t.used_at):'Disponible'}</span>`;
-    if(!used) div.onclick=()=>openModal(t);
+      ${statusHtml}`;
+
+    if(!used&&!locked) div.onclick=()=>openModal(t,tickets);
     grid.appendChild(div);
   });
 }
 
-function formatDate(iso){
-  if(!iso)return 'Usado';
-  return 'Usado '+new Date(iso).toLocaleDateString('es-CL',{day:'numeric',month:'short'});
-}
+function fmtDate(iso){if(!iso)return 'Usado';return new Date(iso).toLocaleDateString('es-CL',{day:'numeric',month:'short'});}
 
 // ── MODAL ──
-function openModal(t){
-  document.getElementById('m-icon').textContent=t.benefit_icon||'🎫';
-  document.getElementById('m-title').innerHTML=`<em>${t.benefit_title}</em>`;
-  document.getElementById('m-desc').textContent=t.benefit_description||'';
-  document.getElementById('m-code').textContent=t.validation_code||'——';
-  const nom=(ticketeraData?.owner_name||'').split(' ')[0];
-  const msg=encodeURIComponent(`🎫 *Club Balandra – Beneficio de regalo*\n\nHola! Te regalo este beneficio:\n\n*${t.benefit_title}*\n${t.benefit_description||''}\n\nCódigo de canje: *${t.validation_code}*\nPresenta este código al cajero en Balandra · Radisson Puerto Varas`);
-  document.getElementById('m-wa').href=`https://wa.me/?text=${msg}`;
-  document.getElementById('modal-overlay').classList.add('show');
+function openModal(ticket,allTickets){
+  ACTIVE_TICKET=ticket;
+  document.getElementById('m-icon').textContent=ticket.benefit_icon||'🎫';
+  document.getElementById('m-title').innerHTML=`<em>${ticket.benefit_title}</em>`;
+  document.getElementById('m-desc').textContent=ticket.benefit_description||'';
+  document.getElementById('m-code').textContent=ticket.validation_code||'——';
+  document.getElementById('copied').style.display='none';
+
+  // Restriction notes
+  const notes=ticket.restriction_notes||[];
+  const restDiv=document.getElementById('m-rest');
+  const restItems=document.getElementById('m-rest-items');
+  if(notes.length>0){
+    restItems.innerHTML=notes.map(n=>`<div class="rest-item">${n}</div>`).join('');
+    restDiv.style.display='block';
+  } else {
+    restDiv.style.display='none';
+  }
+
+  // Check si puede regalar
+  // No puede regalar si: el ticket tiene prerequisitos que no se cumplieron en la ticketera
+  // o si es last_ticket_only y no es el último
+  const access=checkAccess(ticket,allTickets);
+  const waBtn=document.getElementById('m-wa-btn');
+  const waReason=document.getElementById('m-wa-reason');
+  if(!access.ok){
+    waBtn.className='btn-wa blocked';
+    waBtn.onclick=null;
+    waReason.textContent='No puedes regalar este beneficio: '+access.reason;
+    waReason.style.display='block';
+  } else {
+    waBtn.className='btn-wa';
+    waBtn.onclick=regalar;
+    waReason.style.display='none';
+  }
+
+  document.getElementById('overlay').classList.add('show');
   document.body.style.overflow='hidden';
 }
+
 function closeModal(e){
-  if(e&&e.target!==document.getElementById('modal-overlay'))return;
-  document.getElementById('modal-overlay').classList.remove('show');
+  if(e&&e.target!==document.getElementById('overlay'))return;
+  document.getElementById('overlay').classList.remove('show');
   document.body.style.overflow='';
+  ACTIVE_TICKET=null;
+}
+
+// ── COPIAR CÓDIGO ──
+function copyCode(){
+  const code=document.getElementById('m-code').textContent;
+  if(navigator.clipboard) navigator.clipboard.writeText(code);
+  const hint=document.getElementById('copied');
+  hint.style.display='block';
+  setTimeout(()=>hint.style.display='none',2000);
+}
+
+// ── REGALAR ──
+function regalar(){
+  if(!ACTIVE_TICKET)return;
+  const t=ACTIVE_TICKET;
+  // Incluir restricciones en el mensaje
+  const restText=(t.restriction_notes||[]).map(n=>`• ${n}`).join('\n');
+  const msg=encodeURIComponent(
+    `🎫 *Club Balandra – Beneficio de regalo*\n\n` +
+    `Te regalo este beneficio:\n\n` +
+    `*${t.benefit_title}*\n${t.benefit_description||''}\n\n` +
+    `Código de canje: *${t.validation_code}*\n` +
+    (restText?`\n⚠️ Condiciones:\n${restText}\n\n`:'\n') +
+    `Presenta este código al cajero en Balandra · Radisson Puerto Varas`
+  );
+  window.open(`https://wa.me/?text=${msg}`,'_blank');
 }
 
 // ── SALIR ──
@@ -343,10 +437,10 @@ function salir(){
   document.getElementById('app').style.display='none';
   document.getElementById('g-rut').value='';
   document.getElementById('g-pin').value='';
-  ticketeraData=null;
+  DATA=null;ACTIVE_TICKET=null;
 }
 
-// Enter en gate
+// Enter
 document.addEventListener('keydown',e=>{
   if(e.key==='Enter'&&document.getElementById('gate').style.display!=='none') ingresar();
   if(e.key==='Escape') closeModal();
