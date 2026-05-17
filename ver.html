@@ -87,7 +87,12 @@ input.bad{border-color:var(--err)}
 .ticket.avail::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--gold);opacity:0;transition:.2s}
 .ticket.avail:hover::before{opacity:.5}
 .ticket.used{opacity:.38;cursor:default}
-.ticket.locked{opacity:.6;cursor:not-allowed;border-color:rgba(201,160,48,.2)}
+.ticket.locked{cursor:pointer;border-color:rgba(201,160,48,.25)}
+.ticket.locked:hover{border-color:rgba(201,160,48,.5)}
+.ticket.locked::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--warn);opacity:0;transition:.2s}
+.ticket.locked:hover::before{opacity:.5}
+/* Ícono de candado superpuesto en ticket locked */
+.t-lock-overlay{position:absolute;top:8px;right:8px;font-size:13px;opacity:.8}
 .t-num{font-size:8px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim)}
 .t-icon{font-size:20px;line-height:1}
 .t-title{font-size:11px;font-weight:600;line-height:1.3;color:var(--txt)}
@@ -110,6 +115,7 @@ input.bad{border-color:var(--err)}
 
 /* CODE DISPLAY */
 .code-box{background:var(--d3);border:2px solid var(--gold);border-radius:12px;padding:20px;text-align:center;display:flex;flex-direction:column;gap:5px;cursor:pointer;active:opacity:.8}
+.code-box.locked-code{background:rgba(201,160,48,.05);border-color:rgba(201,160,48,.25);cursor:default}
 .code-lbl{font-size:8px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--dim)}
 .code-val{font-size:34px;font-weight:700;letter-spacing:8px;color:var(--gold)}
 .code-inst{font-size:11px;color:var(--mid);line-height:1.5}
@@ -340,16 +346,18 @@ function renderGrid(tickets){
 
     let statusHtml='';
     if(used) statusHtml=`<span class="t-status ts-used">✓ ${fmtDate(t.used_at)}</span>`;
-    else if(locked) statusHtml=`<span class="t-status ts-locked">🔒 Bloqueado</span><span class="t-lock-reason">${access.reason}</span>`;
+    else if(locked) statusHtml=`<span class="t-status ts-avail" style="color:var(--warn)">🔒 Disponible con condición</span>`;
     else statusHtml=`<span class="t-status ts-avail">● Disponible</span>`;
 
     div.innerHTML=`
+      ${locked?'<span class="t-lock-overlay">🔒</span>':''}
       <span class="t-num">Beneficio #${t.ticket_number}</span>
       <span class="t-icon">${t.benefit_icon||'🎫'}</span>
       <span class="t-title">${t.benefit_title}</span>
       ${statusHtml}`;
 
-    if(!used&&!locked) div.onclick=()=>openModal(t,tickets);
+    // Todos los tickets disponibles (incluso locked) se pueden abrir
+    if(!used) div.onclick=()=>openModal(t,tickets);
     grid.appendChild(div);
   });
 }
@@ -359,11 +367,33 @@ function fmtDate(iso){if(!iso)return 'Usado';return new Date(iso).toLocaleDateSt
 // ── MODAL ──
 function openModal(ticket,allTickets){
   ACTIVE_TICKET=ticket;
+  const access=checkAccess(ticket,allTickets);
+  const isLocked=!access.ok;
+
   document.getElementById('m-icon').textContent=ticket.benefit_icon||'🎫';
   document.getElementById('m-title').innerHTML=`<em>${ticket.benefit_title}</em>`;
   document.getElementById('m-desc').textContent=ticket.benefit_description||'';
-  document.getElementById('m-code').textContent=ticket.validation_code||'——';
   document.getElementById('copied').style.display='none';
+
+  // Código: oculto si locked, visible si disponible
+  const codeBox=document.getElementById('code-box');
+  const codeVal=document.getElementById('m-code');
+  const codeInst=document.querySelector('.code-inst');
+  if(isLocked){
+    codeBox.className='code-box locked-code';
+    codeBox.onclick=null;
+    codeVal.textContent='🔒';
+    codeVal.style.letterSpacing='0';
+    codeVal.style.fontSize='28px';
+    codeInst.textContent='Este código se habilitará cuando se cumplan las condiciones de uso';
+  } else {
+    codeBox.className='code-box';
+    codeBox.onclick=copyCode;
+    codeVal.textContent=ticket.validation_code||'——';
+    codeVal.style.letterSpacing='8px';
+    codeVal.style.fontSize='34px';
+    codeInst.textContent='El cajero ingresa este código en su terminal para validar · Toca para copiar';
+  }
 
   // Restriction notes
   const notes=ticket.restriction_notes||[];
@@ -376,18 +406,17 @@ function openModal(ticket,allTickets){
     restDiv.style.display='none';
   }
 
-  // Check si puede regalar
-  // No puede regalar si: el ticket tiene prerequisitos que no se cumplieron en la ticketera
-  // o si es last_ticket_only y no es el último
-  const access=checkAccess(ticket,allTickets);
+  // Botón regalar
   const waBtn=document.getElementById('m-wa-btn');
   const waReason=document.getElementById('m-wa-reason');
-  if(!access.ok){
+  if(isLocked){
+    waBtn.innerHTML='🔒 Regalar este beneficio';
     waBtn.className='btn-wa blocked';
     waBtn.onclick=null;
-    waReason.textContent='No puedes regalar este beneficio: '+access.reason;
+    waReason.innerHTML=`<strong>Se habilitará cuando:</strong> ${access.reason}`;
     waReason.style.display='block';
   } else {
+    waBtn.innerHTML=`<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg> Regalar este beneficio`;
     waBtn.className='btn-wa';
     waBtn.onclick=regalar;
     waReason.style.display='none';
@@ -396,7 +425,6 @@ function openModal(ticket,allTickets){
   document.getElementById('overlay').classList.add('show');
   document.body.style.overflow='hidden';
 }
-
 function closeModal(e){
   if(e&&e.target!==document.getElementById('overlay'))return;
   document.getElementById('overlay').classList.remove('show');
