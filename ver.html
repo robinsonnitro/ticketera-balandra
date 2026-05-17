@@ -86,13 +86,11 @@ input.bad{border-color:var(--err)}
 .ticket.avail:hover{border-color:var(--bdr-h)}
 .ticket.avail::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--gold);opacity:0;transition:.2s}
 .ticket.avail:hover::before{opacity:.5}
-.ticket.used{opacity:.38;cursor:default}
-.ticket.locked{cursor:pointer;border-color:rgba(201,160,48,.25)}
-.ticket.locked:hover{border-color:rgba(201,160,48,.5)}
+.ticket.used{opacity:.35;cursor:default}
+.ticket.locked{cursor:pointer;border-color:rgba(201,160,48,.25);opacity:.55;filter:grayscale(20%)}
+.ticket.locked:hover{border-color:rgba(201,160,48,.55);opacity:.75;filter:grayscale(0%)}
 .ticket.locked::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--warn);opacity:0;transition:.2s}
-.ticket.locked:hover::before{opacity:.5}
-/* Ícono de candado superpuesto en ticket locked */
-.t-lock-overlay{position:absolute;top:8px;right:8px;font-size:13px;opacity:.8}
+.ticket.locked:hover::before{opacity:.6}
 .t-num{font-size:8px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim)}
 .t-icon{font-size:20px;line-height:1}
 .t-title{font-size:11px;font-weight:600;line-height:1.3;color:var(--txt)}
