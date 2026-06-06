@@ -387,7 +387,12 @@ function renderGrid(tickets){
     div.className='ticket '+(used?'used':locked?'locked':'avail');
 
     let statusHtml='';
-    if(used) statusHtml=`<span class="t-status ts-used">✓ ${fmtDate(t.used_at)}</span>`;
+    if(used){
+      let usedDetail=fmtDate(t.used_at);
+      if(t.used_by_staff) usedDetail+=` · ${t.used_by_staff}`;
+      if(t.used_table) usedDetail+=` · Mesa ${t.used_table}`;
+      statusHtml=`<span class="t-status ts-used">✓ ${usedDetail}</span>`;
+    }
     else if(locked) statusHtml=`<span class="t-status ts-avail" style="color:var(--warn)">🔒 Disponible con condición</span>`;
     else statusHtml=`<span class="t-status ts-avail">● Disponible</span>`;
 
