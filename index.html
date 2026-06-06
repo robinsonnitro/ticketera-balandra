@@ -827,20 +827,22 @@ function corpFormHTML(title, company, desc, venuesArr, validity, quota, checkedV
     <div class="fld" style="flex:1;min-width:100px"><label class="lbl">CUPO MÁX. (vacío=∞)</label><input id="cf-quota" class="inp" type="number" min="1" value="${quota}" placeholder="Ej: 100"></div>
   </div>
   <label class="lbl" style="margin-bottom:10px">LOS 10 BENEFICIOS</label>
-  <div style="display:flex;gap:16px;align-items:flex-start;margin-top:8px">
-    <div style="flex:3;min-width:0;border:1px solid rgba(212,175,55,.14);border-radius:10px;overflow:hidden">
+  <div style="display:flex;gap:20px;align-items:flex-start;margin-top:8px;margin-left:calc(-1*(50vw - 300px));margin-right:calc(-1*(50vw - 300px));padding:0 16px;box-sizing:border-box">
+    <div style="width:280px;flex-shrink:0;border:1px solid rgba(212,175,55,.14);border-radius:10px;overflow:hidden">
       ${rows}
     </div>
-    <div style="flex:2;min-width:320px;position:sticky;top:16px;background:rgba(212,175,55,.04);border:1px solid rgba(212,175,55,.14);border-radius:10px;padding:14px">
-      <p style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(212,175,55,.5);text-transform:uppercase;margin-bottom:8px">💡 Aplicar al ticket:</p>
-      <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px">${[1,2,3,4,5,6,7,8,9,10].map(i=>`<button type="button" id="psel${i}" class="prereq-btn${i===1?' prereq-on':''}" onclick="selectPresetTarget(${i})">#${i}</button>`).join('')}</div>
-      <p style="font-size:9px;color:rgba(255,255,255,.22);margin-bottom:12px">Elige el # y haz clic en la sugerencia</p>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px">
+    <div style="flex:1;min-width:0;position:sticky;top:16px;background:rgba(212,175,55,.04);border:1px solid rgba(212,175,55,.14);border-radius:10px;padding:16px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap">
+        <p style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(212,175,55,.5);text-transform:uppercase;flex-shrink:0">💡 Aplicar al ticket:</p>
+        <div style="display:flex;gap:4px;flex-wrap:wrap">${[1,2,3,4,5,6,7,8,9,10].map(i=>`<button type="button" id="psel${i}" class="prereq-btn${i===1?' prereq-on':''}" onclick="selectPresetTarget(${i})">#${i}</button>`).join('')}</div>
+        <p style="font-size:9px;color:rgba(255,255,255,.22)">← elige # luego haz clic</p>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:10px">
         ${['balandra','estacion','radisson','parkinn'].map(key=>{
           const labels={balandra:'🍽️ Balandra',estacion:'🍽️ Estación 505',radisson:'🏨 Radisson',parkinn:'🏨 Park Inn'};
           return`<div style="display:flex;flex-direction:column;gap:3px">
-            <p style="font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:rgba(212,175,55,.55);margin-bottom:4px;text-align:center;line-height:1.3">${labels[key]}</p>
-            ${BENEFIT_PRESETS[key].map((p,i)=>`<button type="button" id="pbtn-${key}-${i}" class="preset-btn" style="position:relative;display:flex;align-items:center;gap:5px;height:32px;font-size:11px;padding:0 24px 0 7px" onclick="applyPresetTo(_presetTarget,'${key}',${i})" title="${p.title}"><span style="flex-shrink:0">${p.icon}</span><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;font-size:10px">${p.title}</span><span id="pbadge-${key}-${i}" style="display:none;position:absolute;right:3px;background:#D4AF37;color:#0a1628;font-size:9px;font-weight:800;border-radius:4px;padding:1px 4px"></span></button>`).join('')}
+            <p style="font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:rgba(212,175,55,.6);margin-bottom:6px;text-align:center;line-height:1.4;border-bottom:1px solid rgba(212,175,55,.15);padding-bottom:5px">${labels[key]}</p>
+            ${BENEFIT_PRESETS[key].map((p,i)=>`<button type="button" id="pbtn-${key}-${i}" class="preset-btn" style="position:relative;display:flex;align-items:center;gap:6px;min-height:32px;height:auto;font-size:11px;padding:5px 26px 5px 8px;white-space:normal;text-align:left;line-height:1.3" onclick="applyPresetTo(_presetTarget,'${key}',${i})"><span style="flex-shrink:0;font-size:13px">${p.icon}</span><span style="flex:1">${p.title}</span><span id="pbadge-${key}-${i}" style="display:none;position:absolute;top:4px;right:3px;background:#D4AF37;color:#0a1628;font-size:9px;font-weight:800;border-radius:4px;padding:1px 4px"></span></button>`).join('')}
           </div>`;
         }).join('')}
       </div>
