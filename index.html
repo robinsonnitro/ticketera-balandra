@@ -118,6 +118,18 @@ body{font-family:'Inter',sans-serif;background:var(--navy);color:var(--white);mi
 .tkt-wa{display:inline-flex;align-items:center;gap:6px;margin-top:10px;padding:7px 12px;border-radius:8px;background:#25D366;border:none;color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;-webkit-tap-highlight-color:transparent;transition:opacity .15s}
 .tkt-wa:active{opacity:.8}
 .stamp{position:absolute;top:50%;right:12px;transform:translateY(-50%) rotate(-12deg);border:2px solid rgba(255,95,95,.4);border-radius:4px;padding:2px 8px;color:rgba(255,95,95,.45);font-size:11px;font-weight:800;letter-spacing:2px;pointer-events:none}
+.tkt-dis{opacity:.45;filter:grayscale(60%)}
+.adm-panel{background:rgba(212,175,55,.05);border:1px solid rgba(212,175,55,.2);border-radius:10px;padding:14px 16px;margin:12px 0;display:flex;flex-direction:column;gap:10px}
+.adm-panel-title{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(212,175,55,.6)}
+.btn-adm-off{padding:8px 14px;border-radius:8px;border:1px solid rgba(255,120,50,.5);background:rgba(255,120,50,.1);color:#ff7832;font-size:12px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:opacity .15s}
+.btn-adm-on{padding:8px 14px;border-radius:8px;border:1px solid rgba(80,200,100,.5);background:rgba(80,200,100,.1);color:#50c864;font-size:12px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:opacity .15s}
+.btn-adm-cancel{padding:8px 14px;border-radius:8px;border:1px solid rgba(200,50,50,.4);background:rgba(200,50,50,.08);color:#c83232;font-size:12px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:opacity .15s}
+.btn-adm-off:active,.btn-adm-on:active,.btn-adm-cancel:active{opacity:.7}
+.adm-global{background:rgba(212,175,55,.04);border:1px solid rgba(212,175,55,.15);border-radius:10px;padding:14px 16px;margin-top:12px}
+.adm-global-title{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(212,175,55,.5);margin-bottom:10px}
+.adm-benefit-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.adm-benefit-row:last-child{border-bottom:none}
+.adm-benefit-name{font-size:12px;color:var(--white);flex:1}
 
 /* ── STATS ── */
 .sg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
@@ -261,21 +273,21 @@ function hTkt(t){
   const waUrl=`https://wa.me/?text=${waMsg(t.folio,link,t.owner_name)}`;
   const comp=t.status==='completed'?`<div class="gift"><div style="font-size:38px;margin-bottom:8px">🎉</div><p style="color:var(--gold);font-size:16px;font-weight:700;margin-bottom:4px">¡Ticketera Completada!</p><p style="color:var(--muted);font-size:12px">Retira tu botella de vino · Folio <strong style="color:var(--gold)">${t.folio}</strong></p></div>`:'';
   const tkts=(t.tickets||[]).map(tk=>{
-    const u=tk.status==='used',ls=tk.ticket_number===10&&!u;
-    const tktMsg=encodeURIComponent(`🎟️ Te regalo este ticket de Balandra\n\n${tk.benefit_icon} *${tk.benefit_title}*\n${tk.benefit_description}\n\n🔑 Código para usar en caja: *${tk.validation_code}*\n\n📍 Balandra Restaurant · Hotel Radisson Puerto Varas\nMuéstraselo al garzón antes de pagar. Válido hasta ${fd(t.expiry_date)}.`);
-    const tktWa=`https://wa.me/?text=${tktMsg}`;
-    return`<div class="tkt ${u?'used':''} ${ls?'last':''}">
+    const u=tk.status==='used', dis=tk.status==='disabled';
+    return`<div class="tkt ${u?'used':''} ${dis?'tkt-dis':''}">
       ${u?'<div class="stamp">USADO</div>':''}
+      ${dis?'<div class="stamp" style="background:rgba(180,40,40,.85)">INACTIVO</div>':''}
       <div class="tkt-seq">#${tk.ticket_number}/10</div>
       <div class="tkt-ico">${tk.benefit_icon}</div>
       <div class="tkt-body">
         <p class="tkt-title">${tk.benefit_title}</p>
-        <p class="tkt-desc">${tk.benefit_description}</p>
         <div class="coderow">
-          <span class="vcode ${u?'dim':''}">${tk.validation_code}</span>
-          ${u&&tk.used_at?`<span class="used-t">${fdt(tk.used_at)}</span>`:''}
+          <span class="vcode ${u||dis?'dim':''}">${tk.validation_code}</span>
+          ${u&&tk.used_at?`<span class="used-t">${fdt(tk.used_at)}${tk.used_by_staff?' · '+tk.used_by_staff:''}${tk.used_table?' · Mesa '+tk.used_table:''}</span>`:''}
         </div>
-
+        ${!u?`<button class="btn-adm-tk ${dis?'btn-adm-on':'btn-adm-off'}" onclick="adminToggleTicket('${tk.validation_code}','${dis?'available':'disabled'}','${t.folio}')">
+          ${dis?'✓ Reactivar ticket':'⊘ Desactivar ticket'}
+        </button>`:''}
       </div>
     </div>`}).join('');
 
@@ -283,7 +295,7 @@ function hTkt(t){
 <div class="fhdr">
   <div class="frow">
     <div><p class="feye">Folio de Ticketera</p><p class="fnum">${t.folio}</p><p class="fname">${t.owner_name||'Cliente Balandra'}${t.owner_email?' · '+t.owner_email:''}</p></div>
-    <div class="fright"><span class="bdg ${sm[t.status]||'ba'}">${sl[t.status]||t.status.toUpperCase()}</span><p class="fexp">Válida hasta<br>${fd(t.expiry_date)}</p></div>
+    <div class="fright"><span class="bdg ${sm[t.status]||'ba'}" id="tkt-status-bdg">${sl[t.status]||t.status.toUpperCase()}</span><p class="fexp">Válida hasta<br>${fd(t.expiry_date)}</p></div>
   </div>
   <div class="prog">
     <div class="prog-row"><span style="color:var(--muted)">Progreso</span><span style="color:var(--gold);font-weight:700">${t.used_tickets}/${t.total_tickets} usados</span></div>
@@ -291,7 +303,20 @@ function hTkt(t){
   </div>
 </div>
 
-
+<div class="adm-panel">
+  <p class="adm-panel-title">⚙️ Administración</p>
+  <div id="adm-msg" style="display:none;font-size:12px;padding:8px 10px;border-radius:6px;margin-bottom:8px"></div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    ${t.status==='suspended'
+      ? `<button class="btn-adm-on" onclick="adminToggleTkt('${t.folio}','active')">✓ Reactivar ticketera</button>`
+      : t.status!=='completed'&&t.status!=='cancelled'
+        ? `<button class="btn-adm-off" onclick="adminToggleTkt('${t.folio}','suspended')">⊘ Suspender ticketera</button>`
+        : ''}
+    ${t.status!=='cancelled'
+      ? `<button class="btn-adm-cancel" onclick="adminCancelTkt('${t.folio}')">✕ Cancelar ticketera</button>`
+      : ''}
+  </div>
+</div>
 
 <div class="tlist">${tkts}</div>
 <div class="tc mt20" style="padding-bottom:10px">
@@ -315,6 +340,68 @@ function hTkt(t){
     <div style="font-size:10px;color:rgba(212,175,55,.55);line-height:1.45;display:flex;gap:6px"><span style="flex-shrink:0">•</span>En caso de pérdida del folio, el restaurante no se hace responsable</div>
   </div>
 </details>`
+}
+
+/* ══════════════════════════
+   ADMIN — ACCIONES TICKETERA
+══════════════════════════ */
+function admMsg(txt,ok){
+  const el=document.getElementById('adm-msg');
+  if(!el)return;
+  el.textContent=txt;
+  el.style.background=ok?'rgba(80,200,100,.12)':'rgba(200,50,50,.12)';
+  el.style.color=ok?'#50c864':'#c84040';
+  el.style.border=ok?'1px solid rgba(80,200,100,.3)':'1px solid rgba(200,50,50,.3)';
+  el.style.display='block';
+  setTimeout(()=>{el.style.display='none';},3500);
+}
+async function adminToggleTkt(folio,status){
+  const label=status==='suspended'?'suspender':'reactivar';
+  if(!confirm(`¿Confirmas ${label} la ticketera ${folio}?`))return;
+  try{
+    const d=await rpc('balandra_admin_set_ticketera_status',{p_folio:folio,p_status:status});
+    if(d.success){admMsg(`Ticketera ${status==='suspended'?'suspendida':'reactivada'} correctamente`,true);setTimeout(()=>loadTkt(folio,document.getElementById('main')),800);}
+    else admMsg(d.error||'Error al actualizar',false);
+  }catch{admMsg('Error de conexión',false);}
+}
+async function adminCancelTkt(folio){
+  if(!confirm(`¿Cancelar definitivamente la ticketera ${folio}? Esta acción no se puede deshacer.`))return;
+  try{
+    const d=await rpc('balandra_admin_set_ticketera_status',{p_folio:folio,p_status:'cancelled'});
+    if(d.success){admMsg('Ticketera cancelada',true);setTimeout(()=>nav('admin'),1200);}
+    else admMsg(d.error||'Error al cancelar',false);
+  }catch{admMsg('Error de conexión',false);}
+}
+async function adminToggleTicket(code,status,folio){
+  try{
+    const d=await rpc('balandra_admin_set_ticket_status',{p_validation_code:code,p_status:status});
+    if(d.success){admMsg(`Ticket ${status==='disabled'?'desactivado':'reactivado'}`,true);setTimeout(()=>loadTkt(folio,document.getElementById('main')),600);}
+    else admMsg(d.error||'Error al actualizar ticket',false);
+  }catch{admMsg('Error de conexión',false);}
+}
+async function adminToggleBenefitType(num,status,btn){
+  const name=btn.closest('.adm-benefit-row').querySelector('.adm-benefit-name').textContent;
+  if(!confirm(`¿${status==='disabled'?'Desactivar':'Reactivar'} "${name}" en TODAS las ticketeras?`))return;
+  btn.disabled=true;btn.textContent='...';
+  try{
+    const d=await rpc('balandra_admin_set_benefit_type_status',{p_ticket_number:num,p_status:status});
+    if(d.success){loadBenefitTypes();}
+    else{btn.disabled=false;alert(d.error||'Error');}
+  }catch{btn.disabled=false;alert('Error de conexión');}
+}
+async function loadBenefitTypes(){
+  const area=document.getElementById('benefit-types-area');
+  if(!area)return;
+  try{
+    const tpls=await rpc('balandra_list_benefit_types');
+    if(!Array.isArray(tpls)||!tpls.length){area.innerHTML='<p style="color:var(--muted);font-size:12px">Sin datos</p>';return;}
+    area.innerHTML=tpls.map(b=>`<div class="adm-benefit-row">
+      <span class="adm-benefit-name">${b.benefit_icon||'🎫'} #${b.ticket_number} ${b.benefit_title}</span>
+      ${b.active
+        ?`<button class="btn-adm-off" onclick="adminToggleBenefitType(${b.ticket_number},'disabled',this)">⊘ Desactivar</button>`
+        :`<button class="btn-adm-on" onclick="adminToggleBenefitType(${b.ticket_number},'available',this)">✓ Activar</button>`}
+    </div>`).join('');
+  }catch{area.innerHTML='<p style="color:var(--red);font-size:12px">Error al cargar</p>';}
 }
 
 /* ══════════════════════════
@@ -486,19 +573,27 @@ function hAdmin(){return`
 <div>
   <div class="tabs">
     <button class="tab on" id="at0" onclick="sTab('db',this)">Dashboard</button>
-    <button class="tab" id="at1" onclick="sTab('cr',this)">Nueva Ticketera</button>
+    <button class="tab" id="at1" onclick="sTab('cr',this)">Nueva</button>
     <button class="tab" id="at2" onclick="sTab('li',this)">Listado</button>
+    <button class="tab" id="at3" onclick="sTab('bn',this)">Beneficios</button>
   </div>
   <div id="ap0">${hDash()}</div>
   <div id="ap1" style="display:none">${hCrear()}</div>
   <div id="ap2" style="display:none"><div id="larea"><p style="color:var(--muted)">Cargando...</p></div></div>
+  <div id="ap3" style="display:none">
+    <div class="adm-global">
+      <p class="adm-global-title">🎛️ Activar / Desactivar beneficios globalmente</p>
+      <p style="color:var(--muted);font-size:11px;margin-bottom:12px">Desactivar un beneficio lo bloquea en TODAS las ticketeras activas. Los tickets ya usados no se ven afectados.</p>
+      <div id="benefit-types-area"><p style="color:var(--muted);font-size:12px">Cargando...</p></div>
+    </div>
+  </div>
 </div>`}
 
 function bAdminCreate(){const b=document.getElementById('ccb');if(b)b.onclick=doCrear;}
 function sTab(n,el){
-  const mp={db:0,cr:1,li:2},i=mp[n];
-  [0,1,2].forEach(j=>{document.getElementById('ap'+j).style.display=j===i?'block':'none';document.getElementById('at'+j).classList.toggle('on',j===i);});
-  if(n==='db')loadStats();if(n==='li')loadListado();if(n==='cr')bAdminCreate();
+  const mp={db:0,cr:1,li:2,bn:3},i=mp[n];
+  [0,1,2,3].forEach(j=>{document.getElementById('ap'+j).style.display=j===i?'block':'none';document.getElementById('at'+j).classList.toggle('on',j===i);});
+  if(n==='db')loadStats();if(n==='li')loadListado();if(n==='cr')bAdminCreate();if(n==='bn')loadBenefitTypes();
 }
 function hDash(){return`
 <div class="sg">
