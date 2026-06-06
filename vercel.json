@@ -1,5 +1,11 @@
 {
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }],
+  "redirects": [
+    { "source": "/(.*)", "destination": "https://www.radissonpuertovaras.com/ticketera/$1", "permanent": false, "has": [{"type": "host", "value": "ticketera-balandra.vercel.app"}] }
+  ],
+  "rewrites": [
+    { "source": "/qr/:code", "destination": "/api/qr?c=:code" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ],
   "headers": [
     {
       "source": "/(.*)",
