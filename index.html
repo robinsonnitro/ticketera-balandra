@@ -184,6 +184,7 @@ const SB='https://wrtljewcclhqogkedsib.supabase.co';
 const SK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndydGxqZXdjY2xocW9na2Vkc2liIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY4NDAzNTUsImV4cCI6MjA4MjQxNjM1NX0.FzxNYfIHE4R5IItHR-RfR5ebXU2lKP8R6s4zGNkxY_w';
 const PW='balandra2026';
 let adminOk=false;
+let qrScanner=null;
 
 async function rpc(fn,p={}){
   const r=await fetch(`${SB}/rest/v1/rpc/${fn}`,{method:'POST',headers:{apikey:SK,Authorization:'Bearer '+SK,'Content-Type':'application/json'},body:JSON.stringify(p)});
@@ -411,7 +412,6 @@ function hVal(){return`
   </div>
 </div>`}
 
-let qrScanner=null;
 function bVal(){
   const vc=document.getElementById('vc'),vb=document.getElementById('vb'),bc=document.getElementById('btn-camara');
   if(vc){vc.oninput=()=>vc.value=vc.value.toUpperCase();vc.onkeydown=e=>{if(e.key==='Enter')doVal();};}
