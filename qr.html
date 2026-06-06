@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>QR · Balandra</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0a1628;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:'Inter',sans-serif;padding:24px}
+.logo{color:rgba(212,175,55,.7);font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;margin-bottom:28px}
+.qr-wrap{background:#fff;border-radius:20px;padding:16px;box-shadow:0 0 60px rgba(212,175,55,.25)}
+.qr-wrap img{display:block;width:260px;height:260px;border-radius:8px}
+.benefit{color:#D4AF37;font-size:16px;font-weight:700;text-align:center;margin-top:24px;max-width:280px}
+.code{color:rgba(240,244,248,.4);font-size:11px;font-family:monospace;letter-spacing:3px;margin-top:8px;text-align:center}
+.inst{color:rgba(240,244,248,.55);font-size:12px;text-align:center;margin-top:16px;max-width:260px;line-height:1.6}
+.invalid{color:#ff5f5f;text-align:center;font-size:14px}
+</style>
+</head>
+<body>
+<p class="logo">Balandra · Radisson Puerto Varas</p>
+<div id="content"></div>
+<script>
+const p=new URLSearchParams(location.search);
+const c=(p.get('c')||'').trim().toUpperCase();
+const b=p.get('b')||'';
+const el=document.getElementById('content');
+if(c){
+  el.innerHTML=`
+    <div class="qr-wrap">
+      <img src="https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=${encodeURIComponent(c)}&margin=12&bgcolor=ffffff&color=0a0a0a" alt="QR">
+    </div>
+    ${b?`<p class="benefit">${decodeURIComponent(b)}</p>`:''}
+    <p class="code">${c}</p>
+    <p class="inst">Muestra este QR al mesero antes de pagar.<br>Solo un uso — se valida al escanearlo.</p>
+  `;
+}else{
+  el.innerHTML='<p class="invalid">Código no válido</p>';
+}
+</script>
+</body>
+</html>

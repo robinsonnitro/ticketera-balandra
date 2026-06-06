@@ -124,6 +124,14 @@ body{font-family:'Inter',sans-serif;background:var(--navy);color:var(--white);mi
 .btn-adm-off{padding:8px 14px;border-radius:8px;border:1px solid rgba(255,120,50,.5);background:rgba(255,120,50,.1);color:#ff7832;font-size:12px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:opacity .15s}
 .btn-adm-on{padding:8px 14px;border-radius:8px;border:1px solid rgba(80,200,100,.5);background:rgba(80,200,100,.1);color:#50c864;font-size:12px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:opacity .15s}
 .btn-adm-cancel{padding:8px 14px;border-radius:8px;border:1px solid rgba(200,50,50,.4);background:rgba(200,50,50,.08);color:#c83232;font-size:12px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:opacity .15s}
+.preset-btn{padding:4px 9px;border-radius:6px;border:1px solid rgba(212,175,55,.25);background:rgba(212,175,55,.07);color:rgba(255,255,255,.7);font-size:11px;cursor:pointer;font-family:'Inter',sans-serif;transition:background .15s,border-color .15s;white-space:nowrap}
+.preset-btn:hover{background:rgba(212,175,55,.18);border-color:rgba(212,175,55,.5);color:#D4AF37}
+.prereq-btn{padding:3px 8px;border-radius:6px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);color:rgba(255,255,255,.4);font-size:11px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s}
+.prereq-btn:hover{border-color:rgba(212,175,55,.4);color:rgba(212,175,55,.7)}
+.prereq-on{background:rgba(212,175,55,.15)!important;border-color:rgba(212,175,55,.6)!important;color:#D4AF37!important}
+.venue-chk{display:flex;align-items:center;gap:6px;padding:7px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:rgba(255,255,255,.7);font-size:12px;cursor:pointer;transition:all .15s}
+.venue-chk:has(input:checked){border-color:rgba(212,175,55,.5);background:rgba(212,175,55,.1);color:#D4AF37}
+.venue-chk input{accent-color:#D4AF37;cursor:pointer}
 .btn-adm-off:active,.btn-adm-on:active,.btn-adm-cancel:active{opacity:.7}
 .adm-global{background:rgba(212,175,55,.04);border:1px solid rgba(212,175,55,.15);border-radius:10px;padding:14px 16px;margin-top:12px}
 .adm-global-title{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(212,175,55,.5);margin-bottom:10px}
@@ -336,9 +344,9 @@ function hTkt(t){
     <div style="font-size:10px;color:rgba(212,175,55,.55);line-height:1.45;display:flex;gap:6px"><span style="flex-shrink:0">•</span>Requiere consumo mínimo de $20.000 en platos de fondo</div>
     <div style="font-size:10px;color:rgba(212,175,55,.55);line-height:1.45;display:flex;gap:6px"><span style="flex-shrink:0">•</span>Propinas no incluidas en el descuento</div>
     <div style="font-size:10px;color:rgba(212,175,55,.55);line-height:1.45;display:flex;gap:6px"><span style="flex-shrink:0">•</span>En caso de regalo, el ticket se valida con la primera persona que lo utilice</div>
-    <div style="font-size:10px;color:rgba(212,175,55,.55);line-height:1.45;display:flex;gap:6px"><span style="flex-shrink:0">•</span>El restaurante se reserva el derecho de modificar o suspender los beneficios sin aviso previo</div>
     <div style="font-size:10px;color:rgba(212,175,55,.55);line-height:1.45;display:flex;gap:6px"><span style="flex-shrink:0">•</span>Vigencia de 6 meses desde la fecha de emisión</div>
     <div style="font-size:10px;color:rgba(212,175,55,.55);line-height:1.45;display:flex;gap:6px"><span style="flex-shrink:0">•</span>En caso de pérdida del folio, el restaurante no se hace responsable</div>
+    <div style="font-size:10px;color:rgba(212,175,55,.65);line-height:1.45;display:flex;gap:6px;border-top:1px solid rgba(212,175,55,.12);padding-top:6px;margin-top:2px"><span style="flex-shrink:0">•</span>La empresa se reserva el derecho de modificar, desactivar o retirar tickets individuales o la ticketera completa en cualquier momento, sin aviso previo, por razones de no uso, falta de stock o disposición comercial</div>
   </div>
 </details>`
 }
@@ -645,7 +653,38 @@ async function loadListado(){
 /* ══════════════════════════
    CORPORATIVO
 ══════════════════════════ */
+const CORP_VENUES={balandra:'🍽️ Balandra Restaurant',estacion:'🍽️ Estación 505',radisson:'🏨 Hotel Radisson',parkinn:'🏨 Park Inn'};
+function corpCatLabel(cat){if(!cat)return'—';if(cat==='all')return'🍽️🏨 Todos los establecimientos';return cat.split(',').map(c=>CORP_VENUES[c]||c).join(' · ');}
 const CORP_CAT_LABEL={restaurant:'🍽️ Restaurant',hotel:'🏨 Hotel',both:'🍽️🏨 Restaurant + Hotel'};
+
+const BENEFIT_PRESETS={
+  rest:[
+    {icon:'🍽️',title:'10% de Descuento',desc:'Descuento del 10% en tu cuenta total. Válido almuerzo o cena.',notes:['No acumulable en la misma boleta','No aplica a menús promocionales']},
+    {icon:'✨',title:'20% de Descuento',desc:'Descuento del 20% en tu cuenta total. Válido almuerzo o cena.',notes:['No acumulable en la misma boleta','No aplica a menús promocionales']},
+    {icon:'🌟',title:'30% de Descuento',desc:'Descuento del 30% en tu cuenta total.',notes:['No acumulable en la misma boleta','No aplica a menús promocionales']},
+    {icon:'🎉',title:'50% de Descuento',desc:'50% de descuento en tu cuenta total.',notes:['No acumulable bajo ninguna circunstancia']},
+    {icon:'🍷',title:'Copa de Vino',desc:'Una copa de vino de la casa completamente gratis con tu consumo.',notes:['No acumulable con otros descuentos']},
+    {icon:'☕',title:'Postre + Café',desc:'Postre sugerencia del chef y café de cortesía para toda la mesa.',notes:['No acumulable con otros descuentos']},
+    {icon:'🍹',title:'Cócteles 2x1',desc:'Pide un cóctel y te invitamos el segundo. Válido entre 15:00 y 22:00 hrs.',notes:['Válido entre 15:00 y 22:00 horas','No aplica a menús promocionales']},
+    {icon:'🥘',title:'Entrada de Cortesía',desc:'1er tiempo de cortesía según sugerencia del chef, sin costo.',notes:['No acumulable con otros descuentos']},
+    {icon:'🥗',title:'Buffet Almuerzo $20.000',desc:'Precio especial $20.000 por persona en buffet dominical.',notes:['Solo cuenta con mínimo 2 buffets']},
+    {icon:'🥂',title:'Botella de Vino',desc:'Botella de vino según sugerencia del somelier.',notes:['Solo disponible al completar todos los beneficios anteriores']},
+    {icon:'🧀',title:'Tabla de Quesos',desc:'Tabla de quesos y embutidos de cortesía para compartir.',notes:['No acumulable con otros descuentos']},
+    {icon:'🍱',title:'Menú Ejecutivo',desc:'Menú ejecutivo completo (entrada + fondo + postre) a precio preferencial.',notes:['Solo válido días de semana','No aplica fines de semana ni festivos']},
+  ],
+  hotel:[
+    {icon:'🛏️',title:'Noche Gratis',desc:'Una noche de alojamiento completamente gratis en habitación estándar.',notes:['Sujeto a disponibilidad','No válido en temporada alta']},
+    {icon:'⬆️',title:'Upgrade de Habitación',desc:'Mejora de habitación sin costo adicional al momento del check-in.',notes:['Sujeto a disponibilidad']},
+    {icon:'🍳',title:'Desayuno Incluido',desc:'Desayuno buffet incluido para 2 personas durante tu estadía.',notes:['Solo para la noche de check-in']},
+    {icon:'🕐',title:'Late Check-out',desc:'Check-out tardío hasta las 15:00 horas sin cargo adicional.',notes:['Sujeto a disponibilidad','Solicitar con anticipación']},
+    {icon:'🌅',title:'Early Check-in',desc:'Check-in anticipado desde las 10:00 horas sin cargo.',notes:['Sujeto a disponibilidad']},
+    {icon:'💆',title:'Spa Gratuito',desc:'Acceso gratuito al spa por 1 hora durante tu estadía.',notes:['Previa reserva','Sujeto a disponibilidad']},
+    {icon:'🚗',title:'Estacionamiento',desc:'Estacionamiento gratuito durante tu estadía.',notes:['Sujeto a disponibilidad']},
+    {icon:'✈️',title:'Transfer Aeropuerto',desc:'Transfer de ida o vuelta aeropuerto-hotel sin costo.',notes:['Reservar con 48 hrs de anticipación']},
+    {icon:'🍾',title:'Botella de Bienvenida',desc:'Botella de espumante y frutas de bienvenida en habitación.',notes:[]},
+    {icon:'🏊',title:'Acceso Piscina + Gimnasio',desc:'Acceso libre a piscina y gimnasio durante toda tu estadía.',notes:[]},
+  ]
+};
 
 async function loadCorpList(){
   const area=document.getElementById('corp-area');if(!area)return;
@@ -711,6 +750,13 @@ async function loadCorpDetail(code){
         <summary style="font-size:11px;color:var(--gold);cursor:pointer;list-style:none">▾ Ver los 10 beneficios configurados</summary>
         <div style="margin-top:8px">${bens}</div>
       </details>
+      <div class="adm-panel" style="margin:0 0 12px">
+        <p class="adm-panel-title" style="margin-bottom:8px">⚙️ Gestión de plantilla</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="bg" onclick="editCorpTemplate('${d.code}')">✏️ Editar plantilla</button>
+          <button class="btn-adm-${d.active===false?'on':'off'}" onclick="toggleCorpTemplate('${d.code}',${d.active!==false})">${d.active===false?'✓ Reactivar plantilla':'⊘ Desactivar plantilla'}</button>
+        </div>
+      </div>
       <p style="font-size:11px;font-weight:600;color:var(--muted);margin-bottom:8px">Ticketeras emitidas: ${tktList.length}</p>
       ${tktList.length?`<div>${tktList.map(t=>`<div class="lrow" onclick="nav('ticketera','${t.folio}')">
         <div><p class="lfolio">${t.folio}</p><p class="lname">${t.owner_name||''}${t.owner_email?' · '+t.owner_email:''}</p></div>
@@ -723,78 +769,194 @@ async function loadCorpDetail(code){
   }catch{det.innerHTML='<p style="color:var(--red);font-size:12px;padding:12px">Error al cargar detalle.</p>';}
 }
 
-function showCorpForm(){
-  const frm=document.getElementById('corp-form');if(!frm)return;
-  // Cargar beneficios estándar como punto de partida
-  rpc('balandra_list_benefit_types').then(tpls=>{
-    const rows=(Array.isArray(tpls)?tpls:[]).map(b=>`
-    <div class="corp-ben-row" id="cbr${b.ticket_number}">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
-        <span style="color:var(--gold);font-size:11px;font-weight:700;width:28px">#${b.ticket_number}</span>
-        <input class="inp" style="font-size:13px" value="${b.benefit_icon||'🎫'}" maxlength="4" id="cbi${b.ticket_number}" placeholder="Ícono">
-        <input class="inp" style="flex:1;font-size:13px" value="${b.benefit_title}" id="cbt${b.ticket_number}" placeholder="Nombre del beneficio">
-      </div>
-      <textarea class="inp" style="font-size:12px;resize:vertical;min-height:50px;width:100%;margin-bottom:4px" id="cbd${b.ticket_number}" placeholder="Descripción">${b.benefit_title}</textarea>
-      <input class="inp" style="font-size:11px" id="cbr_notes${b.ticket_number}" placeholder="Condiciones separadas por | (ej: No acumulable|Solo almuerzo)" value="${(b.restriction_notes||[]).join('|')}">
-      <input class="inp" style="font-size:11px;margin-top:4px" id="cbp${b.ticket_number}" placeholder="Requiere tickets previos (ej: 1,3)" value="${(b.prerequisite_ticket_numbers||[]).join(',')}">
-    </div>`).join('<hr style="border-color:rgba(255,255,255,.06);margin:10px 0">');
-    frm.style.display='block';
-    frm.innerHTML=`<div class="adm-panel" style="margin-top:16px">
-      <p class="adm-panel-title">➕ Nueva Plantilla Corporativa</p>
-      <div id="corp-form-msg" style="display:none;font-size:12px;padding:8px 10px;border-radius:6px;margin-bottom:10px"></div>
-      <div class="fld"><label class="lbl">NOMBRE EMPRESA / GRUPO</label><input id="cf-company" class="inp" placeholder="Ej: Turismo Sur S.A."></div>
-      <div class="fld"><label class="lbl">DESCRIPCIÓN (opcional)</label><input id="cf-desc" class="inp" placeholder="Ej: Beneficios para colaboradores 2026"></div>
-      <div class="fld"><label class="lbl">CATEGORÍA DE USO</label>
-        <select id="cf-cat" class="inp" style="background:var(--navy3);color:var(--white)">
-          <option value="restaurant">🍽️ Restaurant</option>
-          <option value="hotel">🏨 Hotel</option>
-          <option value="both" selected>🍽️🏨 Restaurant + Hotel</option>
-        </select>
-      </div>
-      <div class="fld"><label class="lbl">VIGENCIA (meses)</label><input id="cf-validity" class="inp" type="number" min="1" max="24" value="6" style="width:100px"></div>
-      <div class="fld"><label class="lbl">CUPO MÁXIMO DE TICKETERAS (vacío = ilimitado)</label><input id="cf-quota" class="inp" type="number" min="1" placeholder="Ej: 100" style="width:120px"></div>
-      <div class="fld"><label class="lbl" style="margin-bottom:10px">LOS 10 BENEFICIOS</label>${rows}</div>
-      <div style="display:flex;gap:8px;margin-top:14px">
-        <button class="bg" id="cf-save" onclick="saveCorpTemplate()">💾 Guardar Plantilla</button>
-        <button class="bs" onclick="document.getElementById('corp-form').style.display='none'">Cancelar</button>
-      </div>
-    </div>`;
-    frm.scrollIntoView({behavior:'smooth',block:'start'});
-  }).catch(()=>{frm.innerHTML='<p style="color:var(--red);font-size:12px">Error cargando beneficios base.</p>';frm.style.display='block';});
+function corpBenRow(n, b){
+  const presetBtns=(type)=>BENEFIT_PRESETS[type].map(p=>`<button type="button" class="preset-btn" onclick="applyPreset(${n},${JSON.stringify(p).replace(/"/g,'&quot;')})">${p.icon} ${p.title}</button>`).join('');
+  return`<div class="corp-ben-row" id="cbr${n}">
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+    <span style="color:var(--gold);font-size:12px;font-weight:700;width:24px;flex-shrink:0">#${n}</span>
+    <input class="inp" style="width:54px;font-size:16px;text-align:center" value="${b?b.benefit_icon:'🎫'}" maxlength="4" id="cbi${n}">
+    <input class="inp" style="flex:1;font-size:13px" value="${b?b.benefit_title:''}" id="cbt${n}" placeholder="Nombre del beneficio">
+  </div>
+  <textarea class="inp" style="font-size:12px;resize:vertical;min-height:46px;width:100%;margin-bottom:6px" id="cbd${n}" placeholder="Descripción del beneficio">${b?b.benefit_description||b.benefit_title:''}</textarea>
+  <input class="inp" style="font-size:11px;margin-bottom:6px" id="cbr_notes${n}" placeholder="Condiciones separadas por |  (ej: No acumulable|Solo almuerzo)" value="${b?(b.restriction_notes||[]).join('|'):''}">
+  <div style="margin-bottom:6px">
+    <p style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(212,175,55,.5);text-transform:uppercase;margin-bottom:5px">Requiere previos:</p>
+    <div style="display:flex;gap:5px;flex-wrap:wrap" id="cbp-btns${n}">
+      ${[1,2,3,4,5,6,7,8,9,10].filter(x=>x!==n).map(x=>`<button type="button" class="prereq-btn" id="cbp-${n}-${x}" onclick="togglePrereq(${n},${x})">#${x}</button>`).join('')}
+    </div>
+    <input type="hidden" id="cbp${n}" value="${b?(b.prerequisite_ticket_numbers||[]).join(','):''}">
+  </div>
+  <details style="margin-top:4px">
+    <summary style="font-size:10px;color:rgba(212,175,55,.55);cursor:pointer;list-style:none;user-select:none">▾ Presets rápidos</summary>
+    <div style="margin-top:8px">
+      <p style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,.3);text-transform:uppercase;margin-bottom:5px">🍽️ Restaurant</p>
+      <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px">${presetBtns('rest')}</div>
+      <p style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,.3);text-transform:uppercase;margin-bottom:5px">🏨 Hotel</p>
+      <div style="display:flex;flex-wrap:wrap;gap:4px">${presetBtns('hotel')}</div>
+    </div>
+  </details>
+</div>`;}
+
+function applyPreset(n, p){
+  document.getElementById('cbi'+n).value=p.icon||'🎫';
+  document.getElementById('cbt'+n).value=p.title||'';
+  document.getElementById('cbd'+n).value=p.desc||'';
+  document.getElementById('cbr_notes'+n).value=(p.notes||[]).join('|');
 }
 
-async function saveCorpTemplate(){
+function togglePrereq(n, x){
+  const hidden=document.getElementById('cbp'+n);
+  const btn=document.getElementById(`cbp-${n}-${x}`);
+  let vals=hidden.value?hidden.value.split(',').map(Number).filter(Boolean):[];
+  if(vals.includes(x)){vals=vals.filter(v=>v!==x);btn.classList.remove('prereq-on');}
+  else{vals.push(x);vals.sort((a,b)=>a-b);btn.classList.add('prereq-on');}
+  hidden.value=vals.join(',');
+}
+
+function initPrereqBtns(){
+  for(let n=1;n<=10;n++){
+    const hidden=document.getElementById('cbp'+n);
+    if(!hidden)continue;
+    const vals=hidden.value?hidden.value.split(',').map(Number).filter(Boolean):[];
+    vals.forEach(x=>{const b=document.getElementById(`cbp-${n}-${x}`);if(b)b.classList.add('prereq-on');});
+  }
+}
+
+function showCorpForm(){
+  const frm=document.getElementById('corp-form');if(!frm)return;
+  rpc('balandra_list_benefit_types').then(tpls=>{
+    const base=Array.isArray(tpls)?tpls:[];
+    const rows=Array.from({length:10},(_,i)=>{
+      const b=base.find(x=>x.ticket_number===i+1)||null;
+      return corpBenRow(i+1,b);
+    }).join('<div style="height:1px;background:rgba(255,255,255,.05);margin:8px 0"></div>');
+
+    frm.style.display='block';
+    frm.innerHTML=`<div class="adm-panel" style="margin-top:16px">
+  <p class="adm-panel-title">➕ Nueva Plantilla Corporativa</p>
+  <div id="corp-form-msg" style="display:none;font-size:12px;padding:8px 10px;border-radius:6px;margin-bottom:10px"></div>
+  <div class="fld"><label class="lbl">NOMBRE EMPRESA / GRUPO</label><input id="cf-company" class="inp" placeholder="Ej: Turismo Sur S.A."></div>
+  <div class="fld"><label class="lbl">DESCRIPCIÓN (opcional)</label><input id="cf-desc" class="inp" placeholder="Ej: Beneficios para colaboradores 2026"></div>
+  <div class="fld">
+    <label class="lbl">ESTABLECIMIENTOS DONDE APLICA</label>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px">
+      <label class="venue-chk"><input type="checkbox" id="cv-balandra" value="balandra" checked> 🍽️ Balandra Restaurant</label>
+      <label class="venue-chk"><input type="checkbox" id="cv-estacion" value="estacion"> 🍽️ Estación 505</label>
+      <label class="venue-chk"><input type="checkbox" id="cv-radisson" value="radisson"> 🏨 Hotel Radisson</label>
+      <label class="venue-chk"><input type="checkbox" id="cv-parkinn" value="parkinn"> 🏨 Park Inn</label>
+    </div>
+    <button type="button" class="bs" style="margin-top:8px;padding:4px 10px;font-size:11px" onclick="['cv-balandra','cv-estacion','cv-radisson','cv-parkinn'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=!el.checked;})">Alternar todos</button>
+  </div>
+  <div style="display:flex;gap:12px;flex-wrap:wrap">
+    <div class="fld" style="flex:1;min-width:100px"><label class="lbl">VIGENCIA (meses)</label><input id="cf-validity" class="inp" type="number" min="1" max="24" value="6"></div>
+    <div class="fld" style="flex:1;min-width:100px"><label class="lbl">CUPO MÁX. (vacío=∞)</label><input id="cf-quota" class="inp" type="number" min="1" placeholder="Ej: 100"></div>
+  </div>
+  <div class="fld"><label class="lbl" style="margin-bottom:10px">LOS 10 BENEFICIOS</label>${rows}</div>
+  <div style="display:flex;gap:8px;margin-top:16px">
+    <button class="bg" id="cf-save" onclick="saveCorpTemplate()">💾 Guardar Plantilla</button>
+    <button class="bs" onclick="document.getElementById('corp-form').style.display='none'">Cancelar</button>
+  </div>
+</div>`;
+    frm.scrollIntoView({behavior:'smooth',block:'start'});
+    setTimeout(initPrereqBtns,50);
+  }).catch(()=>{frm.innerHTML='<p style="color:var(--red);font-size:12px;padding:12px">Error cargando beneficios base.</p>';frm.style.display='block';});
+}
+
+async function toggleCorpTemplate(code, currentlyActive){
+  const action=currentlyActive?'desactivar':'reactivar';
+  if(!confirm(`¿${action.charAt(0).toUpperCase()+action.slice(1)} la plantilla corporativa?\n\nEsto ${currentlyActive?'impedirá nuevos registros con este código':'permitirá nuevamente registros con este código'}.`))return;
+  try{
+    await rpc('balandra_admin_set_corporate_template_status',{p_code:code,p_active:!currentlyActive});
+    loadCorpDetail(code);
+    loadCorpList();
+  }catch{alert('Error al cambiar estado de la plantilla.');}
+}
+
+async function editCorpTemplate(code){
+  const frm=document.getElementById('corp-form');if(!frm)return;
+  try{
+    const d=await rpc('balandra_get_corporate_template',{p_code:code});
+    if(!d.success){alert('Error al cargar plantilla.');return;}
+    // Reusar showCorpForm pero pre-rellenando con datos existentes
+    frm.style.display='block';
+    const rows=Array.from({length:10},(_,i)=>{
+      const b=(d.benefits||[]).find(x=>x.ticket_number===i+1)||null;
+      return corpBenRow(i+1,b);
+    }).join('<div style="height:1px;background:rgba(255,255,255,.05);margin:8px 0"></div>');
+    const venues=d.category==='all'?['balandra','estacion','radisson','parkinn']:(d.category||'').split(',');
+    frm.innerHTML=`<div class="adm-panel" style="margin-top:16px">
+  <p class="adm-panel-title">✏️ Editar Plantilla: ${d.company_name}</p>
+  <div id="corp-form-msg" style="display:none;font-size:12px;padding:8px 10px;border-radius:6px;margin-bottom:10px"></div>
+  <div class="fld"><label class="lbl">NOMBRE EMPRESA / GRUPO</label><input id="cf-company" class="inp" value="${d.company_name||''}"></div>
+  <div class="fld"><label class="lbl">DESCRIPCIÓN (opcional)</label><input id="cf-desc" class="inp" value="${d.description||''}"></div>
+  <div class="fld">
+    <label class="lbl">ESTABLECIMIENTOS DONDE APLICA</label>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px">
+      <label class="venue-chk"><input type="checkbox" id="cv-balandra" value="balandra" ${venues.includes('balandra')?'checked':''}> 🍽️ Balandra Restaurant</label>
+      <label class="venue-chk"><input type="checkbox" id="cv-estacion" value="estacion" ${venues.includes('estacion')?'checked':''}> 🍽️ Estación 505</label>
+      <label class="venue-chk"><input type="checkbox" id="cv-radisson" value="radisson" ${venues.includes('radisson')?'checked':''}> 🏨 Hotel Radisson</label>
+      <label class="venue-chk"><input type="checkbox" id="cv-parkinn" value="parkinn" ${venues.includes('parkinn')?'checked':''}> 🏨 Park Inn</label>
+    </div>
+    <button type="button" class="bs" style="margin-top:8px;padding:4px 10px;font-size:11px" onclick="['cv-balandra','cv-estacion','cv-radisson','cv-parkinn'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=!el.checked;})">Alternar todos</button>
+  </div>
+  <div style="display:flex;gap:12px;flex-wrap:wrap">
+    <div class="fld" style="flex:1;min-width:100px"><label class="lbl">VIGENCIA (meses)</label><input id="cf-validity" class="inp" type="number" min="1" max="24" value="${d.validity_months||6}"></div>
+    <div class="fld" style="flex:1;min-width:100px"><label class="lbl">CUPO MÁX. (vacío=∞)</label><input id="cf-quota" class="inp" type="number" min="1" value="${d.max_ticketeras||''}"></div>
+  </div>
+  <div class="fld"><label class="lbl" style="margin-bottom:10px">LOS 10 BENEFICIOS</label>${rows}</div>
+  <div style="display:flex;gap:8px;margin-top:16px">
+    <button class="bg" id="cf-save" onclick="saveCorpTemplate('${code}')">💾 Guardar Cambios</button>
+    <button class="bs" onclick="document.getElementById('corp-form').style.display='none'">Cancelar</button>
+  </div>
+</div>`;
+    frm.scrollIntoView({behavior:'smooth',block:'start'});
+    setTimeout(initPrereqBtns,50);
+  }catch{alert('Error al cargar plantilla para edición.');}
+}
+
+async function saveCorpTemplate(editCode){
   const btn=document.getElementById('cf-save');
   const msg=document.getElementById('corp-form-msg');
+  const showMsg=(t,ok)=>{msg.textContent=t;msg.style.background=ok?'rgba(80,200,100,.12)':'rgba(200,50,50,.12)';msg.style.color=ok?'#50c864':'#c84040';msg.style.border=ok?'1px solid rgba(80,200,100,.3)':'1px solid rgba(200,50,50,.3)';msg.style.display='block';};
   const company=(document.getElementById('cf-company')||{}).value||'';
-  if(!company.trim()){msg.textContent='Ingresa el nombre de la empresa.';msg.style.background='rgba(200,50,50,.12)';msg.style.color='#c84040';msg.style.border='1px solid rgba(200,50,50,.3)';msg.style.display='block';return;}
+  if(!company.trim()){showMsg('Ingresa el nombre de la empresa.',false);return;}
+  const venues=['balandra','estacion','radisson','parkinn'].filter(v=>document.getElementById('cv-'+v)?.checked);
+  if(!venues.length){showMsg('Selecciona al menos un establecimiento.',false);return;}
   btn.textContent='Guardando...';btn.disabled=true;
   const benefits=[];
   for(let i=1;i<=10;i++){
-    const title=(document.getElementById('cbt'+i)||{}).value||'';
-    const desc=(document.getElementById('cbd'+i)||{}).value||'';
+    const title=(document.getElementById('cbt'+i)||{}).value?.trim()||'';
+    const desc=(document.getElementById('cbd'+i)||{}).value?.trim()||'';
     const icon=(document.getElementById('cbi'+i)||{}).value||'🎫';
     const notes=((document.getElementById('cbr_notes'+i)||{}).value||'').split('|').map(s=>s.trim()).filter(Boolean);
     const prereqs=((document.getElementById('cbp'+i)||{}).value||'').split(',').map(s=>parseInt(s.trim())).filter(n=>!isNaN(n)&&n>0);
-    if(!title.trim())continue;
+    if(!title)continue;
     benefits.push({ticket_number:i,benefit_title:title,benefit_description:desc,benefit_icon:icon,benefit_color:'#D4AF37',restriction_notes:notes,prerequisite_ticket_numbers:prereqs});
   }
-  if(benefits.length<10){msg.textContent=`Completa los 10 beneficios (faltan ${10-benefits.length}).`;msg.style.background='rgba(200,50,50,.12)';msg.style.color='#c84040';msg.style.border='1px solid rgba(200,50,50,.3)';msg.style.display='block';btn.textContent='💾 Guardar Plantilla';btn.disabled=false;return;}
+  if(benefits.length<10){showMsg(`Completa los 10 beneficios (faltan ${10-benefits.length}).`,false);btn.textContent=editCode?'💾 Guardar Cambios':'💾 Guardar Plantilla';btn.disabled=false;return;}
+  const payload={
+    p_company_name:company.trim(),
+    p_category:venues.length===4?'all':venues.join(','),
+    p_description:(document.getElementById('cf-desc')||{}).value||'',
+    p_validity_months:parseInt(document.getElementById('cf-validity').value)||6,
+    p_max_ticketeras:parseInt((document.getElementById('cf-quota')||{}).value)||null,
+    p_benefits:benefits
+  };
   try{
-    const d=await rpc('balandra_create_corporate_template',{
-      p_company_name:company.trim(),
-      p_category:document.getElementById('cf-cat').value,
-      p_description:(document.getElementById('cf-desc')||{}).value||'',
-      p_validity_months:parseInt(document.getElementById('cf-validity').value)||6,
-      p_max_ticketeras:parseInt(document.getElementById('cf-quota').value)||null,
-      p_benefits:benefits
-    });
+    let d;
+    if(editCode){
+      d=await rpc('balandra_update_corporate_template',{...payload,p_code:editCode});
+    }else{
+      d=await rpc('balandra_create_corporate_template',payload);
+    }
     if(d.success){
       document.getElementById('corp-form').style.display='none';
-      alert(`✅ Plantilla creada.\nEmpresa: ${d.company_name}\nCódigo de registro: ${d.code}\nLink: https://www.radissonpuertovaras.com/ticketera/registro.html?corp=${d.code}`);
+      if(!editCode) alert(`✅ Plantilla creada.\nEmpresa: ${d.company_name}\nCódigo: ${d.code}\nLink:\nhttps://www.radissonpuertovaras.com/ticketera/registro.html?corp=${d.code}`);
+      else alert('✅ Plantilla actualizada correctamente.');
       loadCorpList();
-    }else{msg.textContent=d.error||'Error al guardar';msg.style.background='rgba(200,50,50,.12)';msg.style.color='#c84040';msg.style.border='1px solid rgba(200,50,50,.3)';msg.style.display='block';btn.textContent='💾 Guardar Plantilla';btn.disabled=false;}
-  }catch{msg.textContent='Error de conexión';msg.style.display='block';btn.textContent='💾 Guardar Plantilla';btn.disabled=false;}
+      if(editCode) loadCorpDetail(editCode);
+    }else{showMsg(d.error||'Error al guardar',false);btn.textContent=editCode?'💾 Guardar Cambios':'💾 Guardar Plantilla';btn.disabled=false;}
+  }catch{showMsg('Error de conexión',false);btn.textContent=editCode?'💾 Guardar Cambios':'💾 Guardar Plantilla';btn.disabled=false;}
 }
 
 async function doCrear(){
