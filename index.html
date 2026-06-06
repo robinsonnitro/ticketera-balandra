@@ -777,8 +777,11 @@ function corpBenRow(n, b){
     <input class="inp" style="width:54px;font-size:16px;text-align:center" value="${b?b.benefit_icon:'🎫'}" maxlength="4" id="cbi${n}">
     <input class="inp" style="flex:1;font-size:13px" value="${b?b.benefit_title:''}" id="cbt${n}" placeholder="Nombre del beneficio">
   </div>
-  <textarea class="inp" style="font-size:12px;resize:vertical;min-height:46px;width:100%;margin-bottom:6px" id="cbd${n}" placeholder="Descripción del beneficio">${b?b.benefit_description||b.benefit_title:''}</textarea>
-  <input class="inp" style="font-size:11px;margin-bottom:6px" id="cbr_notes${n}" placeholder="Condiciones separadas por |  (ej: No acumulable|Solo almuerzo)" value="${b?(b.restriction_notes||[]).join('|'):''}">
+  <p style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(212,175,55,.5);text-transform:uppercase;margin-bottom:4px">Descripción:</p>
+  <textarea class="inp" style="font-size:12px;resize:vertical;min-height:46px;width:100%;margin-bottom:10px" id="cbd${n}" placeholder="Describe el beneficio">${b?b.benefit_description||b.benefit_title:''}</textarea>
+  <p style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(212,175,55,.5);text-transform:uppercase;margin-bottom:3px">Condiciones especiales:</p>
+  <p style="font-size:9px;color:rgba(255,255,255,.28);margin-bottom:5px">Opcional · Las condiciones y restricciones estándar ya aplican automáticamente. Agrega aquí solo condiciones particulares de este ticket.</p>
+  <input class="inp" style="font-size:11px;margin-bottom:6px" id="cbr_notes${n}" placeholder="Ej: Solo cenas · No aplica fines de semana  (separar con |)" value="${b?(b.restriction_notes||[]).join('|'):''}">
   <div style="margin-bottom:6px">
     <p style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(212,175,55,.5);text-transform:uppercase;margin-bottom:5px">Requiere previos:</p>
     <div style="display:flex;gap:5px;flex-wrap:wrap" id="cbp-btns${n}">
