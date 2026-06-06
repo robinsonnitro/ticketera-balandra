@@ -411,7 +411,7 @@ function hLogin(){return`
     <p style="color:var(--muted);font-size:13px;margin-top:4px">Solo personal Balandra</p>
   </div>
   <div class="card card-g">
-    <div class="fld"><label class="lbl">CONTRASEÑA</label><div style="position:relative"><input id="ap" type="password" class="inp" style="text-align:center;font-size:18px;letter-spacing:4px;padding-right:48px" placeholder="••••••••" autocomplete="current-password"><button type="button" onclick="var e=document.getElementById('ap');e.type=e.type==='password'?'text':'password';this.textContent=e.type==='password'?'👁':'🙈'" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:18px;padding:4px;line-height:1">👁</button></div></div>
+    <div class="fld"><label class="lbl">CONTRASEÑA</label><div style="display:flex;gap:8px;align-items:center"><input id="ap" type="password" class="inp" style="text-align:center;font-size:18px;letter-spacing:4px;flex:1" placeholder="••••••••" autocomplete="current-password"><button type="button" tabindex="-1" onclick="var e=document.getElementById('ap');e.type=e.type==='password'?'text':'password';this.textContent=e.type==='password'?'👁':'🙈'" style="flex-shrink:0;width:46px;height:50px;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.11);border-radius:10px;cursor:pointer;font-size:18px;line-height:1">👁</button></div></div>
     <div id="ae" class="err" style="display:none"></div>
     <button id="alb" class="bp">Ingresar</button>
   </div>
