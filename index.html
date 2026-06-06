@@ -804,8 +804,8 @@ let _presetTarget=1;
 function presetPanel(){
   const venueCol=(key,label)=>`
     <div style="display:flex;flex-direction:column;gap:3px;min-width:0">
-      <p style="font-size:9px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:rgba(212,175,55,.55);margin-bottom:4px">${label}</p>
-      ${BENEFIT_PRESETS[key].map((p,i)=>`<button type="button" id="pbtn-${key}-${i}" class="preset-btn" style="position:relative;text-align:left;white-space:normal;line-height:1.3;font-size:11px;padding-right:22px" onclick="applyPresetTo(_presetTarget,'${key}',${i})">${p.icon} ${p.title}<span id="pbadge-${key}-${i}" style="display:none;position:absolute;top:3px;right:4px;background:#D4AF37;color:#0a1628;font-size:9px;font-weight:800;border-radius:4px;padding:1px 4px;line-height:1.4"></span></button>`).join('')}
+      <p style="font-size:9px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:rgba(212,175,55,.55);margin-bottom:4px;text-align:center">${label}</p>
+      ${BENEFIT_PRESETS[key].map((p,i)=>`<button type="button" id="pbtn-${key}-${i}" class="preset-btn" style="position:relative;display:flex;align-items:center;gap:5px;height:36px;overflow:hidden;font-size:11px;padding:0 24px 0 8px;white-space:nowrap" onclick="applyPresetTo(_presetTarget,'${key}',${i})" title="${p.title}"><span style="flex-shrink:0">${p.icon}</span><span style="overflow:hidden;text-overflow:ellipsis">${p.title}</span><span id="pbadge-${key}-${i}" style="display:none;position:absolute;top:3px;right:3px;background:#D4AF37;color:#0a1628;font-size:9px;font-weight:800;border-radius:4px;padding:1px 4px;line-height:1.4"></span></button>`).join('')}
     </div>`;
   const rowBtns=[1,2,3,4,5,6,7,8,9,10].map(i=>`<button type="button" id="psel${i}" class="prereq-btn${i===1?' prereq-on':''}" onclick="selectPresetTarget(${i})">#${i}</button>`).join('');
   return`<div style="background:rgba(212,175,55,.04);border:1px solid rgba(212,175,55,.14);border-radius:10px;padding:14px;margin-bottom:18px">
