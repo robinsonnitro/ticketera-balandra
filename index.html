@@ -310,23 +310,6 @@ function hTkt(t){
           <span class="vcode ${u?'dim':''}">${tk.validation_code}</span>
           ${u&&tk.used_at?`<span class="used-t">${fdt(tk.used_at)}</span>`:''}
         </div>
-        ${!u?`<details style="margin-top:8px;background:rgba(212,175,55,.05);border:1px solid rgba(212,175,55,.15);border-radius:8px;padding:8px 12px">
-          <summary style="font-size:9px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:rgba(212,175,55,.5);cursor:pointer;list-style:none;display:flex;justify-content:space-between">📋 Condiciones de uso <span>▾</span></summary>
-          <ul style="margin-top:8px;display:flex;flex-direction:column;gap:4px;list-style:none;padding:0">
-            <li style="font-size:10px;color:rgba(212,175,55,.55);line-height:1.4;display:flex;gap:5px"><span>•</span>Descuento aplica sobre valor base, no sobre menú, promociones ni combos</li>
-            <li style="font-size:10px;color:rgba(212,175,55,.55);line-height:1.4;display:flex;gap:5px"><span>•</span>No acumulable con otras promociones o descuentos del restaurante</li>
-            <li style="font-size:10px;color:rgba(212,175,55,.55);line-height:1.4;display:flex;gap:5px"><span>•</span>Solo 1 beneficio por boleta o mesa</li>
-            <li style="font-size:10px;color:rgba(212,175,55,.55);line-height:1.4;display:flex;gap:5px"><span>•</span>Indicar al garzón antes de pedir la cuenta — no retroactivo</li>
-            <li style="font-size:10px;color:rgba(212,175,55,.55);line-height:1.4;display:flex;gap:5px"><span>•</span>No válido en días festivos, Navidad, Año Nuevo, San Valentín u otras fechas especiales</li>
-            <li style="font-size:10px;color:rgba(212,175,55,.55);line-height:1.4;display:flex;gap:5px"><span>•</span>No canjeable por dinero en efectivo</li>
-            <li style="font-size:10px;color:rgba(212,175,55,.55);line-height:1.4;display:flex;gap:5px"><span>•</span>Solo consumo presencial — no aplica a servicio a la habitación</li>
-            <li style="font-size:10px;color:rgba(212,175,55,.55);line-height:1.4;display:flex;gap:5px"><span>•</span>Consumo mínimo de $20.000 en platos de fondo</li>
-            <li style="font-size:10px;color:rgba(212,175,55,.55);line-height:1.4;display:flex;gap:5px"><span>•</span>Propinas no incluidas en el descuento</li>
-            <li style="font-size:10px;color:rgba(212,175,55,.55);line-height:1.4;display:flex;gap:5px"><span>•</span>El restaurante puede modificar o suspender beneficios sin aviso previo</li>
-            <li style="font-size:10px;color:rgba(212,175,55,.55);line-height:1.4;display:flex;gap:5px"><span>•</span>Vigencia de 6 meses desde la fecha de emisión</li>
-            <li style="font-size:10px;color:rgba(212,175,55,.55);line-height:1.4;display:flex;gap:5px"><span>•</span>En caso de pérdida del folio, el restaurante no se hace responsable</li>
-          </ul>
-        </details>
         <button class="tkt-wa" onclick="window.open('${tktWa}','_blank')" title="Regalar este ticket por WhatsApp">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.126 1.532 5.862L0 24l6.337-1.508A11.946 11.946 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.793 9.793 0 01-5.001-1.374l-.357-.213-3.706.882.936-3.617-.233-.372A9.793 9.793 0 012.182 12c0-5.419 4.399-9.818 9.818-9.818 5.419 0 9.818 4.399 9.818 9.818 0 5.419-4.399 9.818-9.818 9.818z"/></svg>
           Regalar ticket
@@ -358,7 +341,25 @@ function hTkt(t){
 <div class="tlist">${tkts}</div>
 <div class="tc mt20" style="padding-bottom:10px">
   <button class="bs" onclick="loadTkt('${t.folio}',document.getElementById('main'))">↺ Actualizar</button>
-</div>`
+</div>
+<details style="background:rgba(212,175,55,.05);border:1px solid rgba(212,175,55,.15);border-radius:10px;padding:10px 14px;margin-top:4px">
+  <summary style="font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:rgba(212,175,55,.45);cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center">📋 Condiciones de uso <span>▾</span></summary>
+  <div style="margin-top:10px;display:flex;flex-direction:column;gap:5px">
+    <div style="font-size:10px;color:rgba(212,175,55,.55);line-height:1.45;display:flex;gap:6px"><span style="flex-shrink:0">•</span>Descuento aplica sobre valor base del plato, no sobre precios de menú, promociones ni combos vigentes</div>
+    <div style="font-size:10px;color:rgba(212,175,55,.55);line-height:1.45;display:flex;gap:6px"><span style="flex-shrink:0">•</span>No acumulable con otras promociones, descuentos o beneficios del restaurante</div>
+    <div style="font-size:10px;color:rgba(212,175,55,.55);line-height:1.45;display:flex;gap:6px"><span style="flex-shrink:0">•</span>Solo 1 beneficio por boleta o mesa, sin importar cuántos comensales tengan ticketera</div>
+    <div style="font-size:10px;color:rgba(212,175,55,.55);line-height:1.45;display:flex;gap:6px"><span style="flex-shrink:0">•</span>Debe indicarse al garzón antes de pedir la cuenta — no es retroactivo</div>
+    <div style="font-size:10px;color:rgba(212,175,55,.55);line-height:1.45;display:flex;gap:6px"><span style="flex-shrink:0">•</span>No válido en días festivos, Navidad, Año Nuevo, Día de San Valentín u otras fechas especiales</div>
+    <div style="font-size:10px;color:rgba(212,175,55,.55);line-height:1.45;display:flex;gap:6px"><span style="flex-shrink:0">•</span>No canjeable por dinero en efectivo ni transferible a otro valor</div>
+    <div style="font-size:10px;color:rgba(212,175,55,.55);line-height:1.45;display:flex;gap:6px"><span style="flex-shrink:0">•</span>Válido únicamente en consumo presencial en el restaurante — no aplica a servicio a la habitación</div>
+    <div style="font-size:10px;color:rgba(212,175,55,.55);line-height:1.45;display:flex;gap:6px"><span style="flex-shrink:0">•</span>Requiere consumo mínimo de $20.000 en platos de fondo</div>
+    <div style="font-size:10px;color:rgba(212,175,55,.55);line-height:1.45;display:flex;gap:6px"><span style="flex-shrink:0">•</span>Propinas no incluidas en el descuento</div>
+    <div style="font-size:10px;color:rgba(212,175,55,.55);line-height:1.45;display:flex;gap:6px"><span style="flex-shrink:0">•</span>En caso de regalo, el ticket se valida con la primera persona que lo utilice</div>
+    <div style="font-size:10px;color:rgba(212,175,55,.55);line-height:1.45;display:flex;gap:6px"><span style="flex-shrink:0">•</span>El restaurante se reserva el derecho de modificar o suspender los beneficios sin aviso previo</div>
+    <div style="font-size:10px;color:rgba(212,175,55,.55);line-height:1.45;display:flex;gap:6px"><span style="flex-shrink:0">•</span>Vigencia de 6 meses desde la fecha de emisión</div>
+    <div style="font-size:10px;color:rgba(212,175,55,.55);line-height:1.45;display:flex;gap:6px"><span style="flex-shrink:0">•</span>En caso de pérdida del folio, el restaurante no se hace responsable</div>
+  </div>
+</details>`
 }
 
 /* ══════════════════════════
