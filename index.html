@@ -11,7 +11,6 @@
 <meta name="description" content="Ticketera Electrónica Balandra · Radisson Hotel Puerto Varas">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
-<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js" async></script>
 <style>
 :root{
   --navy:#0a1628;--navy2:#0d1e35;--navy3:#142540;
@@ -313,7 +312,7 @@ function hTkt(t){
           <span class="vcode ${u?'dim':''}">${tk.validation_code}</span>
           ${u&&tk.used_at?`<span class="used-t">${fdt(tk.used_at)}</span>`:''}
         </div>
-        <button class="tkt-wa" onclick="window.open('${tktWa}','_blank')" title="Regalar este ticket por WhatsApp">
+        ${!u?`<button class="tkt-wa" onclick="window.open('${tktWa}','_blank')" title="Regalar este ticket por WhatsApp">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.126 1.532 5.862L0 24l6.337-1.508A11.946 11.946 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.793 9.793 0 01-5.001-1.374l-.357-.213-3.706.882.936-3.617-.233-.372A9.793 9.793 0 012.182 12c0-5.419 4.399-9.818 9.818-9.818 5.419 0 9.818 4.399 9.818 9.818 0 5.419-4.399 9.818-9.818 9.818z"/></svg>
           Regalar ticket
         </button>`:''}
@@ -420,11 +419,20 @@ function bVal(){
 }
 function startScanner(){
   if(typeof Html5Qrcode==='undefined'){
-    const ve=document.getElementById('ve');
-    ve.textContent='Escáner no disponible en este dispositivo. Usa el código manual.';
-    ve.style.display='block';
+    const s=document.createElement('script');
+    s.src='https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js';
+    s.onload=()=>_doStartScanner();
+    s.onerror=()=>{
+      const ve=document.getElementById('ve');
+      ve.textContent='Escáner no disponible. Usa el código manual.';
+      ve.style.display='block';
+    };
+    document.head.appendChild(s);
     return;
   }
+  _doStartScanner();
+}
+function _doStartScanner(){
   document.getElementById('scan-area').style.display='none';
   document.getElementById('qr-wrap').style.display='block';
   qrScanner=new Html5Qrcode('qr-reader');
@@ -464,9 +472,12 @@ async function doValWithCode(code){
     if(d.success){
       vfrm.style.display='none';
       const last=d.remaining===0;
+      const now=new Date();
+      const ts=now.toLocaleDateString('es-CL',{day:'2-digit',month:'2-digit',year:'numeric'})+' '+now.toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'});
       vres.innerHTML=`<div class="card card-gr"><div class="tc" style="padding:20px 10px">
-        <div style="font-size:52px;margin-bottom:12px;line-height:1">${last?'🎉':'✅'}</div>
-        <p style="color:var(--green);font-size:20px;font-weight:700;margin-bottom:6px">${last?'¡Completada!':'Ticket Válido'}</p>
+        <div style="font-size:52px;margin-bottom:12px;line-height:1">${last?'🎉':'🔥'}</div>
+        <p style="color:var(--green);font-size:20px;font-weight:700;margin-bottom:4px">${last?'¡Ticketera Completada!':'¡Ticket Quemado!'}</p>
+        <p style="color:var(--muted);font-size:11px;margin-bottom:12px">Registrado · ${ts}</p>
         <p style="color:var(--white);font-size:16px;font-weight:700;margin-bottom:6px">${d.benefit}</p>
         <p style="color:var(--muted);font-size:13px;margin-bottom:2px">Folio <strong style="color:var(--gold)">${d.folio}</strong> · #${d.ticket_number}</p>
         ${d.owner?`<p style="color:var(--muted);font-size:13px;margin-bottom:0">Cliente: ${d.owner}</p>`:''}
@@ -474,7 +485,7 @@ async function doValWithCode(code){
           ${last?`<p style="color:var(--gold);font-weight:700;font-size:14px">📦 Entregar botella de vino al cliente</p>`
             :`<p style="color:var(--muted);font-size:13px">Quedan <strong style="color:var(--gold);font-size:20px">${d.remaining}</strong> ticket(s)</p>`}
         </div>
-        <button class="bg" onclick="nav('validar')">Validar Otro Ticket</button>
+        <button class="bg" onclick="nav('validar')">Escanear Otro Ticket</button>
       </div></div>`;
     }else{ve.textContent=d.error||'Código inválido';ve.style.display='block';if(qrScanner)startScanner();}
   }catch{ve.textContent='Error de conexión.';ve.style.display='block';if(qrScanner)startScanner();}

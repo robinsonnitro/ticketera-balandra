@@ -262,11 +262,13 @@ input.bad{border-color:var(--err)}
 const SB_URL='https://wrtljewcclhqogkedsib.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndydGxqZXdjY2xocW9na2Vkc2liIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY4NDAzNTUsImV4cCI6MjA4MjQxNjM1NX0.FzxNYfIHE4R5IItHR-RfR5ebXU2lKP8R6s4zGNkxY_w';
 
-let DATA=null, ACTIVE_TICKET=null;
+let DATA=null, ACTIVE_TICKET=null, CREDS=null, REFRESH_TIMER=null;
 
 // ── Sesión ──
 const ses=JSON.parse(sessionStorage.getItem('tbal')||'null');
-if(ses) mostrarApp(ses);
+const sesC=JSON.parse(sessionStorage.getItem('tbal_c')||'null');
+if(ses&&sesC){CREDS=sesC;mostrarApp(ses);startAutoRefresh();}
+else if(sesC){CREDS=sesC;refreshData();}
 
 // ── RUT ──
 function normRUT(v){v=v.replace(/[.\s]/g,'').toUpperCase();if(!v.includes('-')&&v.length>1)v=v.slice(0,-1)+'-'+v.slice(-1);return v;}
@@ -298,10 +300,32 @@ async function ingresar(){
     const d=await res.json();
     if(!d.success){err.textContent=d.error||'Error al ingresar.';err.style.display='block';return;}
     sessionStorage.setItem('tbal',JSON.stringify(d));
+    CREDS={rut:normRUT(rut),pin};
+    sessionStorage.setItem('tbal_c',JSON.stringify(CREDS));
     mostrarApp(d);
+    startAutoRefresh();
   }catch(e){err.textContent='Error de conexión.';err.style.display='block';}
   finally{btn.innerHTML=btn._t;btn.disabled=false;}
 }
+
+// ── AUTO-REFRESH ──
+async function refreshData(){
+  if(!CREDS)return;
+  try{
+    const res=await fetch(`${SB_URL}/rest/v1/rpc/balandra_access_ticketera`,{
+      method:'POST',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json'},
+      body:JSON.stringify({p_rut:CREDS.rut,p_pin:CREDS.pin})
+    });
+    const d=await res.json();
+    if(d.success){sessionStorage.setItem('tbal',JSON.stringify(d));mostrarApp(d);}
+  }catch{}
+}
+function startAutoRefresh(){
+  if(REFRESH_TIMER)clearInterval(REFRESH_TIMER);
+  REFRESH_TIMER=setInterval(refreshData,3000);
+}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&CREDS)refreshData();});
+if(sesC){startAutoRefresh();}
 
 // ── MOSTRAR APP ──
 function mostrarApp(d){
@@ -463,15 +487,14 @@ function copyCode(){
 function regalar(){
   if(!ACTIVE_TICKET)return;
   const t=ACTIVE_TICKET;
-  // Incluir restricciones en el mensaje
-  const restText=(t.restriction_notes||[]).map(n=>`• ${n}`).join('\n');
+  const qrPageUrl=`https://www.radissonpuertovaras.com/ticketera/qr/${t.validation_code}`;
   const msg=encodeURIComponent(
-    `🎫 *Club Balandra – Beneficio de regalo*\n\n` +
-    `Te regalo este beneficio:\n\n` +
+    '🎁 *Club Balandra – Ticket de regalo*\n\n' +
     `*${t.benefit_title}*\n${t.benefit_description||''}\n\n` +
-    `Código de canje: *${t.validation_code}*\n` +
-    (restText?`\n⚠️ Condiciones:\n${restText}\n\n`:'\n') +
-    `Presenta este código al cajero en Balandra · Radisson Puerto Varas`
+    '👇 Toca para ver tu QR:\n' +
+    qrPageUrl + '\n\n' +
+    '📍 Balandra · Radisson Puerto Varas\n' +
+    '_Muéstralo al mesero antes de pagar. Solo un uso._'
   );
   window.open(`https://wa.me/?text=${msg}`,'_blank');
 }
