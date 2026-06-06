@@ -658,31 +658,61 @@ function corpCatLabel(cat){if(!cat)return'—';if(cat==='all')return'🍽️🏨
 const CORP_CAT_LABEL={restaurant:'🍽️ Restaurant',hotel:'🏨 Hotel',both:'🍽️🏨 Restaurant + Hotel'};
 
 const BENEFIT_PRESETS={
-  rest:[
-    {icon:'🍽️',title:'10% de Descuento',desc:'Descuento del 10% en tu cuenta total. Válido almuerzo o cena.',notes:['No acumulable en la misma boleta','No aplica a menús promocionales']},
-    {icon:'✨',title:'20% de Descuento',desc:'Descuento del 20% en tu cuenta total. Válido almuerzo o cena.',notes:['No acumulable en la misma boleta','No aplica a menús promocionales']},
-    {icon:'🌟',title:'30% de Descuento',desc:'Descuento del 30% en tu cuenta total.',notes:['No acumulable en la misma boleta','No aplica a menús promocionales']},
-    {icon:'🎉',title:'50% de Descuento',desc:'50% de descuento en tu cuenta total.',notes:['No acumulable bajo ninguna circunstancia']},
-    {icon:'🍷',title:'Copa de Vino',desc:'Una copa de vino de la casa completamente gratis con tu consumo.',notes:['No acumulable con otros descuentos']},
-    {icon:'☕',title:'Postre + Café',desc:'Postre sugerencia del chef y café de cortesía para toda la mesa.',notes:['No acumulable con otros descuentos']},
-    {icon:'🍹',title:'Cócteles 2x1',desc:'Pide un cóctel y te invitamos el segundo. Válido entre 15:00 y 22:00 hrs.',notes:['Válido entre 15:00 y 22:00 horas','No aplica a menús promocionales']},
-    {icon:'🥘',title:'Entrada de Cortesía',desc:'1er tiempo de cortesía según sugerencia del chef, sin costo.',notes:['No acumulable con otros descuentos']},
-    {icon:'🥗',title:'Buffet Almuerzo $20.000',desc:'Precio especial $20.000 por persona en buffet dominical.',notes:['Solo cuenta con mínimo 2 buffets']},
-    {icon:'🥂',title:'Botella de Vino',desc:'Botella de vino según sugerencia del somelier.',notes:['Solo disponible al completar todos los beneficios anteriores']},
-    {icon:'🧀',title:'Tabla de Quesos',desc:'Tabla de quesos y embutidos de cortesía para compartir.',notes:['No acumulable con otros descuentos']},
-    {icon:'🍱',title:'Menú Ejecutivo',desc:'Menú ejecutivo completo (entrada + fondo + postre) a precio preferencial.',notes:['Solo válido días de semana','No aplica fines de semana ni festivos']},
+  balandra:[
+    {icon:'🍽️',title:'10% de Descuento',desc:'10% de descuento en la cuenta total en Balandra Restaurant.',notes:[]},
+    {icon:'✨',title:'20% de Descuento',desc:'20% de descuento en la cuenta total en Balandra Restaurant.',notes:[]},
+    {icon:'🌟',title:'30% de Descuento',desc:'30% de descuento en la cuenta total en Balandra Restaurant.',notes:[]},
+    {icon:'🎉',title:'50% de Descuento',desc:'50% de descuento en la cuenta total en Balandra Restaurant.',notes:['No acumulable bajo ninguna circunstancia']},
+    {icon:'🥘',title:'Entrada de Cortesía',desc:'1er tiempo según sugerencia del chef, completamente gratis.',notes:[]},
+    {icon:'🍷',title:'Copa de Vino de la Casa',desc:'Copa de vino de la casa gratis con tu consumo en Balandra.',notes:[]},
+    {icon:'🥂',title:'Botella de Vino',desc:'Botella de vino a elección del sommelier, sin costo. Premio final.',notes:['Disponible solo al usar todos los beneficios previos']},
+    {icon:'☕',title:'Postre + Café',desc:'Postre sugerencia del chef y café de cortesía para toda la mesa.',notes:[]},
+    {icon:'🍹',title:'Cócteles 2x1',desc:'Pide 1 cóctel y te invitamos el segundo. Happy hour 15:00–22:00.',notes:['Válido entre 15:00 y 22:00 horas']},
+    {icon:'🧀',title:'Tabla de Quesos',desc:'Tabla de quesos y embutidos de cortesía para compartir.',notes:[]},
+    {icon:'🥗',title:'Buffet Almuerzo $20.000',desc:'Precio especial $20.000 por persona en buffet dominical.',notes:['Mínimo 2 personas con buffet']},
+    {icon:'🍱',title:'Menú Ejecutivo',desc:'Entrada + fondo + postre a precio preferencial, días de semana.',notes:['Solo días hábiles','No aplica fines de semana']},
   ],
-  hotel:[
-    {icon:'🛏️',title:'Noche Gratis',desc:'Una noche de alojamiento completamente gratis en habitación estándar.',notes:['Sujeto a disponibilidad','No válido en temporada alta']},
-    {icon:'⬆️',title:'Upgrade de Habitación',desc:'Mejora de habitación sin costo adicional al momento del check-in.',notes:['Sujeto a disponibilidad']},
-    {icon:'🍳',title:'Desayuno Incluido',desc:'Desayuno buffet incluido para 2 personas durante tu estadía.',notes:['Solo para la noche de check-in']},
-    {icon:'🕐',title:'Late Check-out',desc:'Check-out tardío hasta las 15:00 horas sin cargo adicional.',notes:['Sujeto a disponibilidad','Solicitar con anticipación']},
-    {icon:'🌅',title:'Early Check-in',desc:'Check-in anticipado desde las 10:00 horas sin cargo.',notes:['Sujeto a disponibilidad']},
-    {icon:'💆',title:'Spa Gratuito',desc:'Acceso gratuito al spa por 1 hora durante tu estadía.',notes:['Previa reserva','Sujeto a disponibilidad']},
-    {icon:'🚗',title:'Estacionamiento',desc:'Estacionamiento gratuito durante tu estadía.',notes:['Sujeto a disponibilidad']},
-    {icon:'✈️',title:'Transfer Aeropuerto',desc:'Transfer de ida o vuelta aeropuerto-hotel sin costo.',notes:['Reservar con 48 hrs de anticipación']},
-    {icon:'🍾',title:'Botella de Bienvenida',desc:'Botella de espumante y frutas de bienvenida en habitación.',notes:[]},
-    {icon:'🏊',title:'Acceso Piscina + Gimnasio',desc:'Acceso libre a piscina y gimnasio durante toda tu estadía.',notes:[]},
+  estacion:[
+    {icon:'🍽️',title:'10% de Descuento',desc:'10% de descuento en la cuenta total en Estación 505.',notes:[]},
+    {icon:'✨',title:'20% de Descuento',desc:'20% de descuento en la cuenta total en Estación 505.',notes:[]},
+    {icon:'🌟',title:'30% de Descuento',desc:'30% de descuento en la cuenta total en Estación 505.',notes:[]},
+    {icon:'🎉',title:'50% de Descuento',desc:'50% de descuento en la cuenta total en Estación 505.',notes:['No acumulable bajo ninguna circunstancia']},
+    {icon:'🫕',title:'Cazuela de Cortesía',desc:'Cazuela del día gratis como entrada, según disponibilidad.',notes:[]},
+    {icon:'🍺',title:'Cerveza Artesanal 2x1',desc:'2x1 en cervezas artesanales de la carta. Válido todo el día.',notes:[]},
+    {icon:'🥩',title:'Parrilla para 2',desc:'Tabla de carnes a la parrilla para 2 personas a precio especial.',notes:[]},
+    {icon:'☕',title:'Postre + Café',desc:'Postre del día y café espresso de cortesía al terminar.',notes:[]},
+    {icon:'🍹',title:'Cócteles 2x1',desc:'2x1 en cócteles de autor. Válido de 16:00 a 22:00 hrs.',notes:['Válido entre 16:00 y 22:00 horas']},
+    {icon:'🥐',title:'Desayuno Especial',desc:'Desayuno completo a precio preferencial para huéspedes Park Inn.',notes:['Solo con estadía en Park Inn']},
+    {icon:'🍷',title:'Copa de Vino',desc:'Copa de vino de la carta gratis con tu consumo.',notes:[]},
+    {icon:'🧆',title:'Picoteo Bienvenida',desc:'Tabla de picoteo de cortesía al llegar, para compartir.',notes:[]},
+  ],
+  radisson:[
+    {icon:'🛏️',title:'Noche Gratis · Estándar',desc:'Una noche gratis en habitación Estándar del Hotel Radisson Puerto Varas.',notes:['Sujeto a disponibilidad','No válido en temporada alta ni feriados']},
+    {icon:'⬆️',title:'Upgrade a Superior',desc:'Mejora sin costo de habitación Estándar a Superior al hacer check-in.',notes:['Sujeto a disponibilidad']},
+    {icon:'👑',title:'Upgrade a Jr. Suite',desc:'Mejora sin costo a Junior Suite al hacer check-in.',notes:['Sujeto a disponibilidad','Máximo 1 noche']},
+    {icon:'🌙',title:'Noche Gratis · Superior',desc:'Una noche gratis en habitación Superior. Vista al lago o jardín.',notes:['Sujeto a disponibilidad','No válido temporada alta']},
+    {icon:'🍳',title:'Desayuno Incluido',desc:'Desayuno buffet para 2 personas incluido en tu estadía.',notes:[]},
+    {icon:'🌅',title:'Early Check-in · 10:00',desc:'Check-in anticipado desde las 10:00 horas sin costo.',notes:['Sujeto a disponibilidad','Solicitar al reservar']},
+    {icon:'🕑',title:'Late Check-out · 16:00',desc:'Check-out tardío hasta las 16:00 horas sin cargo adicional.',notes:['Sujeto a disponibilidad','Solicitar en recepción']},
+    {icon:'🚗',title:'Estacionamiento Gratis',desc:'Estacionamiento gratuito durante toda tu estadía.',notes:['Sujeto a disponibilidad']},
+    {icon:'🍾',title:'Amenity de Bienvenida',desc:'Botella de espumante y chocolates en habitación al llegar.',notes:[]},
+    {icon:'🏊',title:'Piscina + Gimnasio',desc:'Acceso libre a piscina temperada y gimnasio durante tu estadía.',notes:[]},
+    {icon:'✈️',title:'Transfer Aeropuerto',desc:'Transfer gratuito aeropuerto Puerto Montt ↔ hotel (1 trayecto).',notes:['Reservar con 48 hrs de anticipación']},
+    {icon:'🏔️',title:'Tour Lago Llanquihue',desc:'Paseo en lancha por el lago Llanquihue incluido. 1 hora.',notes:['Sujeto a condiciones climáticas','Reservar en recepción']},
+  ],
+  parkinn:[
+    {icon:'🛏️',title:'Noche Gratis · Estándar',desc:'Una noche gratis en habitación Estándar del Park Inn by Radisson.',notes:['Sujeto a disponibilidad','No válido en temporada alta']},
+    {icon:'⬆️',title:'Upgrade a Superior',desc:'Mejora sin costo de Estándar a Superior al hacer check-in.',notes:['Sujeto a disponibilidad']},
+    {icon:'🌙',title:'Noche Gratis · Superior',desc:'Una noche gratis en habitación Superior del Park Inn.',notes:['Sujeto a disponibilidad','No válido temporada alta']},
+    {icon:'🍳',title:'Desayuno Incluido',desc:'Desayuno completo para 2 personas incluido en Estación 505.',notes:[]},
+    {icon:'🌅',title:'Early Check-in · 10:00',desc:'Check-in anticipado desde las 10:00 horas sin costo.',notes:['Sujeto a disponibilidad']},
+    {icon:'🕑',title:'Late Check-out · 16:00',desc:'Check-out tardío hasta las 16:00 horas sin cargo adicional.',notes:['Sujeto a disponibilidad']},
+    {icon:'🚗',title:'Estacionamiento Gratis',desc:'Estacionamiento gratuito durante tu estadía.',notes:['Sujeto a disponibilidad']},
+    {icon:'🍾',title:'Amenity de Bienvenida',desc:'Detalle de bienvenida en habitación: botella de agua + snacks.',notes:[]},
+    {icon:'🏊',title:'Piscina + Gimnasio',desc:'Acceso a piscina y gimnasio del hotel durante tu estadía.',notes:[]},
+    {icon:'✈️',title:'Transfer Aeropuerto',desc:'Transfer gratuito aeropuerto Puerto Montt ↔ hotel (1 trayecto).',notes:['Reservar con 48 hrs de anticipación']},
+    {icon:'🎿',title:'Ski Transfer · Osorno',desc:'Traslado gratuito al centro de ski Antillanca o Osorno (1 día).',notes:['Reservar con 72 hrs de anticipación','Sujeto a disponibilidad']},
+    {icon:'🛶',title:'Kayak en el Lago',desc:'1 hora de kayak en el Lago Llanquihue incluida, con instructor.',notes:['Reservar en recepción','Sujeto a condiciones climáticas']},
   ]
 };
 
@@ -770,34 +800,38 @@ async function loadCorpDetail(code){
 }
 
 function corpBenRow(n, b){
-  const presetBtns=(type)=>BENEFIT_PRESETS[type].map(p=>`<button type="button" class="preset-btn" onclick="applyPreset(${n},${JSON.stringify(p).replace(/"/g,'&quot;')})">${p.icon} ${p.title}</button>`).join('');
-  return`<div class="corp-ben-row" id="cbr${n}">
-  <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-    <span style="color:var(--gold);font-size:12px;font-weight:700;width:24px;flex-shrink:0">#${n}</span>
-    <input class="inp" style="width:54px;font-size:16px;text-align:center" value="${b?b.benefit_icon:'🎫'}" maxlength="4" id="cbi${n}">
-    <input class="inp" style="flex:1;font-size:13px" value="${b?b.benefit_title:''}" id="cbt${n}" placeholder="Nombre del beneficio">
-  </div>
-  <p style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(212,175,55,.5);text-transform:uppercase;margin-bottom:4px">Descripción:</p>
-  <textarea class="inp" style="font-size:12px;resize:vertical;min-height:46px;width:100%;margin-bottom:10px" id="cbd${n}" placeholder="Describe el beneficio">${b?b.benefit_description||b.benefit_title:''}</textarea>
-  <p style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(212,175,55,.5);text-transform:uppercase;margin-bottom:3px">Condiciones especiales:</p>
-  <p style="font-size:9px;color:rgba(255,255,255,.28);margin-bottom:5px">Opcional · Las condiciones y restricciones estándar ya aplican automáticamente. Agrega aquí solo condiciones particulares de este ticket.</p>
-  <input class="inp" style="font-size:11px;margin-bottom:6px" id="cbr_notes${n}" placeholder="Ej: Solo cenas · No aplica fines de semana  (separar con |)" value="${b?(b.restriction_notes||[]).join('|'):''}">
-  <div style="margin-bottom:6px">
+  const venueCol=(key,label)=>`
+    <div style="display:flex;flex-direction:column;gap:3px">
+      <p style="font-size:9px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:rgba(212,175,55,.5);margin-bottom:3px;text-align:center">${label}</p>
+      ${BENEFIT_PRESETS[key].map(p=>`<button type="button" class="preset-btn" style="text-align:left;white-space:normal;line-height:1.3" onclick="applyPreset(${n},${JSON.stringify(p).replace(/"/g,'&quot;')})">${p.icon} ${p.title}</button>`).join('')}
+    </div>`;
+  return`<div class="corp-ben-row" id="cbr${n}" style="display:flex;gap:14px;align-items:flex-start">
+  <div style="flex:1;min-width:0">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+      <span style="color:var(--gold);font-size:12px;font-weight:700;width:24px;flex-shrink:0">#${n}</span>
+      <input class="inp" style="width:54px;font-size:16px;text-align:center" value="${b?b.benefit_icon:'🎫'}" maxlength="4" id="cbi${n}">
+      <input class="inp" style="flex:1;font-size:13px" value="${b?b.benefit_title:''}" id="cbt${n}" placeholder="Nombre del beneficio">
+    </div>
+    <p style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(212,175,55,.5);text-transform:uppercase;margin-bottom:4px">Descripción:</p>
+    <textarea class="inp" style="font-size:12px;resize:vertical;min-height:46px;width:100%;margin-bottom:10px" id="cbd${n}" placeholder="Describe el beneficio">${b?b.benefit_description||b.benefit_title:''}</textarea>
+    <p style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(212,175,55,.5);text-transform:uppercase;margin-bottom:3px">Condiciones especiales:</p>
+    <p style="font-size:9px;color:rgba(255,255,255,.28);margin-bottom:5px">Opcional · Las condiciones estándar ya aplican. Agrega solo condiciones particulares de este ticket.</p>
+    <input class="inp" style="font-size:11px;margin-bottom:8px" id="cbr_notes${n}" placeholder="Ej: Solo cenas · No aplica fines de semana  (separar con |)" value="${b?(b.restriction_notes||[]).join('|'):''}">
     <p style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(212,175,55,.5);text-transform:uppercase;margin-bottom:5px">Requiere previos:</p>
     <div style="display:flex;gap:5px;flex-wrap:wrap" id="cbp-btns${n}">
       ${[1,2,3,4,5,6,7,8,9,10].filter(x=>x!==n).map(x=>`<button type="button" class="prereq-btn" id="cbp-${n}-${x}" onclick="togglePrereq(${n},${x})">#${x}</button>`).join('')}
     </div>
     <input type="hidden" id="cbp${n}" value="${b?(b.prerequisite_ticket_numbers||[]).join(','):''}">
   </div>
-  <details style="margin-top:4px">
-    <summary style="font-size:10px;color:rgba(212,175,55,.55);cursor:pointer;list-style:none;user-select:none">▾ Presets rápidos</summary>
-    <div style="margin-top:8px">
-      <p style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,.3);text-transform:uppercase;margin-bottom:5px">🍽️ Restaurant</p>
-      <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px">${presetBtns('rest')}</div>
-      <p style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,.3);text-transform:uppercase;margin-bottom:5px">🏨 Hotel</p>
-      <div style="display:flex;flex-wrap:wrap;gap:4px">${presetBtns('hotel')}</div>
+  <div style="width:380px;flex-shrink:0;background:rgba(255,255,255,.03);border:1px solid rgba(212,175,55,.1);border-radius:8px;padding:10px">
+    <p style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(212,175,55,.4);text-transform:uppercase;margin-bottom:8px;text-align:center">Sugerencias rápidas</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px">
+      ${venueCol('balandra','🍽️ Balandra')}
+      ${venueCol('estacion','🍽️ Estación 505')}
+      ${venueCol('radisson','🏨 Radisson')}
+      ${venueCol('parkinn','🏨 Park Inn')}
     </div>
-  </details>
+  </div>
 </div>`;}
 
 function applyPreset(n, p){
