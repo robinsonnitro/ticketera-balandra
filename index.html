@@ -421,7 +421,7 @@ function hLogin(){return`
 </div>`}
 function bLogin(){
   const ap=document.getElementById('ap'),alb=document.getElementById('alb'),eye=document.getElementById('apEye');
-  ap.onkeydown=e=>e.key==='Enter'&&doLogin();
+  ap.onkeydown=e=>{if(e.key==='Enter')doLogin();};
   alb.onclick=doLogin;
   eye.onclick=()=>{ap.type=ap.type==='password'?'text':'password';eye.textContent=ap.type==='password'?'👁 Mostrar contraseña':'🙈 Ocultar contraseña';};
 }
