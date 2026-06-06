@@ -799,47 +799,70 @@ async function loadCorpDetail(code){
   }catch{det.innerHTML='<p style="color:var(--red);font-size:12px;padding:12px">Error al cargar detalle.</p>';}
 }
 
-function corpBenRow(n, b){
+let _presetTarget=1;
+
+function presetPanel(){
   const venueCol=(key,label)=>`
-    <div style="display:flex;flex-direction:column;gap:3px">
-      <p style="font-size:9px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:rgba(212,175,55,.5);margin-bottom:3px;text-align:center">${label}</p>
-      ${BENEFIT_PRESETS[key].map(p=>`<button type="button" class="preset-btn" style="text-align:left;white-space:normal;line-height:1.3" onclick="applyPreset(${n},${JSON.stringify(p).replace(/"/g,'&quot;')})">${p.icon} ${p.title}</button>`).join('')}
+    <div style="display:flex;flex-direction:column;gap:3px;min-width:0">
+      <p style="font-size:9px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:rgba(212,175,55,.55);margin-bottom:4px">${label}</p>
+      ${BENEFIT_PRESETS[key].map(p=>`<button type="button" class="preset-btn" style="text-align:left;white-space:normal;line-height:1.3;font-size:11px" onclick="applyPresetTo(_presetTarget,${JSON.stringify(p).replace(/"/g,'&quot;')})">${p.icon} ${p.title}</button>`).join('')}
     </div>`;
-  return`<div class="corp-ben-row" id="cbr${n}" style="display:flex;gap:14px;align-items:flex-start">
-  <div style="flex:1;min-width:0">
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-      <span style="color:var(--gold);font-size:12px;font-weight:700;width:24px;flex-shrink:0">#${n}</span>
-      <input class="inp" style="width:54px;font-size:16px;text-align:center" value="${b?b.benefit_icon:'🎫'}" maxlength="4" id="cbi${n}">
-      <input class="inp" style="flex:1;font-size:13px" value="${b?b.benefit_title:''}" id="cbt${n}" placeholder="Nombre del beneficio">
+  const rowBtns=[1,2,3,4,5,6,7,8,9,10].map(i=>`<button type="button" id="psel${i}" class="prereq-btn${i===1?' prereq-on':''}" onclick="selectPresetTarget(${i})">#${i}</button>`).join('');
+  return`<div style="background:rgba(212,175,55,.04);border:1px solid rgba(212,175,55,.14);border-radius:10px;padding:14px;margin-bottom:18px">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap">
+      <p style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(212,175,55,.5);text-transform:uppercase;flex-shrink:0">💡 Sugerencias → Ticket:</p>
+      <div style="display:flex;gap:5px;flex-wrap:wrap">${rowBtns}</div>
     </div>
-    <p style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(212,175,55,.5);text-transform:uppercase;margin-bottom:4px">Descripción:</p>
-    <textarea class="inp" style="font-size:12px;resize:vertical;min-height:46px;width:100%;margin-bottom:10px" id="cbd${n}" placeholder="Describe el beneficio">${b?b.benefit_description||b.benefit_title:''}</textarea>
-    <p style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(212,175,55,.5);text-transform:uppercase;margin-bottom:3px">Condiciones especiales:</p>
-    <p style="font-size:9px;color:rgba(255,255,255,.28);margin-bottom:5px">Opcional · Las condiciones estándar ya aplican. Agrega solo condiciones particulares de este ticket.</p>
-    <input class="inp" style="font-size:11px;margin-bottom:8px" id="cbr_notes${n}" placeholder="Ej: Solo cenas · No aplica fines de semana  (separar con |)" value="${b?(b.restriction_notes||[]).join('|'):''}">
-    <p style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(212,175,55,.5);text-transform:uppercase;margin-bottom:5px">Requiere previos:</p>
-    <div style="display:flex;gap:5px;flex-wrap:wrap" id="cbp-btns${n}">
-      ${[1,2,3,4,5,6,7,8,9,10].filter(x=>x!==n).map(x=>`<button type="button" class="prereq-btn" id="cbp-${n}-${x}" onclick="togglePrereq(${n},${x})">#${x}</button>`).join('')}
-    </div>
-    <input type="hidden" id="cbp${n}" value="${b?(b.prerequisite_ticket_numbers||[]).join(','):''}">
-  </div>
-  <div style="width:380px;flex-shrink:0;background:rgba(255,255,255,.03);border:1px solid rgba(212,175,55,.1);border-radius:8px;padding:10px">
-    <p style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(212,175,55,.4);text-transform:uppercase;margin-bottom:8px;text-align:center">Sugerencias rápidas</p>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px">
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
       ${venueCol('balandra','🍽️ Balandra')}
       ${venueCol('estacion','🍽️ Estación 505')}
       ${venueCol('radisson','🏨 Radisson')}
       ${venueCol('parkinn','🏨 Park Inn')}
     </div>
+  </div>`;}
+
+function selectPresetTarget(n){
+  _presetTarget=n;
+  [1,2,3,4,5,6,7,8,9,10].forEach(i=>{
+    const b=document.getElementById('psel'+i);
+    if(b){b.classList.toggle('prereq-on',i===n);}
+  });
+}
+
+function applyPresetTo(n, p){
+  const icon=document.getElementById('cbi'+n);
+  const title=document.getElementById('cbt'+n);
+  const desc=document.getElementById('cbd'+n);
+  const notes=document.getElementById('cbr_notes'+n);
+  if(icon)icon.value=p.icon||'🎫';
+  if(title)title.value=p.title||'';
+  if(desc)desc.value=p.desc||'';
+  if(notes)notes.value=(p.notes||[]).join('|');
+  // resaltar la fila target brevemente
+  const row=document.getElementById('cbr'+n);
+  if(row){row.style.transition='background .3s';row.style.background='rgba(212,175,55,.07)';setTimeout(()=>row.style.background='',600);}
+}
+
+function corpBenRow(n, b){
+  return`<div class="corp-ben-row" id="cbr${n}" style="padding:10px;border-radius:8px;transition:background .3s">
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+    <span style="color:var(--gold);font-size:12px;font-weight:700;width:24px;flex-shrink:0">#${n}</span>
+    <input class="inp" style="width:54px;font-size:16px;text-align:center" value="${b?b.benefit_icon:'🎫'}" maxlength="4" id="cbi${n}">
+    <input class="inp" style="flex:1;font-size:13px" value="${b?b.benefit_title:''}" id="cbt${n}" placeholder="Nombre del beneficio">
   </div>
+  <p style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(212,175,55,.5);text-transform:uppercase;margin-bottom:4px">Descripción:</p>
+  <textarea class="inp" style="font-size:12px;resize:vertical;min-height:44px;width:100%;margin-bottom:8px" id="cbd${n}" placeholder="Describe el beneficio">${b?b.benefit_description||b.benefit_title:''}</textarea>
+  <p style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(212,175,55,.5);text-transform:uppercase;margin-bottom:3px">Condiciones especiales:</p>
+  <p style="font-size:9px;color:rgba(255,255,255,.28);margin-bottom:5px">Opcional · Las condiciones estándar ya aplican. Agrega solo condiciones particulares de este ticket.</p>
+  <input class="inp" style="font-size:11px;margin-bottom:8px" id="cbr_notes${n}" placeholder="Ej: Solo cenas · No aplica fines de semana  (separar con |)" value="${b?(b.restriction_notes||[]).join('|'):''}">
+  <p style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(212,175,55,.5);text-transform:uppercase;margin-bottom:5px">Requiere previos:</p>
+  <div style="display:flex;gap:5px;flex-wrap:wrap" id="cbp-btns${n}">
+    ${[1,2,3,4,5,6,7,8,9,10].filter(x=>x!==n).map(x=>`<button type="button" class="prereq-btn" id="cbp-${n}-${x}" onclick="togglePrereq(${n},${x})">#${x}</button>`).join('')}
+  </div>
+  <input type="hidden" id="cbp${n}" value="${b?(b.prerequisite_ticket_numbers||[]).join(','):''}">
 </div>`;}
 
-function applyPreset(n, p){
-  document.getElementById('cbi'+n).value=p.icon||'🎫';
-  document.getElementById('cbt'+n).value=p.title||'';
-  document.getElementById('cbd'+n).value=p.desc||'';
-  document.getElementById('cbr_notes'+n).value=(p.notes||[]).join('|');
-}
+function applyPreset(n, p){ applyPresetTo(n, p); }
 
 function togglePrereq(n, x){
   const hidden=document.getElementById('cbp'+n);
@@ -888,7 +911,7 @@ function showCorpForm(){
     <div class="fld" style="flex:1;min-width:100px"><label class="lbl">VIGENCIA (meses)</label><input id="cf-validity" class="inp" type="number" min="1" max="24" value="6"></div>
     <div class="fld" style="flex:1;min-width:100px"><label class="lbl">CUPO MÁX. (vacío=∞)</label><input id="cf-quota" class="inp" type="number" min="1" placeholder="Ej: 100"></div>
   </div>
-  <div class="fld"><label class="lbl" style="margin-bottom:10px">LOS 10 BENEFICIOS</label>${rows}</div>
+  <div class="fld"><label class="lbl" style="margin-bottom:10px">LOS 10 BENEFICIOS</label>${presetPanel()}${rows}</div>
   <div style="display:flex;gap:8px;margin-top:16px">
     <button class="bg" id="cf-save" onclick="saveCorpTemplate()">💾 Guardar Plantilla</button>
     <button class="bs" onclick="document.getElementById('corp-form').style.display='none'">Cancelar</button>
@@ -940,7 +963,7 @@ async function editCorpTemplate(code){
     <div class="fld" style="flex:1;min-width:100px"><label class="lbl">VIGENCIA (meses)</label><input id="cf-validity" class="inp" type="number" min="1" max="24" value="${d.validity_months||6}"></div>
     <div class="fld" style="flex:1;min-width:100px"><label class="lbl">CUPO MÁX. (vacío=∞)</label><input id="cf-quota" class="inp" type="number" min="1" value="${d.max_ticketeras||''}"></div>
   </div>
-  <div class="fld"><label class="lbl" style="margin-bottom:10px">LOS 10 BENEFICIOS</label>${rows}</div>
+  <div class="fld"><label class="lbl" style="margin-bottom:10px">LOS 10 BENEFICIOS</label>${presetPanel()}${rows}</div>
   <div style="display:flex;gap:8px;margin-top:16px">
     <button class="bg" id="cf-save" onclick="saveCorpTemplate('${code}')">💾 Guardar Cambios</button>
     <button class="bs" onclick="document.getElementById('corp-form').style.display='none'">Cancelar</button>
