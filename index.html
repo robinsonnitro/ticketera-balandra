@@ -130,6 +130,7 @@ body{font-family:'Inter',sans-serif;background:var(--navy);color:var(--white);mi
 .adm-benefit-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05)}
 .adm-benefit-row:last-child{border-bottom:none}
 .adm-benefit-name{font-size:12px;color:var(--white);flex:1}
+.corp-ben-row{padding:10px 12px;background:rgba(255,255,255,.03);border-radius:8px;border:1px solid rgba(255,255,255,.07)}
 
 /* ── STATS ── */
 .sg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
@@ -571,11 +572,12 @@ function doLogin(){
 ══════════════════════════ */
 function hAdmin(){return`
 <div>
-  <div class="tabs">
+  <div class="tabs" style="flex-wrap:wrap;gap:4px">
     <button class="tab on" id="at0" onclick="sTab('db',this)">Dashboard</button>
     <button class="tab" id="at1" onclick="sTab('cr',this)">Nueva</button>
     <button class="tab" id="at2" onclick="sTab('li',this)">Listado</button>
     <button class="tab" id="at3" onclick="sTab('bn',this)">Beneficios</button>
+    <button class="tab" id="at4" onclick="sTab('co',this)">🏢 Corporativo</button>
   </div>
   <div id="ap0">${hDash()}</div>
   <div id="ap1" style="display:none">${hCrear()}</div>
@@ -587,13 +589,14 @@ function hAdmin(){return`
       <div id="benefit-types-area"><p style="color:var(--muted);font-size:12px">Cargando...</p></div>
     </div>
   </div>
+  <div id="ap4" style="display:none"><div id="corp-area"><p style="color:var(--muted)">Cargando...</p></div></div>
 </div>`}
 
 function bAdminCreate(){const b=document.getElementById('ccb');if(b)b.onclick=doCrear;}
 function sTab(n,el){
-  const mp={db:0,cr:1,li:2,bn:3},i=mp[n];
-  [0,1,2,3].forEach(j=>{document.getElementById('ap'+j).style.display=j===i?'block':'none';document.getElementById('at'+j).classList.toggle('on',j===i);});
-  if(n==='db')loadStats();if(n==='li')loadListado();if(n==='cr')bAdminCreate();if(n==='bn')loadBenefitTypes();
+  const mp={db:0,cr:1,li:2,bn:3,co:4},i=mp[n];
+  [0,1,2,3,4].forEach(j=>{document.getElementById('ap'+j).style.display=j===i?'block':'none';document.getElementById('at'+j).classList.toggle('on',j===i);});
+  if(n==='db')loadStats();if(n==='li')loadListado();if(n==='cr')bAdminCreate();if(n==='bn')loadBenefitTypes();if(n==='co')loadCorpList();
 }
 function hDash(){return`
 <div class="sg">
@@ -637,6 +640,161 @@ async function loadListado(){
       </div>
     </div>`).join('');
   }catch{area.innerHTML='<p class="err">Error cargando.</p>';}
+}
+
+/* ══════════════════════════
+   CORPORATIVO
+══════════════════════════ */
+const CORP_CAT_LABEL={restaurant:'🍽️ Restaurant',hotel:'🏨 Hotel',both:'🍽️🏨 Restaurant + Hotel'};
+
+async function loadCorpList(){
+  const area=document.getElementById('corp-area');if(!area)return;
+  try{
+    const list=await rpc('balandra_list_corporate_templates');
+    const arr=Array.isArray(list)?list:[];
+    area.innerHTML=`
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <p style="font-size:13px;font-weight:700;color:var(--gold)">Empresas / Grupos (${arr.length})</p>
+        <button class="bp" style="padding:8px 14px;font-size:12px" onclick="showCorpForm()">+ Nueva empresa</button>
+      </div>
+      <div id="corp-list">
+      ${!arr.length?'<p style="color:var(--muted);text-align:center;padding:20px">Sin plantillas corporativas aún.</p>':
+        arr.map(c=>`<div class="lrow" onclick="loadCorpDetail('${c.code}')">
+          <div>
+            <p class="lfolio">${c.company_name}</p>
+            <p class="lname">${CORP_CAT_LABEL[c.category]||c.category} · ${c.validity_months} meses · ${c.ticketeras_count||0} ticketeras emitidas</p>
+            ${c.description?`<p style="font-size:10px;color:var(--dim);margin-top:2px">${c.description}</p>`:''}
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px">
+            <span class="bdg ${c.active?'ba':'be'}">${c.active?'ACTIVA':'INACTIVA'}</span>
+            <span style="color:var(--dim);font-size:11px">Código: ${c.code}</span>
+          </div>
+        </div>`).join('')}
+      </div>
+      <div id="corp-detail"></div>
+      <div id="corp-form" style="display:none"></div>`;
+  }catch{area.innerHTML='<p style="color:var(--red);font-size:12px;padding:12px">Error al cargar.</p>';}
+}
+
+async function loadCorpDetail(code){
+  const det=document.getElementById('corp-detail');if(!det)return;
+  det.innerHTML='<p style="color:var(--muted);font-size:12px;padding:12px">Cargando...</p>';
+  det.scrollIntoView({behavior:'smooth',block:'start'});
+  try{
+    const d=await rpc('balandra_get_corporate_template',{p_code:code});
+    if(!d.success){det.innerHTML=`<p style="color:var(--red);font-size:12px">${d.error}</p>`;return;}
+    const bens=(d.benefits||[]).map(b=>`<div style="display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05)">
+      <span style="color:var(--gold);font-size:11px;width:22px;flex-shrink:0">#${b.ticket_number}</span>
+      <span style="font-size:14px;flex-shrink:0">${b.benefit_icon}</span>
+      <div style="flex:1">
+        <p style="font-size:12px;font-weight:600;color:var(--white)">${b.benefit_title}</p>
+        ${b.prerequisite_ticket_numbers&&b.prerequisite_ticket_numbers.length?`<p style="font-size:10px;color:var(--warn)">⚠ Requiere tickets: ${b.prerequisite_ticket_numbers.map(n=>'#'+n).join(', ')}</p>`:''}
+        ${(b.restriction_notes||[]).map(r=>`<p style="font-size:10px;color:var(--dim)">• ${r}</p>`).join('')}
+      </div>
+    </div>`).join('');
+    // Ticketeras emitidas para esta empresa
+    const tktList=await rpc('balandra_list_ticketeras').then(l=>(Array.isArray(l)?l:[]).filter(t=>t.corporate_company===d.company_name)).catch(()=>[]);
+    const sm={active:'ba',completed:'bc',expired:'be',suspended:'be',cancelled:'be'};
+    const sl={active:'ACTIVA',completed:'COMPLETADA',expired:'VENCIDA',suspended:'SUSPENDIDA',cancelled:'CANCELADA'};
+    det.innerHTML=`<div class="adm-panel" style="margin-top:16px">
+      <p class="adm-panel-title">🏢 ${d.company_name}</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+        <span class="bdg ba">${CORP_CAT_LABEL[d.category]}</span>
+        <span style="color:var(--muted);font-size:11px;align-self:center">Vigencia: ${d.validity_months} meses · Código registro: <strong style="color:var(--gold)">${d.code}</strong></span>
+      </div>
+      <p style="font-size:11px;color:var(--muted);margin-bottom:6px">Link de registro para empleados:</p>
+      <div style="background:rgba(255,255,255,.05);border-radius:6px;padding:8px 10px;font-size:11px;font-family:monospace;color:var(--gold);word-break:break-all;margin-bottom:12px">
+        https://www.radissonpuertovaras.com/ticketera/registro.html?corp=${d.code}
+        <button class="bs" style="margin-left:8px;padding:3px 8px;font-size:10px" onclick="navigator.clipboard.writeText('https://www.radissonpuertovaras.com/ticketera/registro.html?corp=${d.code}').then(()=>alert('Copiado ✓'))">Copiar</button>
+      </div>
+      <details style="margin-bottom:12px">
+        <summary style="font-size:11px;color:var(--gold);cursor:pointer;list-style:none">▾ Ver los 10 beneficios configurados</summary>
+        <div style="margin-top:8px">${bens}</div>
+      </details>
+      <p style="font-size:11px;font-weight:600;color:var(--muted);margin-bottom:8px">Ticketeras emitidas: ${tktList.length}</p>
+      ${tktList.length?`<div>${tktList.map(t=>`<div class="lrow" onclick="nav('ticketera','${t.folio}')">
+        <div><p class="lfolio">${t.folio}</p><p class="lname">${t.owner_name||''}${t.owner_email?' · '+t.owner_email:''}</p></div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+          <span class="bdg ${sm[t.status]||'ba'}">${sl[t.status]||t.status}</span>
+          <span style="color:var(--dim);font-size:11px">${t.used_tickets}/${t.total_tickets}</span>
+        </div>
+      </div>`).join('')}</div>`:'<p style="color:var(--dim);font-size:11px">Aún no hay ticketeras emitidas.</p>'}
+    </div>`;
+  }catch{det.innerHTML='<p style="color:var(--red);font-size:12px;padding:12px">Error al cargar detalle.</p>';}
+}
+
+function showCorpForm(){
+  const frm=document.getElementById('corp-form');if(!frm)return;
+  // Cargar beneficios estándar como punto de partida
+  rpc('balandra_list_benefit_types').then(tpls=>{
+    const rows=(Array.isArray(tpls)?tpls:[]).map(b=>`
+    <div class="corp-ben-row" id="cbr${b.ticket_number}">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+        <span style="color:var(--gold);font-size:11px;font-weight:700;width:28px">#${b.ticket_number}</span>
+        <input class="inp" style="font-size:13px" value="${b.benefit_icon||'🎫'}" maxlength="4" id="cbi${b.ticket_number}" placeholder="Ícono">
+        <input class="inp" style="flex:1;font-size:13px" value="${b.benefit_title}" id="cbt${b.ticket_number}" placeholder="Nombre del beneficio">
+      </div>
+      <textarea class="inp" style="font-size:12px;resize:vertical;min-height:50px;width:100%;margin-bottom:4px" id="cbd${b.ticket_number}" placeholder="Descripción">${b.benefit_title}</textarea>
+      <input class="inp" style="font-size:11px" id="cbr_notes${b.ticket_number}" placeholder="Condiciones separadas por | (ej: No acumulable|Solo almuerzo)" value="${(b.restriction_notes||[]).join('|')}">
+      <input class="inp" style="font-size:11px;margin-top:4px" id="cbp${b.ticket_number}" placeholder="Requiere tickets previos (ej: 1,3)" value="${(b.prerequisite_ticket_numbers||[]).join(',')}">
+    </div>`).join('<hr style="border-color:rgba(255,255,255,.06);margin:10px 0">');
+    frm.style.display='block';
+    frm.innerHTML=`<div class="adm-panel" style="margin-top:16px">
+      <p class="adm-panel-title">➕ Nueva Plantilla Corporativa</p>
+      <div id="corp-form-msg" style="display:none;font-size:12px;padding:8px 10px;border-radius:6px;margin-bottom:10px"></div>
+      <div class="fld"><label class="lbl">NOMBRE EMPRESA / GRUPO</label><input id="cf-company" class="inp" placeholder="Ej: Turismo Sur S.A."></div>
+      <div class="fld"><label class="lbl">DESCRIPCIÓN (opcional)</label><input id="cf-desc" class="inp" placeholder="Ej: Beneficios para colaboradores 2026"></div>
+      <div class="fld"><label class="lbl">CATEGORÍA DE USO</label>
+        <select id="cf-cat" class="inp" style="background:var(--navy3);color:var(--white)">
+          <option value="restaurant">🍽️ Restaurant</option>
+          <option value="hotel">🏨 Hotel</option>
+          <option value="both" selected>🍽️🏨 Restaurant + Hotel</option>
+        </select>
+      </div>
+      <div class="fld"><label class="lbl">VIGENCIA (meses)</label><input id="cf-validity" class="inp" type="number" min="1" max="24" value="6" style="width:100px"></div>
+      <div class="fld"><label class="lbl">CUPO MÁXIMO DE TICKETERAS (vacío = ilimitado)</label><input id="cf-quota" class="inp" type="number" min="1" placeholder="Ej: 100" style="width:120px"></div>
+      <div class="fld"><label class="lbl" style="margin-bottom:10px">LOS 10 BENEFICIOS</label>${rows}</div>
+      <div style="display:flex;gap:8px;margin-top:14px">
+        <button class="bg" id="cf-save" onclick="saveCorpTemplate()">💾 Guardar Plantilla</button>
+        <button class="bs" onclick="document.getElementById('corp-form').style.display='none'">Cancelar</button>
+      </div>
+    </div>`;
+    frm.scrollIntoView({behavior:'smooth',block:'start'});
+  }).catch(()=>{frm.innerHTML='<p style="color:var(--red);font-size:12px">Error cargando beneficios base.</p>';frm.style.display='block';});
+}
+
+async function saveCorpTemplate(){
+  const btn=document.getElementById('cf-save');
+  const msg=document.getElementById('corp-form-msg');
+  const company=(document.getElementById('cf-company')||{}).value||'';
+  if(!company.trim()){msg.textContent='Ingresa el nombre de la empresa.';msg.style.background='rgba(200,50,50,.12)';msg.style.color='#c84040';msg.style.border='1px solid rgba(200,50,50,.3)';msg.style.display='block';return;}
+  btn.textContent='Guardando...';btn.disabled=true;
+  const benefits=[];
+  for(let i=1;i<=10;i++){
+    const title=(document.getElementById('cbt'+i)||{}).value||'';
+    const desc=(document.getElementById('cbd'+i)||{}).value||'';
+    const icon=(document.getElementById('cbi'+i)||{}).value||'🎫';
+    const notes=((document.getElementById('cbr_notes'+i)||{}).value||'').split('|').map(s=>s.trim()).filter(Boolean);
+    const prereqs=((document.getElementById('cbp'+i)||{}).value||'').split(',').map(s=>parseInt(s.trim())).filter(n=>!isNaN(n)&&n>0);
+    if(!title.trim())continue;
+    benefits.push({ticket_number:i,benefit_title:title,benefit_description:desc,benefit_icon:icon,benefit_color:'#D4AF37',restriction_notes:notes,prerequisite_ticket_numbers:prereqs});
+  }
+  if(benefits.length<10){msg.textContent=`Completa los 10 beneficios (faltan ${10-benefits.length}).`;msg.style.background='rgba(200,50,50,.12)';msg.style.color='#c84040';msg.style.border='1px solid rgba(200,50,50,.3)';msg.style.display='block';btn.textContent='💾 Guardar Plantilla';btn.disabled=false;return;}
+  try{
+    const d=await rpc('balandra_create_corporate_template',{
+      p_company_name:company.trim(),
+      p_category:document.getElementById('cf-cat').value,
+      p_description:(document.getElementById('cf-desc')||{}).value||'',
+      p_validity_months:parseInt(document.getElementById('cf-validity').value)||6,
+      p_max_ticketeras:parseInt(document.getElementById('cf-quota').value)||null,
+      p_benefits:benefits
+    });
+    if(d.success){
+      document.getElementById('corp-form').style.display='none';
+      alert(`✅ Plantilla creada.\nEmpresa: ${d.company_name}\nCódigo de registro: ${d.code}\nLink: https://www.radissonpuertovaras.com/ticketera/registro.html?corp=${d.code}`);
+      loadCorpList();
+    }else{msg.textContent=d.error||'Error al guardar';msg.style.background='rgba(200,50,50,.12)';msg.style.color='#c84040';msg.style.border='1px solid rgba(200,50,50,.3)';msg.style.display='block';btn.textContent='💾 Guardar Plantilla';btn.disabled=false;}
+  }catch{msg.textContent='Error de conexión';msg.style.display='block';btn.textContent='💾 Guardar Plantilla';btn.disabled=false;}
 }
 
 async function doCrear(){
