@@ -235,10 +235,11 @@ input.bad{border-color:var(--err)}
     <p class="modal-icon" id="m-icon">🎫</p>
     <p class="modal-title" id="m-title">Beneficio</p>
     <p class="modal-desc" id="m-desc"></p>
-    <div class="code-box" id="code-box" onclick="copyCode()">
-      <span class="code-lbl">Código — muestra al cajero</span>
-      <span class="code-val" id="m-code">——</span>
-      <span class="code-inst">El cajero ingresa este código en su terminal para validar · Toca para copiar</span>
+    <div class="code-box" id="code-box">
+      <span class="code-lbl">Muestra este QR al mesero</span>
+      <img id="m-qr" src="" alt="QR" style="width:190px;height:190px;border-radius:10px;margin:8px auto;display:block;background:#fff">
+      <span class="code-inst" style="margin-top:4px">El mesero escanea el QR con su dispositivo · Se valida automáticamente</span>
+      <span style="font-size:10px;color:var(--dim);margin-top:4px">Código: <span id="m-code" style="font-family:monospace;letter-spacing:2px;color:var(--gold)">——</span></span>
       <span class="copied-hint" id="copied">✓ Copiado</span>
     </div>
     <!-- Restricciones del ticket -->
@@ -396,20 +397,20 @@ function openModal(ticket,allTickets){
   const codeBox=document.getElementById('code-box');
   const codeVal=document.getElementById('m-code');
   const codeInst=document.querySelector('.code-inst');
+  const qrImg=document.getElementById('m-qr');
   if(isLocked){
     codeBox.className='code-box locked-code';
     codeBox.onclick=null;
+    qrImg.style.display='none';
     codeVal.textContent='🔒';
-    codeVal.style.letterSpacing='0';
-    codeVal.style.fontSize='28px';
-    codeInst.textContent='Este código se habilitará cuando se cumplan las condiciones de uso';
+    codeInst.textContent='Este QR se habilitará cuando se cumplan las condiciones de uso';
   } else {
     codeBox.className='code-box';
     codeBox.onclick=copyCode;
     codeVal.textContent=ticket.validation_code||'——';
-    codeVal.style.letterSpacing='8px';
-    codeVal.style.fontSize='34px';
-    codeInst.textContent='El cajero ingresa este código en su terminal para validar · Toca para copiar';
+    qrImg.style.display='block';
+    qrImg.src=`https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${ticket.validation_code}&bgcolor=ffffff&color=0a0a0a&margin=12&qzone=1`;
+    codeInst.textContent='El mesero escanea el QR con su dispositivo · Se valida automáticamente';
   }
 
   // Restriction notes

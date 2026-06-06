@@ -11,6 +11,7 @@
 <meta name="description" content="Ticketera Electrónica Balandra · Radisson Hotel Puerto Varas">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <style>
 :root{
   --navy:#0a1628;--navy2:#0d1e35;--navy3:#142540;
@@ -200,6 +201,7 @@ window.addEventListener('hashchange',render);
 window.addEventListener('load',()=>{if(!location.hash||location.hash==='#')location.hash='/home';render()});
 
 function render(){
+  if(qrScanner){qrScanner.stop().catch(()=>{});qrScanner=null;}
   const{p,q}=getR();
   const m=document.getElementById('main');
   const bnav=document.getElementById('bnav');
@@ -368,37 +370,65 @@ function hTkt(t){
 function hVal(){return`
 <div>
   <h1 class="stit">Validar Ticket</h1>
-  <p style="color:var(--muted);font-size:13px;margin-bottom:22px">Ingresa el código de 6 letras del ticket del cliente</p>
+  <p style="color:var(--muted);font-size:13px;margin-bottom:16px">Apunta la cámara al QR del cliente</p>
   <div id="vres"></div>
-  <div id="vfrm" class="card card-g">
-    <div class="fld">
-      <label class="lbl">CÓDIGO DEL TICKET</label>
-      <input id="vc" class="inp inp-code" placeholder="XXXXXX" maxlength="6" autocapitalize="characters" autocomplete="off" spellcheck="false">
-    </div>
-    <div class="r2" style="margin-bottom:14px">
+  <div id="vfrm">
+    <div class="r2" style="margin-bottom:12px">
       <div class="fld" style="margin-bottom:0"><label class="lbl">GARZÓN</label><input id="vs" class="inp" placeholder="Tu nombre"></div>
       <div class="fld" style="margin-bottom:0"><label class="lbl">MESA</label><input id="vt" class="inp" placeholder="N°"></div>
     </div>
-    <div id="ve" class="err" style="display:none"></div>
-    <button id="vb" class="bp">Quemar Ticket 🔥</button>
+    <div id="ve" class="err" style="display:none;margin-bottom:10px"></div>
+    <div id="qr-reader" style="width:100%;border-radius:14px;overflow:hidden;background:#000;min-height:260px"></div>
+    <p id="qr-status" style="color:var(--muted);font-size:12px;text-align:center;margin-top:10px">Iniciando cámara…</p>
+    <details style="margin-top:16px">
+      <summary style="color:var(--dim);font-size:12px;cursor:pointer;list-style:none;text-align:center">⌨️ Ingresar código manualmente</summary>
+      <div class="card" style="margin-top:10px;display:flex;flex-direction:column;gap:10px">
+        <input id="vc" class="inp inp-code" placeholder="XXXXXX" maxlength="6" autocapitalize="characters" autocomplete="off" spellcheck="false">
+        <button id="vb" class="bp">Quemar Ticket 🔥</button>
+      </div>
+    </details>
   </div>
 </div>`}
 
+let qrScanner=null;
 function bVal(){
   const vc=document.getElementById('vc'),vb=document.getElementById('vb');
-  vc.oninput=()=>vc.value=vc.value.toUpperCase();
-  vc.onkeydown=e=>e.key==='Enter'&&doVal();
-  vb.onclick=doVal;
+  if(vc){vc.oninput=()=>vc.value=vc.value.toUpperCase();vc.onkeydown=e=>{if(e.key==='Enter')doVal();};}
+  if(vb)vb.onclick=doVal;
+  startScanner();
+}
+function startScanner(){
+  if(typeof Html5Qrcode==='undefined'){
+    document.getElementById('qr-status').textContent='Escáner no disponible. Usa el código manual.';
+    return;
+  }
+  qrScanner=new Html5Qrcode('qr-reader');
+  qrScanner.start(
+    {facingMode:'environment'},
+    {fps:10,qrbox:{width:220,height:220}},
+    (code)=>{
+      qrScanner.stop().catch(()=>{});
+      document.getElementById('qr-status').textContent='✓ QR detectado — validando…';
+      doValWithCode(code.trim().toUpperCase());
+    }
+  ).then(()=>{
+    document.getElementById('qr-status').textContent='Cámara activa — apunta al QR del cliente';
+  }).catch(()=>{
+    document.getElementById('qr-status').textContent='No se pudo acceder a la cámara. Usa el código manual.';
+  });
 }
 async function doVal(){
   const code=(document.getElementById('vc')||{}).value||'';
+  if(code.length<4){const ve=document.getElementById('ve');ve.textContent='El código debe tener al menos 4 caracteres';ve.style.display='block';return;}
+  await doValWithCode(code.toUpperCase());
+}
+async function doValWithCode(code){
   const staff=(document.getElementById('vs')||{}).value||'Caja';
   const table=(document.getElementById('vt')||{}).value||null;
-  const ve=document.getElementById('ve'),vb=document.getElementById('vb'),vres=document.getElementById('vres'),vfrm=document.getElementById('vfrm');
-  if(code.length<4){ve.textContent='El código debe tener 6 caracteres';ve.style.display='block';return;}
-  vb.textContent='Validando...';vb.disabled=true;ve.style.display='none';
+  const ve=document.getElementById('ve'),vres=document.getElementById('vres'),vfrm=document.getElementById('vfrm');
+  ve.style.display='none';
   try{
-    const d=await rpc('balandra_use_ticket',{p_code:code.toUpperCase(),p_staff:staff,p_table:table});
+    const d=await rpc('balandra_use_ticket',{p_code:code,p_staff:staff,p_table:table});
     if(d.success){
       vfrm.style.display='none';
       const last=d.remaining===0;
@@ -413,9 +443,9 @@ async function doVal(){
             :`<p style="color:var(--muted);font-size:13px">Quedan <strong style="color:var(--gold);font-size:20px">${d.remaining}</strong> ticket(s)</p>`}
         </div>
         <button class="bg" onclick="nav('validar')">Validar Otro Ticket</button>
-      </div></div>`
-    }else{ve.textContent=d.error||'Error';ve.style.display='block';vb.textContent='Quemar Ticket 🔥';vb.disabled=false;}
-  }catch{ve.textContent='Error de conexión.';ve.style.display='block';vb.textContent='Quemar Ticket 🔥';vb.disabled=false;}
+      </div></div>`;
+    }else{ve.textContent=d.error||'Código inválido';ve.style.display='block';if(qrScanner)startScanner();}
+  }catch{ve.textContent='Error de conexión.';ve.style.display='block';if(qrScanner)startScanner();}
 }
 
 /* ══════════════════════════
