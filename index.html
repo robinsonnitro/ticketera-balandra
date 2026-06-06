@@ -805,12 +805,12 @@ function presetPanel(){
   const venueCol=(key,label)=>`
     <div style="display:flex;flex-direction:column;gap:3px;min-width:0">
       <p style="font-size:9px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:rgba(212,175,55,.55);margin-bottom:4px">${label}</p>
-      ${BENEFIT_PRESETS[key].map(p=>`<button type="button" class="preset-btn" style="text-align:left;white-space:normal;line-height:1.3;font-size:11px" onclick="applyPresetTo(_presetTarget,${JSON.stringify(p).replace(/"/g,'&quot;')})">${p.icon} ${p.title}</button>`).join('')}
+      ${BENEFIT_PRESETS[key].map((p,i)=>`<button type="button" id="pbtn-${key}-${i}" class="preset-btn" style="position:relative;text-align:left;white-space:normal;line-height:1.3;font-size:11px;padding-right:22px" onclick="applyPresetTo(_presetTarget,'${key}',${i})">${p.icon} ${p.title}<span id="pbadge-${key}-${i}" style="display:none;position:absolute;top:3px;right:4px;background:#D4AF37;color:#0a1628;font-size:9px;font-weight:800;border-radius:4px;padding:1px 4px;line-height:1.4"></span></button>`).join('')}
     </div>`;
   const rowBtns=[1,2,3,4,5,6,7,8,9,10].map(i=>`<button type="button" id="psel${i}" class="prereq-btn${i===1?' prereq-on':''}" onclick="selectPresetTarget(${i})">#${i}</button>`).join('');
   return`<div style="background:rgba(212,175,55,.04);border:1px solid rgba(212,175,55,.14);border-radius:10px;padding:14px;margin-bottom:18px">
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap">
-      <p style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(212,175,55,.5);text-transform:uppercase;flex-shrink:0">💡 Sugerencias → Ticket:</p>
+      <p style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(212,175,55,.5);text-transform:uppercase;flex-shrink:0">💡 Aplicar al ticket:</p>
       <div style="display:flex;gap:5px;flex-wrap:wrap">${rowBtns}</div>
     </div>
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
@@ -829,7 +829,8 @@ function selectPresetTarget(n){
   });
 }
 
-function applyPresetTo(n, p){
+function applyPresetTo(n, key, idx){
+  const p=BENEFIT_PRESETS[key][idx];if(!p)return;
   const icon=document.getElementById('cbi'+n);
   const title=document.getElementById('cbt'+n);
   const desc=document.getElementById('cbd'+n);
@@ -838,9 +839,13 @@ function applyPresetTo(n, p){
   if(title)title.value=p.title||'';
   if(desc)desc.value=p.desc||'';
   if(notes)notes.value=(p.notes||[]).join('|');
-  // resaltar la fila target brevemente
-  const row=document.getElementById('cbr'+n);
-  if(row){row.style.transition='background .3s';row.style.background='rgba(212,175,55,.07)';setTimeout(()=>row.style.background='',600);}
+  // marcar botón oscuro + badge con número
+  const btn=document.getElementById(`pbtn-${key}-${idx}`);
+  const badge=document.getElementById(`pbadge-${key}-${idx}`);
+  if(btn){btn.style.background='rgba(212,175,55,.22)';btn.style.borderColor='rgba(212,175,55,.6)';btn.style.color='#D4AF37';}
+  if(badge){badge.textContent='#'+n;badge.style.display='inline';}
+  // avanzar automáticamente al siguiente ticket
+  if(n<10)selectPresetTarget(n+1);
 }
 
 function corpBenRow(n, b){
