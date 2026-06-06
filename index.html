@@ -801,25 +801,55 @@ async function loadCorpDetail(code){
 
 let _presetTarget=1;
 
-function presetPanel(){
-  const venueCol=(key,label)=>`
-    <div style="display:flex;flex-direction:column;gap:3px;min-width:0">
-      <p style="font-size:9px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:rgba(212,175,55,.55);margin-bottom:4px;text-align:center">${label}</p>
-      ${BENEFIT_PRESETS[key].map((p,i)=>`<button type="button" id="pbtn-${key}-${i}" class="preset-btn" style="position:relative;display:flex;align-items:center;gap:5px;height:36px;overflow:hidden;font-size:11px;padding:0 24px 0 8px;white-space:nowrap" onclick="applyPresetTo(_presetTarget,'${key}',${i})" title="${p.title}"><span style="flex-shrink:0">${p.icon}</span><span style="overflow:hidden;text-overflow:ellipsis">${p.title}</span><span id="pbadge-${key}-${i}" style="display:none;position:absolute;top:3px;right:3px;background:#D4AF37;color:#0a1628;font-size:9px;font-weight:800;border-radius:4px;padding:1px 4px;line-height:1.4"></span></button>`).join('')}
+function corpFormHTML(title, company, desc, venuesArr, validity, quota, checkedVenues, rows, saveCall){
+  const vc=(id,label,checked)=>`<label class="venue-chk"><input type="checkbox" id="cv-${id}" value="${id}" ${checked?'checked':''}> ${label}</label>`;
+  const venueSection=`
+    <div class="fld">
+      <label class="lbl">ESTABLECIMIENTOS DONDE APLICA</label>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px">
+        ${vc('balandra','🍽️ Balandra Restaurant',checkedVenues.includes('balandra'))}
+        ${vc('estacion','🍽️ Estación 505',checkedVenues.includes('estacion'))}
+        ${vc('radisson','🏨 Hotel Radisson',checkedVenues.includes('radisson'))}
+        ${vc('parkinn','🏨 Park Inn',checkedVenues.includes('parkinn'))}
+      </div>
+      <button type="button" class="bs" style="margin-top:8px;padding:4px 10px;font-size:11px" onclick="['cv-balandra','cv-estacion','cv-radisson','cv-parkinn'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=!el.checked;})">Alternar todos</button>
     </div>`;
-  const rowBtns=[1,2,3,4,5,6,7,8,9,10].map(i=>`<button type="button" id="psel${i}" class="prereq-btn${i===1?' prereq-on':''}" onclick="selectPresetTarget(${i})">#${i}</button>`).join('');
-  return`<div style="background:rgba(212,175,55,.04);border:1px solid rgba(212,175,55,.14);border-radius:10px;padding:14px;margin-bottom:18px">
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap">
-      <p style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(212,175,55,.5);text-transform:uppercase;flex-shrink:0">💡 Aplicar al ticket:</p>
-      <div style="display:flex;gap:5px;flex-wrap:wrap">${rowBtns}</div>
+  return`<div class="adm-panel" style="margin-top:16px">
+  <p class="adm-panel-title">${title}</p>
+  <div id="corp-form-msg" style="display:none;font-size:12px;padding:8px 10px;border-radius:6px;margin-bottom:10px"></div>
+  <div style="display:flex;gap:12px;flex-wrap:wrap">
+    <div class="fld" style="flex:2;min-width:160px"><label class="lbl">NOMBRE EMPRESA / GRUPO</label><input id="cf-company" class="inp" placeholder="Ej: Turismo Sur S.A." value="${company}"></div>
+    <div class="fld" style="flex:3;min-width:200px"><label class="lbl">DESCRIPCIÓN (opcional)</label><input id="cf-desc" class="inp" placeholder="Ej: Beneficios para colaboradores 2026" value="${desc}"></div>
+  </div>
+  ${venueSection}
+  <div style="display:flex;gap:12px;flex-wrap:wrap">
+    <div class="fld" style="flex:1;min-width:100px"><label class="lbl">VIGENCIA (meses)</label><input id="cf-validity" class="inp" type="number" min="1" max="24" value="${validity}"></div>
+    <div class="fld" style="flex:1;min-width:100px"><label class="lbl">CUPO MÁX. (vacío=∞)</label><input id="cf-quota" class="inp" type="number" min="1" value="${quota}" placeholder="Ej: 100"></div>
+  </div>
+  <label class="lbl" style="margin-bottom:10px">LOS 10 BENEFICIOS</label>
+  <div style="display:flex;gap:0;align-items:flex-start;margin-top:8px">
+    <div style="width:300px;flex-shrink:0;position:sticky;top:16px;background:rgba(212,175,55,.04);border:1px solid rgba(212,175,55,.14);border-radius:10px 0 0 10px;padding:12px;border-right:none">
+      <p style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(212,175,55,.5);text-transform:uppercase;margin-bottom:8px">💡 Aplicar al ticket:</p>
+      <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:12px">${[1,2,3,4,5,6,7,8,9,10].map(i=>`<button type="button" id="psel${i}" class="prereq-btn${i===1?' prereq-on':''}" onclick="selectPresetTarget(${i})">#${i}</button>`).join('')}</div>
+      <p style="font-size:9px;color:rgba(255,255,255,.22);margin-bottom:10px">Elige el # y haz clic en la sugerencia →</p>
+      ${['balandra','estacion','radisson','parkinn'].map(key=>{
+        const labels={balandra:'🍽️ Balandra',estacion:'🍽️ Estación 505',radisson:'🏨 Radisson',parkinn:'🏨 Park Inn'};
+        return`<p style="font-size:9px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:rgba(212,175,55,.5);margin:10px 0 5px">${labels[key]}</p>
+        <div style="display:flex;flex-direction:column;gap:2px">
+          ${BENEFIT_PRESETS[key].map((p,i)=>`<button type="button" id="pbtn-${key}-${i}" class="preset-btn" style="position:relative;display:flex;align-items:center;gap:6px;height:30px;font-size:11px;padding:0 28px 0 8px;text-align:left" onclick="applyPresetTo(_presetTarget,'${key}',${i})" title="${p.title}"><span style="flex-shrink:0">${p.icon}</span><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1">${p.title}</span><span id="pbadge-${key}-${i}" style="display:none;position:absolute;right:4px;background:#D4AF37;color:#0a1628;font-size:9px;font-weight:800;border-radius:4px;padding:1px 5px"></span></button>`).join('')}
+        </div>`;
+      }).join('')}
     </div>
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
-      ${venueCol('balandra','🍽️ Balandra')}
-      ${venueCol('estacion','🍽️ Estación 505')}
-      ${venueCol('radisson','🏨 Radisson')}
-      ${venueCol('parkinn','🏨 Park Inn')}
+    <div style="flex:1;min-width:0;border:1px solid rgba(212,175,55,.14);border-radius:0 10px 10px 0;padding:12px;display:flex;flex-direction:column;gap:0">
+      ${rows}
     </div>
-  </div>`;}
+  </div>
+  <div style="display:flex;gap:8px;margin-top:16px">
+    <button class="bg" id="cf-save" onclick="${saveCall}">💾 ${title.includes('Editar')?'Guardar Cambios':'Guardar Plantilla'}</button>
+    <button class="bs" onclick="document.getElementById('corp-form').style.display='none'">Cancelar</button>
+  </div>
+</div>`;}
+
 
 function selectPresetTarget(n){
   _presetTarget=n;
@@ -849,25 +879,24 @@ function applyPresetTo(n, key, idx){
 }
 
 function corpBenRow(n, b){
-  return`<div class="corp-ben-row" id="cbr${n}" style="padding:10px;border-radius:8px;transition:background .3s">
+  return`<div class="corp-ben-row" id="cbr${n}" style="padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.05);transition:background .25s">
   <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-    <span style="color:var(--gold);font-size:12px;font-weight:700;width:24px;flex-shrink:0">#${n}</span>
-    <input class="inp" style="width:54px;font-size:16px;text-align:center" value="${b?b.benefit_icon:'🎫'}" maxlength="4" id="cbi${n}">
-    <input class="inp" style="flex:1;font-size:13px" value="${b?b.benefit_title:''}" id="cbt${n}" placeholder="Nombre del beneficio">
+    <span style="color:var(--gold);font-size:11px;font-weight:700;width:20px;flex-shrink:0">#${n}</span>
+    <input class="inp" style="width:48px;font-size:15px;text-align:center" value="${b?b.benefit_icon:'🎫'}" maxlength="4" id="cbi${n}">
+    <input class="inp" style="flex:1;font-size:12px" value="${b?b.benefit_title:''}" id="cbt${n}" placeholder="Nombre del beneficio">
   </div>
-  <p style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(212,175,55,.5);text-transform:uppercase;margin-bottom:4px">Descripción:</p>
-  <textarea class="inp" style="font-size:12px;resize:vertical;min-height:44px;width:100%;margin-bottom:8px" id="cbd${n}" placeholder="Describe el beneficio">${b?b.benefit_description||b.benefit_title:''}</textarea>
-  <p style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(212,175,55,.5);text-transform:uppercase;margin-bottom:3px">Condiciones especiales:</p>
-  <p style="font-size:9px;color:rgba(255,255,255,.28);margin-bottom:5px">Opcional · Las condiciones estándar ya aplican. Agrega solo condiciones particulares de este ticket.</p>
-  <input class="inp" style="font-size:11px;margin-bottom:8px" id="cbr_notes${n}" placeholder="Ej: Solo cenas · No aplica fines de semana  (separar con |)" value="${b?(b.restriction_notes||[]).join('|'):''}">
-  <p style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(212,175,55,.5);text-transform:uppercase;margin-bottom:5px">Requiere previos:</p>
-  <div style="display:flex;gap:5px;flex-wrap:wrap" id="cbp-btns${n}">
+  <p style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(212,175,55,.45);text-transform:uppercase;margin-bottom:3px">Descripción:</p>
+  <textarea class="inp" style="font-size:11px;resize:vertical;min-height:38px;width:100%;margin-bottom:7px" id="cbd${n}" placeholder="Describe el beneficio">${b?b.benefit_description||b.benefit_title:''}</textarea>
+  <p style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(212,175,55,.45);text-transform:uppercase;margin-bottom:2px">Condiciones especiales:</p>
+  <p style="font-size:9px;color:rgba(255,255,255,.22);margin-bottom:4px">Opcional · solo condiciones particulares de este ticket</p>
+  <input class="inp" style="font-size:11px;margin-bottom:7px" id="cbr_notes${n}" placeholder="Ej: Solo cenas · No aplica fines de semana  (separar con |)" value="${b?(b.restriction_notes||[]).join('|'):''}">
+  <p style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(212,175,55,.45);text-transform:uppercase;margin-bottom:4px">Requiere previos:</p>
+  <div style="display:flex;gap:4px;flex-wrap:wrap" id="cbp-btns${n}">
     ${[1,2,3,4,5,6,7,8,9,10].filter(x=>x!==n).map(x=>`<button type="button" class="prereq-btn" id="cbp-${n}-${x}" onclick="togglePrereq(${n},${x})">#${x}</button>`).join('')}
   </div>
   <input type="hidden" id="cbp${n}" value="${b?(b.prerequisite_ticket_numbers||[]).join(','):''}">
 </div>`;}
 
-function applyPreset(n, p){ applyPresetTo(n, p); }
 
 function togglePrereq(n, x){
   const hidden=document.getElementById('cbp'+n);
@@ -897,31 +926,7 @@ function showCorpForm(){
     }).join('<div style="height:1px;background:rgba(255,255,255,.05);margin:8px 0"></div>');
 
     frm.style.display='block';
-    frm.innerHTML=`<div class="adm-panel" style="margin-top:16px">
-  <p class="adm-panel-title">➕ Nueva Plantilla Corporativa</p>
-  <div id="corp-form-msg" style="display:none;font-size:12px;padding:8px 10px;border-radius:6px;margin-bottom:10px"></div>
-  <div class="fld"><label class="lbl">NOMBRE EMPRESA / GRUPO</label><input id="cf-company" class="inp" placeholder="Ej: Turismo Sur S.A."></div>
-  <div class="fld"><label class="lbl">DESCRIPCIÓN (opcional)</label><input id="cf-desc" class="inp" placeholder="Ej: Beneficios para colaboradores 2026"></div>
-  <div class="fld">
-    <label class="lbl">ESTABLECIMIENTOS DONDE APLICA</label>
-    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px">
-      <label class="venue-chk"><input type="checkbox" id="cv-balandra" value="balandra" checked> 🍽️ Balandra Restaurant</label>
-      <label class="venue-chk"><input type="checkbox" id="cv-estacion" value="estacion"> 🍽️ Estación 505</label>
-      <label class="venue-chk"><input type="checkbox" id="cv-radisson" value="radisson"> 🏨 Hotel Radisson</label>
-      <label class="venue-chk"><input type="checkbox" id="cv-parkinn" value="parkinn"> 🏨 Park Inn</label>
-    </div>
-    <button type="button" class="bs" style="margin-top:8px;padding:4px 10px;font-size:11px" onclick="['cv-balandra','cv-estacion','cv-radisson','cv-parkinn'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=!el.checked;})">Alternar todos</button>
-  </div>
-  <div style="display:flex;gap:12px;flex-wrap:wrap">
-    <div class="fld" style="flex:1;min-width:100px"><label class="lbl">VIGENCIA (meses)</label><input id="cf-validity" class="inp" type="number" min="1" max="24" value="6"></div>
-    <div class="fld" style="flex:1;min-width:100px"><label class="lbl">CUPO MÁX. (vacío=∞)</label><input id="cf-quota" class="inp" type="number" min="1" placeholder="Ej: 100"></div>
-  </div>
-  <div class="fld"><label class="lbl" style="margin-bottom:10px">LOS 10 BENEFICIOS</label>${presetPanel()}${rows}</div>
-  <div style="display:flex;gap:8px;margin-top:16px">
-    <button class="bg" id="cf-save" onclick="saveCorpTemplate()">💾 Guardar Plantilla</button>
-    <button class="bs" onclick="document.getElementById('corp-form').style.display='none'">Cancelar</button>
-  </div>
-</div>`;
+    frm.innerHTML=corpFormHTML('➕ Nueva Plantilla Corporativa','','','',6,'',['balandra'],rows,'saveCorpTemplate()');
     frm.scrollIntoView({behavior:'smooth',block:'start'});
     setTimeout(initPrereqBtns,50);
   }).catch(()=>{frm.innerHTML='<p style="color:var(--red);font-size:12px;padding:12px">Error cargando beneficios base.</p>';frm.style.display='block';});
@@ -949,31 +954,7 @@ async function editCorpTemplate(code){
       return corpBenRow(i+1,b);
     }).join('<div style="height:1px;background:rgba(255,255,255,.05);margin:8px 0"></div>');
     const venues=d.category==='all'?['balandra','estacion','radisson','parkinn']:(d.category||'').split(',');
-    frm.innerHTML=`<div class="adm-panel" style="margin-top:16px">
-  <p class="adm-panel-title">✏️ Editar Plantilla: ${d.company_name}</p>
-  <div id="corp-form-msg" style="display:none;font-size:12px;padding:8px 10px;border-radius:6px;margin-bottom:10px"></div>
-  <div class="fld"><label class="lbl">NOMBRE EMPRESA / GRUPO</label><input id="cf-company" class="inp" value="${d.company_name||''}"></div>
-  <div class="fld"><label class="lbl">DESCRIPCIÓN (opcional)</label><input id="cf-desc" class="inp" value="${d.description||''}"></div>
-  <div class="fld">
-    <label class="lbl">ESTABLECIMIENTOS DONDE APLICA</label>
-    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px">
-      <label class="venue-chk"><input type="checkbox" id="cv-balandra" value="balandra" ${venues.includes('balandra')?'checked':''}> 🍽️ Balandra Restaurant</label>
-      <label class="venue-chk"><input type="checkbox" id="cv-estacion" value="estacion" ${venues.includes('estacion')?'checked':''}> 🍽️ Estación 505</label>
-      <label class="venue-chk"><input type="checkbox" id="cv-radisson" value="radisson" ${venues.includes('radisson')?'checked':''}> 🏨 Hotel Radisson</label>
-      <label class="venue-chk"><input type="checkbox" id="cv-parkinn" value="parkinn" ${venues.includes('parkinn')?'checked':''}> 🏨 Park Inn</label>
-    </div>
-    <button type="button" class="bs" style="margin-top:8px;padding:4px 10px;font-size:11px" onclick="['cv-balandra','cv-estacion','cv-radisson','cv-parkinn'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=!el.checked;})">Alternar todos</button>
-  </div>
-  <div style="display:flex;gap:12px;flex-wrap:wrap">
-    <div class="fld" style="flex:1;min-width:100px"><label class="lbl">VIGENCIA (meses)</label><input id="cf-validity" class="inp" type="number" min="1" max="24" value="${d.validity_months||6}"></div>
-    <div class="fld" style="flex:1;min-width:100px"><label class="lbl">CUPO MÁX. (vacío=∞)</label><input id="cf-quota" class="inp" type="number" min="1" value="${d.max_ticketeras||''}"></div>
-  </div>
-  <div class="fld"><label class="lbl" style="margin-bottom:10px">LOS 10 BENEFICIOS</label>${presetPanel()}${rows}</div>
-  <div style="display:flex;gap:8px;margin-top:16px">
-    <button class="bg" id="cf-save" onclick="saveCorpTemplate('${code}')">💾 Guardar Cambios</button>
-    <button class="bs" onclick="document.getElementById('corp-form').style.display='none'">Cancelar</button>
-  </div>
-</div>`;
+    frm.innerHTML=corpFormHTML(`✏️ Editar: ${d.company_name}`,d.company_name||'',d.description||'',venues,d.validity_months||6,d.max_ticketeras||'',venues,rows,`saveCorpTemplate('${code}')`);
     frm.scrollIntoView({behavior:'smooth',block:'start'});
     setTimeout(initPrereqBtns,50);
   }catch{alert('Error al cargar plantilla para edición.');}
