@@ -39,7 +39,8 @@ body{font-family:'Inter',sans-serif;background:var(--navy);color:var(--white);mi
 .staff-label{color:var(--dim);font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase}
 
 /* ── MAIN ── */
-.main{flex:1;padding:16px 16px 32px;max-width:600px;margin:0 auto;width:100%}
+.main{flex:1;padding:16px 16px 32px;max-width:600px;margin:0 auto;width:100%;transition:max-width .2s}
+.main-wide{max-width:98vw!important}
 .main-nav{padding-bottom:calc(var(--nav) + 20px)}
 
 /* ── BOTTOM NAV ── */
@@ -827,7 +828,7 @@ function corpFormHTML(title, company, desc, venuesArr, validity, quota, checkedV
     <div class="fld" style="flex:1;min-width:100px"><label class="lbl">CUPO MÁX. (vacío=∞)</label><input id="cf-quota" class="inp" type="number" min="1" value="${quota}" placeholder="Ej: 100"></div>
   </div>
   <label class="lbl" style="margin-bottom:12px">LOS 10 BENEFICIOS</label>
-  <div style="width:100vw;margin-left:calc(-50vw + 50%);padding:0 20px;box-sizing:border-box;display:flex;gap:16px;align-items:flex-start">
+  <div style="display:flex;gap:16px;align-items:flex-start;margin-top:4px">
 
     <!-- COLUMNA IZQUIERDA: formulario tickets -->
     <div style="width:320px;flex-shrink:0;border:1px solid rgba(212,175,55,.15);border-radius:10px;overflow:hidden;background:rgba(255,255,255,.02)">
@@ -869,7 +870,7 @@ function corpFormHTML(title, company, desc, venuesArr, validity, quota, checkedV
   </div>
   <div style="display:flex;gap:8px;margin-top:16px">
     <button class="bg" id="cf-save" onclick="${saveCall}">💾 ${title.includes('Editar')?'Guardar Cambios':'Guardar Plantilla'}</button>
-    <button class="bs" onclick="document.getElementById('corp-form').style.display='none'">Cancelar</button>
+    <button class="bs" onclick="document.getElementById('corp-form').style.display='none';corpWide(false)">Cancelar</button>
   </div>
 </div>`;}
 
@@ -939,6 +940,11 @@ function initPrereqBtns(){
   }
 }
 
+function corpWide(on){
+  const m=document.querySelector('.main');
+  if(m) on?m.classList.add('main-wide'):m.classList.remove('main-wide');
+}
+
 function showCorpForm(){
   const frm=document.getElementById('corp-form');if(!frm)return;
   rpc('balandra_list_benefit_types').then(tpls=>{
@@ -946,8 +952,9 @@ function showCorpForm(){
     const rows=Array.from({length:10},(_,i)=>{
       const b=base.find(x=>x.ticket_number===i+1)||null;
       return corpBenRow(i+1,b);
-    }).join('<div style="height:1px;background:rgba(255,255,255,.05);margin:8px 0"></div>');
+    }).join('');
 
+    corpWide(true);
     frm.style.display='block';
     frm.innerHTML=corpFormHTML('➕ Nueva Plantilla Corporativa','','','',6,'',['balandra'],rows,'saveCorpTemplate()');
     frm.scrollIntoView({behavior:'smooth',block:'start'});
@@ -970,12 +977,12 @@ async function editCorpTemplate(code){
   try{
     const d=await rpc('balandra_get_corporate_template',{p_code:code});
     if(!d.success){alert('Error al cargar plantilla.');return;}
-    // Reusar showCorpForm pero pre-rellenando con datos existentes
+    corpWide(true);
     frm.style.display='block';
     const rows=Array.from({length:10},(_,i)=>{
       const b=(d.benefits||[]).find(x=>x.ticket_number===i+1)||null;
       return corpBenRow(i+1,b);
-    }).join('<div style="height:1px;background:rgba(255,255,255,.05);margin:8px 0"></div>');
+    }).join('');
     const venues=d.category==='all'?['balandra','estacion','radisson','parkinn']:(d.category||'').split(',');
     frm.innerHTML=corpFormHTML(`✏️ Editar: ${d.company_name}`,d.company_name||'',d.description||'',venues,d.validity_months||6,d.max_ticketeras||'',venues,rows,`saveCorpTemplate('${code}')`);
     frm.scrollIntoView({behavior:'smooth',block:'start'});
