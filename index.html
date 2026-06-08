@@ -851,15 +851,15 @@ function corpFormHTML(title, company, desc, venuesArr, validity, quota, checkedV
           const labels={balandra:'🍽️ Balandra',estacion:'🍽️ Estación 505',radisson:'🏨 Radisson',parkinn:'🏨 Park Inn'};
           return`<div>
             <p style="font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:rgba(212,175,55,.7);text-align:center;padding:5px 0 7px;border-bottom:1px solid rgba(212,175,55,.18);margin-bottom:6px">${labels[key]}</p>
-            <div style="display:flex;flex-direction:column;gap:3px">
+            <div style="display:flex;flex-direction:column;gap:2px">
               ${BENEFIT_PRESETS[key].map((p,i)=>`
               <button type="button" id="pbtn-${key}-${i}" class="preset-btn"
-                style="position:relative;width:100%;height:40px;padding:0 28px 0 8px;
-                       display:flex;align-items:center;gap:6px;text-align:left"
+                style="position:relative;width:100%;padding:4px 26px 4px 7px;
+                       display:flex;align-items:center;gap:5px;text-align:left"
                 onclick="applyPresetTo(_presetTarget,'${key}',${i})"
                 title="${p.title}">
-                <span style="flex-shrink:0;font-size:14px;line-height:1">${p.icon}</span>
-                <span style="font-size:11px;line-height:1.25;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;flex:1">${p.title}</span>
+                <span style="flex-shrink:0;font-size:12px;line-height:1">${p.icon}</span>
+                <span style="font-size:11px;line-height:1.2;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;flex:1">${p.title}</span>
                 <span id="pbadge-${key}-${i}" style="display:none;position:absolute;top:4px;right:4px;background:#D4AF37;color:#0a1628;font-size:9px;font-weight:800;border-radius:4px;padding:1px 5px;line-height:1.4"></span>
               </button>`).join('')}
             </div>
