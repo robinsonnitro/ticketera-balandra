@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+<script>
+/* CANONICAL REDIRECT: forzar siempre el dominio radissonpuertovaras.com/ticketera/ */
+(function(){if(location.hostname==='ticketera-balandra.vercel.app'){location.replace('https://www.radissonpuertovaras.com/ticketera'+location.pathname+location.search+location.hash);}})();
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="mobile-web-app-capable" content="yes">
@@ -125,7 +129,7 @@ body{font-family:'Inter',sans-serif;background:var(--navy);color:var(--white);mi
 .btn-adm-off{padding:8px 14px;border-radius:8px;border:1px solid rgba(255,120,50,.5);background:rgba(255,120,50,.1);color:#ff7832;font-size:12px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:opacity .15s}
 .btn-adm-on{padding:8px 14px;border-radius:8px;border:1px solid rgba(80,200,100,.5);background:rgba(80,200,100,.1);color:#50c864;font-size:12px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:opacity .15s}
 .btn-adm-cancel{padding:8px 14px;border-radius:8px;border:1px solid rgba(200,50,50,.4);background:rgba(200,50,50,.08);color:#c83232;font-size:12px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:opacity .15s}
-.preset-btn{padding:4px 9px;border-radius:6px;border:1px solid rgba(212,175,55,.25);background:rgba(212,175,55,.07);color:rgba(255,255,255,.7);font-size:11px;cursor:pointer;font-family:'Inter',sans-serif;transition:background .15s,border-color .15s;white-space:nowrap}
+.preset-btn{height:18px;padding:0 16px 0 4px;border-radius:3px;border:1px solid rgba(212,175,55,.25);background:rgba(212,175,55,.07);color:rgba(255,255,255,.7);font-size:10px;cursor:pointer;font-family:'Inter',sans-serif;transition:background .15s,border-color .15s;line-height:18px;box-sizing:border-box}
 .preset-btn:hover{background:rgba(212,175,55,.18);border-color:rgba(212,175,55,.5);color:#D4AF37}
 .prereq-btn{padding:3px 8px;border-radius:6px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);color:rgba(255,255,255,.4);font-size:11px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s}
 .prereq-btn:hover{border-color:rgba(212,175,55,.4);color:rgba(212,175,55,.7)}
@@ -140,6 +144,11 @@ body{font-family:'Inter',sans-serif;background:var(--navy);color:var(--white);mi
 .adm-benefit-row:last-child{border-bottom:none}
 .adm-benefit-name{font-size:12px;color:var(--white);flex:1}
 .corp-ben-row{padding:10px 12px;background:rgba(255,255,255,.03);border-radius:8px;border:1px solid rgba(255,255,255,.07)}
+/* Layout formulario corporativo (grid con áreas para reordenar en mobile) */
+.corp-grid{display:grid;grid-template-columns:300px 420px;gap:14px;align-items:start;justify-content:center;grid-template-areas:"campos presets" "benef presets"}
+.corp-campos{grid-area:campos}
+.corp-benef{grid-area:benef}
+.corp-presets{grid-area:presets;position:sticky;top:60px;background:rgba(212,175,55,.04);border:1px solid rgba(212,175,55,.15);border-radius:10px;padding:8px 10px}
 
 /* ── STATS ── */
 .sg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
@@ -176,6 +185,51 @@ body{font-family:'Inter',sans-serif;background:var(--navy);color:var(--white);mi
 .mt16{margin-top:16px}
 .mt20{margin-top:20px}
 .divider{width:100%;height:1px;background:var(--cardBdr);margin:16px 0}
+
+/* ── RESPONSIVE MOBILE ── */
+@media(max-width:800px){
+  /* contenedor principal nunca se sale */
+  .main,.main-wide{max-width:100vw!important;padding:12px 10px 80px;}
+
+  /* topbar más compacto */
+  .topbar{padding:8px 12px;min-height:52px}
+  .logo-balandra{height:28px}
+  .logo-radisson{height:24px}
+
+  /* tabs admin: scroll horizontal compacto */
+  .tabs{justify-content:flex-start!important;overflow-x:auto;flex-wrap:nowrap!important;padding-bottom:4px}
+  .tab{padding:6px 12px;font-size:12px;min-height:32px}
+
+  /* lista corporativa a ancho completo */
+  .main [style*="max-width:740px"]{max-width:100%!important;margin:0!important}
+
+  /* FORM CORPORATIVO: orden mobile -> campos, presets (selector), beneficios */
+  .corp-grid{
+    grid-template-columns:1fr!important;
+    grid-template-areas:"campos" "presets" "benef"!important;
+  }
+  .corp-presets{position:static!important}
+  /* grid 4 columnas → 2 columnas en mobile */
+  .main [style*="grid-template-columns:repeat(4,1fr)"]{
+    grid-template-columns:repeat(2,1fr)!important;
+  }
+
+  /* checkboxes establecimientos: wrap natural */
+  .venue-chk{font-size:11px;padding:5px 8px}
+
+  /* botones grandes a ancho completo */
+  .bg,.bp{min-height:44px;font-size:13px}
+  .bs{min-height:38px;font-size:12px}
+
+  /* inputs más compactos */
+  .inp{font-size:14px;padding:10px 12px;min-height:44px}
+
+  /* stats grid 2 columnas, mantener */
+  .sg{grid-template-columns:1fr 1fr}
+
+  /* selector #1-#10 wrap natural */
+  .main [style*="display:flex"][style*="align-items:center"][style*="flex-wrap:wrap"]{flex-wrap:wrap!important}
+}
 </style>
 </head>
 <body>
@@ -220,7 +274,28 @@ function getR(){const h=location.hash.replace('#','').replace(/^\//,'');const[p,
 function nav(p,q=''){location.hash=q?`/${p}/${q}`:`/${p}`}
 
 window.addEventListener('hashchange',render);
-window.addEventListener('load',()=>{if(!location.hash||location.hash==='#'||location.hash==='/home')location.hash='/validar';render()});
+// Auto-desbloqueo cuando el admin viene embebido desde la app hotelera mod
+// (?embed=app) dentro de un iframe y con referrer de nuestros dominios. La app
+// ya autenticó por rol (super_admin / jefe_de_eventos), así que se salta el
+// login propio. En modo standalone sigue pidiendo contraseña.
+function isTrustedEmbed(){
+  try{
+    const embed=new URLSearchParams(location.search).get('embed')==='app';
+    const framed=window.self!==window.top;
+    const ref=document.referrer||'';
+    const okRef=/https:\/\/(app|www)\.radissonpuertovaras\.com/.test(ref) || ref==='';
+    return embed && framed && okRef;
+  }catch(e){ return false; }
+}
+window.addEventListener('load',()=>{
+  const path=window.location.pathname;
+  const forceAdmin=path==='/panel'||path==='/admin-panel'||path==='/gestion';
+  if(isTrustedEmbed()){ adminOk=true; }
+  if(!location.hash||location.hash==='#'||location.hash==='/home'){
+    location.hash=(forceAdmin||adminOk)?'/admin':'/validar';
+  }
+  render();
+});
 
 function render(){
   if(qrScanner){qrScanner.stop().catch(()=>{});qrScanner=null;}
@@ -581,7 +656,7 @@ function doLogin(){
 ══════════════════════════ */
 function hAdmin(){return`
 <div>
-  <div class="tabs" style="flex-wrap:wrap;gap:4px">
+  <div class="tabs" style="flex-wrap:wrap;gap:4px;justify-content:center">
     <button class="tab on" id="at0" onclick="sTab('db',this)">Dashboard</button>
     <button class="tab" id="at1" onclick="sTab('cr',this)">Nueva</button>
     <button class="tab" id="at2" onclick="sTab('li',this)">Listado</button>
@@ -603,6 +678,7 @@ function hAdmin(){return`
 
 function bAdminCreate(){const b=document.getElementById('ccb');if(b)b.onclick=doCrear;}
 function sTab(n,el){
+  corpWide(false); // resetear ancho al cambiar de pestaña; el form corporativo lo reactiva al abrirse
   const mp={db:0,cr:1,li:2,bn:3,co:4},i=mp[n];
   [0,1,2,3,4].forEach(j=>{document.getElementById('ap'+j).style.display=j===i?'block':'none';document.getElementById('at'+j).classList.toggle('on',j===i);});
   if(n==='db')loadStats();if(n==='li')loadListado();if(n==='cr')bAdminCreate();if(n==='bn')loadBenefitTypes();if(n==='co')loadCorpList();
@@ -660,60 +736,60 @@ const CORP_CAT_LABEL={restaurant:'🍽️ Restaurant',hotel:'🏨 Hotel',both:'�
 
 const BENEFIT_PRESETS={
   balandra:[
-    {icon:'🍽️',title:'10% Descuento',desc:'10% de descuento en la cuenta total en Balandra Restaurant.',notes:[]},
-    {icon:'✨',title:'20% Descuento',desc:'20% de descuento en la cuenta total en Balandra Restaurant.',notes:[]},
-    {icon:'🌟',title:'30% Descuento',desc:'30% de descuento en la cuenta total en Balandra Restaurant.',notes:[]},
-    {icon:'🎉',title:'50% Descuento',desc:'50% de descuento en la cuenta total en Balandra Restaurant.',notes:['No acumulable bajo ninguna circunstancia']},
-    {icon:'🥗',title:'Entrada Cortesía',desc:'Entrada según sugerencia del chef, sin costo.',notes:[]},
-    {icon:'🥩',title:'Fondo Cortesía',desc:'Plato de fondo según sugerencia del chef, sin costo.',notes:[]},
-    {icon:'🍮',title:'Postre Cortesía',desc:'Postre sugerencia del chef, sin costo al finalizar.',notes:[]},
+    {icon:'🍽️',title:'10% Dcto.',desc:'10% de descuento en la cuenta total en Balandra Restaurant.',notes:[]},
+    {icon:'✨',title:'20% Dcto.',desc:'20% de descuento en la cuenta total en Balandra Restaurant.',notes:[]},
+    {icon:'🌟',title:'30% Dcto.',desc:'30% de descuento en la cuenta total en Balandra Restaurant.',notes:[]},
+    {icon:'🎉',title:'50% Dcto.',desc:'50% de descuento en la cuenta total en Balandra Restaurant.',notes:['No acumulable bajo ninguna circunstancia']},
+    {icon:'🥗',title:'Entrada Cort.',desc:'Entrada según sugerencia del chef, sin costo.',notes:[]},
+    {icon:'🥩',title:'Fondo Cort.',desc:'Plato de fondo según sugerencia del chef, sin costo.',notes:[]},
+    {icon:'🍮',title:'Postre Cort.',desc:'Postre sugerencia del chef, sin costo al finalizar.',notes:[]},
     {icon:'☕',title:'Postre + Café',desc:'Postre del chef más café de cortesía para toda la mesa.',notes:[]},
     {icon:'🧀',title:'Tabla Entrada',desc:'Tabla de quesos y embutidos de cortesía para compartir.',notes:[]},
-    {icon:'🍷',title:'Copa de Vino',desc:'Copa de vino de la casa gratis con tu consumo.',notes:[]},
-    {icon:'🍹',title:'Cócteles 2×1',desc:'Pide 1 cóctel y te invitamos el segundo. 15:00–22:00 hrs.',notes:['Válido entre 15:00 y 22:00 horas']},
-    {icon:'🥂',title:'Botella de Vino',desc:'Botella de vino a elección del sommelier, sin costo.',notes:['Disponible solo al completar beneficios previos']},
+    {icon:'🍷',title:'Copa Vino',desc:'Copa de vino de la casa gratis con tu consumo.',notes:[]},
+    {icon:'🍹',title:'Cócteles 2×1',desc:'Pide 1 cóctel y te invitamos el segundo. 15:00–22:00.',notes:['Válido entre 15:00 y 22:00 horas']},
+    {icon:'🥂',title:'Botella Vino',desc:'Botella de vino a elección del sommelier, sin costo.',notes:['Disponible solo al completar beneficios previos']},
   ],
   estacion:[
-    {icon:'🍽️',title:'10% Descuento',desc:'10% de descuento en la cuenta total en Estación 505.',notes:[]},
-    {icon:'✨',title:'20% Descuento',desc:'20% de descuento en la cuenta total en Estación 505.',notes:[]},
-    {icon:'🌟',title:'30% Descuento',desc:'30% de descuento en la cuenta total en Estación 505.',notes:[]},
-    {icon:'🎉',title:'50% Descuento',desc:'50% de descuento en la cuenta total en Estación 505.',notes:['No acumulable bajo ninguna circunstancia']},
-    {icon:'🥗',title:'Entrada Cortesía',desc:'Entrada según sugerencia del chef de Estación 505, sin costo.',notes:[]},
-    {icon:'🥩',title:'Fondo Cortesía',desc:'Plato de fondo según sugerencia del chef, sin costo.',notes:[]},
-    {icon:'🍮',title:'Postre Cortesía',desc:'Postre del día sin costo al finalizar.',notes:[]},
+    {icon:'🍽️',title:'10% Dcto.',desc:'10% de descuento en la cuenta total en Estación 505.',notes:[]},
+    {icon:'✨',title:'20% Dcto.',desc:'20% de descuento en la cuenta total en Estación 505.',notes:[]},
+    {icon:'🌟',title:'30% Dcto.',desc:'30% de descuento en la cuenta total en Estación 505.',notes:[]},
+    {icon:'🎉',title:'50% Dcto.',desc:'50% de descuento en la cuenta total en Estación 505.',notes:['No acumulable bajo ninguna circunstancia']},
+    {icon:'🥗',title:'Entrada Cort.',desc:'Entrada según sugerencia del chef de Estación 505, sin costo.',notes:[]},
+    {icon:'🥩',title:'Fondo Cort.',desc:'Plato de fondo según sugerencia del chef, sin costo.',notes:[]},
+    {icon:'🍮',title:'Postre Cort.',desc:'Postre del día sin costo al finalizar.',notes:[]},
     {icon:'☕',title:'Postre + Café',desc:'Postre del día y café espresso de cortesía.',notes:[]},
     {icon:'🍺',title:'Cerveza 2×1',desc:'2×1 en cervezas artesanales de la carta.',notes:[]},
-    {icon:'🍷',title:'Copa de Vino',desc:'Copa de vino de la carta gratis con tu consumo.',notes:[]},
-    {icon:'🍹',title:'Cócteles 2×1',desc:'2×1 en cócteles de la carta. Válido 16:00–22:00 hrs.',notes:['Válido entre 16:00 y 22:00 horas']},
-    {icon:'🥐',title:'Desayuno Incluido',desc:'Desayuno completo en Estación 505, sin costo.',notes:['Solo huéspedes del hotel']},
+    {icon:'🍷',title:'Copa Vino',desc:'Copa de vino de la carta gratis con tu consumo.',notes:[]},
+    {icon:'🍹',title:'Cócteles 2×1',desc:'2×1 en cócteles de la carta. Válido 16:00–22:00.',notes:['Válido entre 16:00 y 22:00 horas']},
+    {icon:'🥐',title:'Desayuno Incl.',desc:'Desayuno completo en Estación 505, sin costo.',notes:['Solo huéspedes del hotel']},
   ],
   radisson:[
     {icon:'🛏️',title:'Noche Gratis Std.',desc:'Una noche gratis en habitación Estándar, Hotel Radisson.',notes:['Sujeto a disponibilidad','No válido temporada alta']},
     {icon:'🌙',title:'Noche Gratis Sup.',desc:'Una noche gratis en habitación Superior. Vista al lago.',notes:['Sujeto a disponibilidad','No válido temporada alta']},
-    {icon:'⬆️',title:'Upgrade Superior',desc:'Mejora sin costo de Estándar a Superior al check-in.',notes:['Sujeto a disponibilidad']},
-    {icon:'👑',title:'Upgrade Jr. Suite',desc:'Mejora sin costo a Junior Suite al hacer check-in.',notes:['Sujeto a disponibilidad']},
-    {icon:'🍳',title:'Desayuno para 2',desc:'Desayuno buffet para 2 personas incluido en estadía.',notes:[]},
+    {icon:'⬆️',title:'Upgrade Sup.',desc:'Mejora sin costo de Estándar a Superior al check-in.',notes:['Sujeto a disponibilidad']},
+    {icon:'👑',title:'Upgrade Jr.Suite',desc:'Mejora sin costo a Junior Suite al hacer check-in.',notes:['Sujeto a disponibilidad']},
+    {icon:'🍳',title:'Desayuno x2',desc:'Desayuno buffet para 2 personas incluido en estadía.',notes:[]},
     {icon:'🌅',title:'Early Check-in',desc:'Check-in anticipado desde las 10:00 hrs sin costo.',notes:['Sujeto a disponibilidad']},
     {icon:'🕑',title:'Late Check-out',desc:'Check-out tardío hasta las 16:00 hrs sin cargo.',notes:['Sujeto a disponibilidad']},
-    {icon:'🚗',title:'Estacionamiento',desc:'Estacionamiento gratuito durante toda la estadía.',notes:['Sujeto a disponibilidad']},
+    {icon:'🚗',title:'Estac. Gratis',desc:'Estacionamiento gratuito durante toda la estadía.',notes:['Sujeto a disponibilidad']},
     {icon:'🍾',title:'Amenity Bienvenida',desc:'Botella de espumante y chocolates en habitación.',notes:[]},
-    {icon:'🏊',title:'Piscina + Gimnasio',desc:'Acceso libre a piscina temperada y gimnasio.',notes:[]},
+    {icon:'🏊',title:'Piscina+Gym',desc:'Acceso libre a piscina temperada y gimnasio.',notes:[]},
     {icon:'🛁',title:'Room Service',desc:'Desayuno en habitación sin cargo adicional.',notes:['Selección del menú de room service']},
-    {icon:'🧴',title:'Amenities Premium',desc:'Kit de amenities premium: set de baño completo.',notes:[]},
+    {icon:'🧴',title:'Amenities Prem.',desc:'Kit de amenities premium: set de baño completo.',notes:[]},
   ],
   parkinn:[
     {icon:'🛏️',title:'Noche Gratis Std.',desc:'Una noche gratis en habitación Estándar, Park Inn.',notes:['Sujeto a disponibilidad','No válido temporada alta']},
     {icon:'🌙',title:'Noche Gratis Sup.',desc:'Una noche gratis en habitación Superior, Park Inn.',notes:['Sujeto a disponibilidad','No válido temporada alta']},
-    {icon:'⬆️',title:'Upgrade Superior',desc:'Mejora sin costo de Estándar a Superior al check-in.',notes:['Sujeto a disponibilidad']},
-    {icon:'🍳',title:'Desayuno para 2',desc:'Desayuno completo para 2 en Estación 505, sin costo.',notes:[]},
+    {icon:'⬆️',title:'Upgrade Sup.',desc:'Mejora sin costo de Estándar a Superior al check-in.',notes:['Sujeto a disponibilidad']},
+    {icon:'🍳',title:'Desayuno x2',desc:'Desayuno completo para 2 en Estación 505, sin costo.',notes:[]},
     {icon:'🌅',title:'Early Check-in',desc:'Check-in anticipado desde las 10:00 hrs sin costo.',notes:['Sujeto a disponibilidad']},
     {icon:'🕑',title:'Late Check-out',desc:'Check-out tardío hasta las 16:00 hrs sin cargo.',notes:['Sujeto a disponibilidad']},
-    {icon:'🚗',title:'Estacionamiento',desc:'Estacionamiento gratuito durante toda la estadía.',notes:['Sujeto a disponibilidad']},
+    {icon:'🚗',title:'Estac. Gratis',desc:'Estacionamiento gratuito durante toda la estadía.',notes:['Sujeto a disponibilidad']},
     {icon:'🍾',title:'Amenity Bienvenida',desc:'Detalle de bienvenida en habitación al llegar.',notes:[]},
-    {icon:'🏊',title:'Piscina + Gimnasio',desc:'Acceso a piscina y gimnasio del hotel.',notes:[]},
+    {icon:'🏊',title:'Piscina+Gym',desc:'Acceso a piscina y gimnasio del hotel.',notes:[]},
     {icon:'🛁',title:'Room Service',desc:'Desayuno en habitación sin cargo adicional.',notes:['Selección del menú de room service']},
     {icon:'🍵',title:'Colación Bienvenida',desc:'Colación en habitación: café, té y pastelería.',notes:[]},
-    {icon:'🧴',title:'Amenities Premium',desc:'Kit de amenities premium: set de baño completo.',notes:[]},
+    {icon:'🧴',title:'Amenities Prem.',desc:'Kit de amenities premium: set de baño completo.',notes:[]},
   ]
 };
 
@@ -723,6 +799,7 @@ async function loadCorpList(){
     const list=await rpc('balandra_list_corporate_templates');
     const arr=Array.isArray(list)?list:[];
     area.innerHTML=`
+      <div style="max-width:740px;margin:0 auto">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
         <p style="font-size:13px;font-weight:700;color:var(--gold)">Empresas / Grupos (${arr.length})</p>
         <button class="bp" style="padding:8px 14px;font-size:12px" onclick="showCorpForm()">+ Nueva empresa</button>
@@ -741,6 +818,7 @@ async function loadCorpList(){
           </div>
         </div>`).join('')}
       </div>
+      </div><!-- /max-width wrapper -->
       <div id="corp-detail"></div>
       <div id="corp-form" style="display:none"></div>`;
   }catch{area.innerHTML='<p style="color:var(--red);font-size:12px;padding:12px">Error al cargar.</p>';}
@@ -818,25 +896,35 @@ function corpFormHTML(title, company, desc, venuesArr, validity, quota, checkedV
   return`<div class="adm-panel" style="margin-top:16px">
   <p class="adm-panel-title">${title}</p>
   <div id="corp-form-msg" style="display:none;font-size:12px;padding:8px 10px;border-radius:6px;margin-bottom:10px"></div>
-  <div style="display:flex;gap:12px;flex-wrap:wrap">
-    <div class="fld" style="flex:2;min-width:160px"><label class="lbl">NOMBRE EMPRESA / GRUPO</label><input id="cf-company" class="inp" placeholder="Ej: Turismo Sur S.A." value="${company}"></div>
-    <div class="fld" style="flex:3;min-width:200px"><label class="lbl">DESCRIPCIÓN (opcional)</label><input id="cf-desc" class="inp" placeholder="Ej: Beneficios para colaboradores 2026" value="${desc}"></div>
-  </div>
-  ${venueSection}
-  <div style="display:flex;gap:12px;flex-wrap:wrap">
-    <div class="fld" style="flex:1;min-width:100px"><label class="lbl">VIGENCIA (meses)</label><input id="cf-validity" class="inp" type="number" min="1" max="24" value="${validity}"></div>
-    <div class="fld" style="flex:1;min-width:100px"><label class="lbl">CUPO MÁX. (vacío=∞)</label><input id="cf-quota" class="inp" type="number" min="1" value="${quota}" placeholder="Ej: 100"></div>
-  </div>
-  <label class="lbl" style="margin-bottom:12px">LOS 10 BENEFICIOS</label>
-  <div style="display:flex;gap:16px;align-items:flex-start;margin-top:4px">
 
-    <!-- COLUMNA IZQUIERDA: formulario tickets -->
-    <div style="width:320px;flex-shrink:0;border:1px solid rgba(212,175,55,.15);border-radius:10px;overflow:hidden;background:rgba(255,255,255,.02)">
-      ${rows}
+  <!-- layout grid: campos / presets / beneficios (reordenable en mobile) -->
+  <div class="corp-grid">
+
+    <!-- SECCIÓN CAMPOS -->
+    <div class="corp-campos">
+      <div class="fld" style="margin-bottom:8px"><label class="lbl">EMPRESA / GRUPO</label><input id="cf-company" class="inp" placeholder="Ej: Turismo Sur S.A." value="${company}"></div>
+      <div class="fld" style="margin-bottom:8px"><label class="lbl">DESCRIPCIÓN (opcional)</label><input id="cf-desc" class="inp" placeholder="Ej: Beneficios para colaboradores 2026" value="${desc}"></div>
+      ${venueSection}
+      <div style="display:flex;gap:8px;margin-bottom:10px">
+        <div class="fld" style="flex:1"><label class="lbl">VIGENCIA (meses)</label><input id="cf-validity" class="inp" type="number" min="1" max="24" value="${validity}"></div>
+        <div class="fld" style="flex:1"><label class="lbl">CUPO MÁX. (vacío=∞)</label><input id="cf-quota" class="inp" type="number" min="1" value="${quota}" placeholder="Ej: 100"></div>
+      </div>
     </div>
 
-    <!-- COLUMNA DERECHA: sugerencias -->
-    <div style="flex:1;min-width:0;position:sticky;top:16px;background:rgba(212,175,55,.04);border:1px solid rgba(212,175,55,.15);border-radius:10px;padding:14px 16px">
+    <!-- SECCIÓN BENEFICIOS -->
+    <div class="corp-benef">
+      <label class="lbl" style="margin-bottom:6px">LOS 10 BENEFICIOS</label>
+      <div style="border:1px solid rgba(212,175,55,.15);border-radius:8px;overflow:hidden;background:rgba(255,255,255,.02)">
+        ${rows}
+      </div>
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <button class="bg" id="cf-save" onclick="${saveCall}">💾 ${title.includes('Editar')?'Guardar Cambios':'Guardar Plantilla'}</button>
+        <button class="bs" onclick="document.getElementById('corp-form').style.display='none';corpWide(false)">Cancelar</button>
+      </div>
+    </div>
+
+    <!-- SECCIÓN PRESETS (selector de descuentos) -->
+    <div class="corp-presets">
 
       <!-- selector de ticket destino -->
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid rgba(212,175,55,.12);flex-wrap:wrap">
@@ -846,32 +934,28 @@ function corpFormHTML(title, company, desc, venuesArr, validity, quota, checkedV
       </div>
 
       <!-- grid 4 columnas -->
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px">
         ${['balandra','estacion','radisson','parkinn'].map(key=>{
           const labels={balandra:'🍽️ Balandra',estacion:'🍽️ Estación 505',radisson:'🏨 Radisson',parkinn:'🏨 Park Inn'};
           return`<div>
             <p style="font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:rgba(212,175,55,.7);text-align:center;padding:5px 0 7px;border-bottom:1px solid rgba(212,175,55,.18);margin-bottom:6px">${labels[key]}</p>
-            <div style="display:flex;flex-direction:column;gap:2px">
+            <div style="display:flex;flex-direction:column;gap:0px">
               ${BENEFIT_PRESETS[key].map((p,i)=>`
               <button type="button" id="pbtn-${key}-${i}" class="preset-btn"
-                style="position:relative;width:100%;padding:4px 26px 4px 7px;
-                       display:flex;align-items:center;gap:5px;text-align:left"
+                style="position:relative;width:100%;display:flex;align-items:center;gap:3px"
                 onclick="applyPresetTo(_presetTarget,'${key}',${i})"
                 title="${p.title}">
-                <span style="flex-shrink:0;font-size:12px;line-height:1">${p.icon}</span>
-                <span style="font-size:11px;line-height:1.2;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;flex:1">${p.title}</span>
-                <span id="pbadge-${key}-${i}" style="display:none;position:absolute;top:4px;right:4px;background:#D4AF37;color:#0a1628;font-size:9px;font-weight:800;border-radius:4px;padding:1px 5px;line-height:1.4"></span>
+                <span style="flex-shrink:0;font-size:10px;line-height:1">${p.icon}</span>
+                <span style="font-size:10px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;flex:1">${p.title}</span>
+                <span id="pbadge-${key}-${i}" style="display:none;position:absolute;top:1px;right:2px;background:#D4AF37;color:#0a1628;font-size:7px;font-weight:800;border-radius:2px;padding:0 3px;line-height:14px"></span>
               </button>`).join('')}
             </div>
           </div>`;
         }).join('')}
       </div>
-    </div>
-  </div>
-  <div style="display:flex;gap:8px;margin-top:16px">
-    <button class="bg" id="cf-save" onclick="${saveCall}">💾 ${title.includes('Editar')?'Guardar Cambios':'Guardar Plantilla'}</button>
-    <button class="bs" onclick="document.getElementById('corp-form').style.display='none';corpWide(false)">Cancelar</button>
-  </div>
+    </div><!-- /col-derecha presets -->
+
+  </div><!-- /layout dos columnas -->
 </div>`;}
 
 
@@ -880,6 +964,17 @@ function selectPresetTarget(n){
   [1,2,3,4,5,6,7,8,9,10].forEach(i=>{
     const b=document.getElementById('psel'+i);
     if(b){b.classList.toggle('prereq-on',i===n);}
+  });
+}
+
+// limpia cualquier botón que ya tenga asignado el ticket #n (un número = un solo beneficio)
+function clearPresetSlot(n){
+  document.querySelectorAll('[id^="pbadge-"]').forEach(badge=>{
+    if(badge.textContent==='#'+n){
+      badge.textContent='';badge.style.display='none';
+      const btn=badge.parentElement;
+      if(btn){btn.style.background='';btn.style.borderColor='';btn.style.color='';}
+    }
   });
 }
 
@@ -893,6 +988,8 @@ function applyPresetTo(n, key, idx){
   if(title)title.value=p.title||'';
   if(desc)desc.value=p.desc||'';
   if(notes)notes.value=(p.notes||[]).join('|');
+  // quitar el badge #n de cualquier otro botón (evita que se repita el mismo número)
+  clearPresetSlot(n);
   // marcar botón oscuro + badge con número
   const btn=document.getElementById(`pbtn-${key}-${idx}`);
   const badge=document.getElementById(`pbadge-${key}-${idx}`);
