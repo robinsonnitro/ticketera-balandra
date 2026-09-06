@@ -307,7 +307,12 @@ function render(){
   if(p==='ticketera'){
     bnav.style.display='none';
     m.className='main';
-    tbr.innerHTML=adminOk?'<button class="tbtn tbtn-d" onclick="nav(\'admin\')">← Admin</button>':'';
+    if(adminOk){
+      tbr.innerHTML='<button class="tbtn tbtn-d" onclick="nav(\'admin\')">← Admin</button>';
+    }else{
+      const hasSess=!!sessionStorage.getItem('tbal');
+      tbr.innerHTML=hasSess?'<button class="tbtn tbtn-d" onclick="sessionStorage.removeItem(\'tbal\');sessionStorage.removeItem(\'tbal_c\');render()">Cerrar sesión</button>':'';
+    }
     m.innerHTML='<p style="color:var(--muted);text-align:center;padding:40px 0">Cargando...</p>';loadTkt(q,m,adminOk);
     return;
   }
@@ -341,6 +346,20 @@ async function loadTkt(folio,m,isAdmin=false){
     const backBtn=isAdmin?`<button class="bs" onclick="nav('admin')">← Admin</button>`:'';
     m.innerHTML=`<div style="text-align:center;padding:40px"><p style="color:var(--red);margin-bottom:16px">Folio no indicado</p>${backBtn}</div>`;return;
   }
+
+  // Gate de acceso para clientes: verificar sesión o pedir RUT+PIN
+  if(!isAdmin){
+    let verified=false;
+    try{
+      const sess=sessionStorage.getItem('tbal');
+      if(sess){
+        const sd=JSON.parse(sess);
+        if(sd.folio&&sd.folio.toUpperCase()===folio.toUpperCase()) verified=true;
+      }
+    }catch{}
+    if(!verified){showPinGate(folio,m);return;}
+  }
+
   try{
     const d=await rpc('balandra_get_ticketera',{p_folio:folio.toUpperCase()});
     if(!d.success){
@@ -349,6 +368,63 @@ async function loadTkt(folio,m,isAdmin=false){
     }
     m.innerHTML=hTkt(d,isAdmin);
   }catch{m.innerHTML='<div style="text-align:center;padding:40px;color:var(--red)">Error de conexión</div>';}
+}
+
+function normRUT(v){v=v.replace(/[.\s]/g,'').toUpperCase();if(!v.includes('-')&&v.length>1)v=v.slice(0,-1)+'-'+v.slice(-1);return v;}
+function fmtRUT(v){v=v.replace(/[.\s-]/g,'').toUpperCase();if(v.length<=1)return v;const dv=v.slice(-1),body=v.slice(0,-1);return body.replace(/\B(?=(\d{3})+(?!\d))/g,'.')+'-'+dv;}
+
+function showPinGate(folio,m){
+  m.innerHTML=`
+<div style="max-width:340px;margin:32px auto;padding:0 4px">
+  <div class="fhdr" style="text-align:center;margin-bottom:20px">
+    <p class="feye">Ticketera Balandra</p>
+    <p class="fnum">${folio}</p>
+    <p style="color:var(--muted);font-size:12px;margin-top:8px">Ingresa tus datos para ver tu ticketera</p>
+  </div>
+  <div class="fld">
+    <label class="lbl">RUT</label>
+    <input class="inp" id="gate-rut" type="text" placeholder="12.345.678-9" maxlength="12" autocomplete="off">
+  </div>
+  <div class="fld">
+    <label class="lbl">PIN de 4 dígitos</label>
+    <input class="inp" id="gate-pin" type="password" inputmode="numeric" maxlength="4" placeholder="••••" autocomplete="off" style="text-align:center;letter-spacing:8px;font-size:22px">
+  </div>
+  <div id="gate-err" class="err" style="display:none"></div>
+  <button class="bp" id="gate-btn" onclick="verifyGate('${folio}')">→ Ver mi Ticketera</button>
+  <p style="text-align:center;margin-top:14px;font-size:12px;color:var(--dim)">
+    ¿No tienes ticketera?
+    <a href="https://www.radissonpuertovaras.com/ticketera/" style="color:var(--gold);text-decoration:none">Regístrate aquí →</a>
+  </p>
+</div>`;
+  const rutEl=document.getElementById('gate-rut');
+  rutEl.addEventListener('input',function(){this.value=fmtRUT(this.value.replace(/[^0-9kK]/g,''));});
+  document.getElementById('gate-pin').addEventListener('keydown',e=>{if(e.key==='Enter')verifyGate(folio);});
+  rutEl.addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('gate-pin').focus();});
+  setTimeout(()=>rutEl.focus(),100);
+}
+
+async function verifyGate(folio){
+  const rutRaw=document.getElementById('gate-rut').value.trim();
+  const pin=document.getElementById('gate-pin').value;
+  const err=document.getElementById('gate-err');
+  const btn=document.getElementById('gate-btn');
+  err.style.display='none';
+  if(!rutRaw){err.textContent='Ingresa tu RUT';err.style.display='block';return;}
+  if(!pin||pin.length!==4){err.textContent='Ingresa tu PIN de 4 dígitos';err.style.display='block';return;}
+  btn.disabled=true;btn.textContent='Verificando...';
+  try{
+    const rut=normRUT(rutRaw);
+    const d=await rpc('balandra_access_ticketera',{p_rut:rut,p_pin:pin});
+    if(!d.success){err.textContent=d.error||'RUT o PIN incorrecto';err.style.display='block';btn.disabled=false;btn.textContent='→ Ver mi Ticketera';return;}
+    if(d.folio.toUpperCase()!==folio.toUpperCase()){err.textContent='Esta ticketera no corresponde a tus credenciales';err.style.display='block';btn.disabled=false;btn.textContent='→ Ver mi Ticketera';return;}
+    sessionStorage.setItem('tbal',JSON.stringify(d));
+    sessionStorage.setItem('tbal_c',JSON.stringify({rut,pin}));
+    const main=document.getElementById('main');
+    main.innerHTML='<p style="color:var(--muted);text-align:center;padding:40px 0">Cargando...</p>';
+    const td=await rpc('balandra_get_ticketera',{p_folio:folio.toUpperCase()});
+    if(!td.success){main.innerHTML=`<div style="text-align:center;padding:40px"><p style="color:var(--red)">${td.error||'No encontrada'}</p></div>`;return;}
+    main.innerHTML=hTkt(td,false);
+  }catch{err.textContent='Error de conexión';err.style.display='block';btn.disabled=false;btn.textContent='→ Ver mi Ticketera';}
 }
 
 function waMsg(folio,link,name){
@@ -379,6 +455,7 @@ function hTkt(t,isAdmin=false){
         ${isAdmin&&!u?`<button class="btn-adm-tk ${dis?'btn-adm-on':'btn-adm-off'}" onclick="adminToggleTicket('${tk.validation_code}','${dis?'available':'disabled'}','${t.folio}')">
           ${dis?'✓ Reactivar ticket':'⊘ Desactivar ticket'}
         </button>`:''}
+        ${!isAdmin&&!u&&!dis?`<a href="https://wa.me/?text=${encodeURIComponent(`🎫 *${tk.benefit_title}*\n\nMi código de descuento en Restaurante Balandra, Radisson Puerto Varas:\n\n*${tk.validation_code}*\n\n_Preséntar al garzón antes de pedir la cuenta._`)}" target="_blank" class="tkt-wa">📲 Compartir</a>`:''}
       </div>
     </div>`}).join('');
 
