@@ -1,11 +1,16 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+<script>
+/* CANONICAL REDIRECT: forzar siempre el dominio radissonpuertovaras.com/ticketera/ */
+(function(){if(location.hostname==='ticketera-balandra.vercel.app'){location.replace('https://www.radissonpuertovaras.com/ticketera'+location.pathname+location.search+location.hash);}})();
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Club Balandra · Registro</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Barlow:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
 :root{
   --gold:#C9A96E;--gold-l:#E0C490;--gold-d:rgba(201,169,110,.14);
@@ -188,6 +193,16 @@ footer a{color:var(--gold);text-decoration:none}
 
   <button class="btn btn-p" id="btn-acc" onclick="acceder()">🔍 Ver mi Ticketera</button>
 
+  <div style="display:flex;align-items:center;gap:10px;margin:4px 0">
+    <div style="flex:1;height:1px;background:rgba(201,169,110,.2)"></div>
+    <span style="color:var(--dim);font-size:11px;white-space:nowrap">o continúa con</span>
+    <div style="flex:1;height:1px;background:rgba(201,169,110,.2)"></div>
+  </div>
+  <button onclick="loginWithGoogle()" id="btn-google" style="width:100%;padding:13px;border-radius:12px;background:#fff;border:none;color:#1f1f1f;font-size:14px;font-weight:600;cursor:pointer;font-family:'Barlow',sans-serif;min-height:50px;display:flex;align-items:center;justify-content:center;gap:10px;transition:opacity .15s" onmousedown="this.style.opacity='.85'" onmouseup="this.style.opacity='1'">
+    <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z"/><path fill="#FBBC05" d="M3.964 10.71c-.18-.54-.282-1.117-.282-1.71s.102-1.17.282-1.71V4.958H.957C.347 6.173 0 7.548 0 9s.348 2.827.957 4.042l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/></svg>
+    Continuar con Google
+  </button>
+
   <p style="font-size:12px;color:var(--dim);text-align:center;font-weight:300">
     ¿No tienes ticketera?
     <a href="#" onclick="tab('reg');return false" style="color:var(--gold);text-decoration:none">Regístrate gratis →</a>
@@ -218,7 +233,7 @@ footer a{color:var(--gold);text-decoration:none}
 <script>
 const SB_URL = 'https://wrtljewcclhqogkedsib.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndydGxqZXdjY2xocW9na2Vkc2liIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY4NDAzNTUsImV4cCI6MjA4MjQxNjM1NX0.FzxNYfIHE4R5IItHR-RfR5ebXU2lKP8R6s4zGNkxY_w';
-const VER_URL = 'https://www.radissonpuertovaras.com/ticketera/ver.html';
+const TKT_BASE = 'https://www.radissonpuertovaras.com/ticketera/index.html#/ticketera/';
 
 const p = new URLSearchParams(location.search);
 const r = p.get('r') || 'bal';
@@ -385,12 +400,50 @@ function showSuc(folio,nombre,isNew){
   document.getElementById('suc-folio').textContent=folio;
   document.getElementById('suc-title').innerHTML=isNew?'¡Listo, <em>bienvenido!</em>':'Tu <em>ticketera</em>';
   document.getElementById('suc-name').textContent=nombre?`Hola, ${nombre}`:'';
-  const link=`${VER_URL}`;
+  const link=TKT_BASE+folio;
   const msg=encodeURIComponent(`🎫 *${REST.club}*\n\nHola ${nombre||''}! Aquí tienes tu ticketera digital.\n\n🔗 ${link}\n\nIngresa con tu RUT y PIN para ver tus beneficios.`);
-  document.getElementById('btn-wa').href=`https://wa.me/?text=${msg}`;
+  const btnWa=document.getElementById('btn-wa');if(btnWa)btnWa.href=`https://wa.me/?text=${msg}`;
   s.scrollIntoView({behavior:'smooth',block:'start'});
 }
-function irTicketera(){window.location.href=VER_URL;}
+function irTicketera(){window.location.href=TKT_BASE+folioCur;}
+
+// ── GOOGLE LOGIN ──
+async function loginWithGoogle(){
+  const btn=document.getElementById('btn-google');
+  btn.disabled=true;btn.textContent='Redirigiendo...';
+  const {createClient}=window.supabase;
+  const sb=createClient(SB_URL,SB_KEY);
+  const redirectTo='https://www.radissonpuertovaras.com/ticketera/registro.html';
+  await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo}});
+}
+
+async function handleGoogleCallback(){
+  const hashParams=new URLSearchParams(location.hash.substring(1));
+  const gToken=hashParams.get('access_token');
+  if(!gToken)return;
+  history.replaceState(null,'',location.pathname+location.search);
+  tab('acc');
+  const aErr=document.getElementById('a-err');
+  aErr.style.display='block';aErr.className='msg';aErr.textContent='Verificando con Google...';
+  try{
+    const r=await fetch(`${SB_URL}/rest/v1/rpc/balandra_access_ticketera_google`,{
+      method:'POST',
+      headers:{apikey:SB_KEY,Authorization:'Bearer '+gToken,'Content-Type':'application/json'},
+      body:JSON.stringify({})
+    });
+    const d=await r.json();
+    aErr.style.display='none';
+    if(!d.success){showErr('a-err',d.error||'No se pudo autenticar con Google.');return;}
+    sessionStorage.setItem('tbal',JSON.stringify(d));
+    sessionStorage.setItem('tbal_google','1');
+    window.location.href=TKT_BASE+d.folio;
+  }catch(e){showErr('a-err','Error de conexión.');}
+}
+
+// Detectar callback OAuth al cargar
+if(location.hash&&location.hash.includes('access_token')){
+  window.addEventListener('DOMContentLoaded',handleGoogleCallback);
+}
 
 // Enter key
 document.addEventListener('keydown',e=>{
