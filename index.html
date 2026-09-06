@@ -386,8 +386,42 @@ window.addEventListener('load',async()=>{
   if(location.hash&&location.hash.includes('access_token')){
     const hashParams=new URLSearchParams(location.hash.substring(1));
     const gToken=hashParams.get('access_token');
+    const fromRegistro=sessionStorage.getItem('tbal_google_from_registro');
     const folio=sessionStorage.getItem('tbal_google_folio')||'';
     sessionStorage.removeItem('tbal_google_folio');
+    sessionStorage.removeItem('tbal_google_from_registro');
+
+    // Callback desde registro.html: buscar ticketera por email Google
+    if(fromRegistro&&gToken){
+      history.replaceState(null,'',location.pathname+location.search+'#/validar');
+      const m=document.getElementById('main');
+      document.getElementById('bnav').style.display='none';
+      document.getElementById('main').className='main';
+      m.innerHTML='<p style="color:var(--muted);text-align:center;padding:40px 0">Verificando con Google...</p>';
+      try{
+        const r=await fetch(`${SB}/rest/v1/rpc/balandra_access_ticketera_google`,{
+          method:'POST',
+          headers:{apikey:SK,Authorization:'Bearer '+gToken,'Content-Type':'application/json'},
+          body:JSON.stringify({})
+        });
+        const d=await r.json();
+        if(!d.success){
+          m.innerHTML=`<div style="max-width:340px;margin:32px auto;text-align:center;padding:0 4px"><div style="font-size:40px;margin-bottom:12px">⚠️</div><p style="color:var(--red);margin-bottom:16px">${d.error||'No se pudo autenticar con Google'}</p><p style="color:var(--dim);font-size:12px">Verifica que el email Google coincida con el registrado en tu ticketera.</p></div>`;
+          return;
+        }
+        sessionStorage.setItem('tbal',JSON.stringify(d));
+        sessionStorage.setItem('tbal_google','1');
+        history.replaceState(null,'',location.pathname+location.search+'#/ticketera/'+d.folio);
+        document.getElementById('tbr').innerHTML='<button class="tbtn tbtn-d" onclick="sessionStorage.removeItem(\'tbal\');sessionStorage.removeItem(\'tbal_google\');render()">Cerrar sesión</button>';
+        m.innerHTML=hTkt(d,false);
+        renderTktGrid(d.tickets);startTktAutoRefresh(d.folio);
+      }catch{
+        m.innerHTML='<div style="text-align:center;padding:40px;color:var(--red)">Error de conexión</div>';
+      }
+      return;
+    }
+
+    // Callback desde ticketera cliente (folio conocido)
     if(folio&&gToken){
       history.replaceState(null,'',location.pathname+location.search+'#/ticketera/'+folio);
       const m=document.getElementById('main');

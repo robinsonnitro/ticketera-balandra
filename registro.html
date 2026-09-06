@@ -411,38 +411,12 @@ function irTicketera(){window.location.href=TKT_BASE+folioCur;}
 async function loginWithGoogle(){
   const btn=document.getElementById('btn-google');
   btn.disabled=true;btn.textContent='Redirigiendo...';
+  sessionStorage.setItem('tbal_google_from_registro','1');
   const {createClient}=window.supabase;
   const sb=createClient(SB_URL,SB_KEY);
-  const redirectTo='https://www.radissonpuertovaras.com/ticketera/registro.html';
+  // Usar index.html como redirectTo (ya está en la lista permitida de Supabase)
+  const redirectTo='https://www.radissonpuertovaras.com/ticketera/index.html';
   await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo}});
-}
-
-async function handleGoogleCallback(){
-  const hashParams=new URLSearchParams(location.hash.substring(1));
-  const gToken=hashParams.get('access_token');
-  if(!gToken)return;
-  history.replaceState(null,'',location.pathname+location.search);
-  tab('acc');
-  const aErr=document.getElementById('a-err');
-  aErr.style.display='block';aErr.className='msg';aErr.textContent='Verificando con Google...';
-  try{
-    const r=await fetch(`${SB_URL}/rest/v1/rpc/balandra_access_ticketera_google`,{
-      method:'POST',
-      headers:{apikey:SB_KEY,Authorization:'Bearer '+gToken,'Content-Type':'application/json'},
-      body:JSON.stringify({})
-    });
-    const d=await r.json();
-    aErr.style.display='none';
-    if(!d.success){showErr('a-err',d.error||'No se pudo autenticar con Google.');return;}
-    sessionStorage.setItem('tbal',JSON.stringify(d));
-    sessionStorage.setItem('tbal_google','1');
-    window.location.href=TKT_BASE+d.folio;
-  }catch(e){showErr('a-err','Error de conexión.');}
-}
-
-// Detectar callback OAuth al cargar
-if(location.hash&&location.hash.includes('access_token')){
-  window.addEventListener('DOMContentLoaded',handleGoogleCallback);
 }
 
 // Enter key
