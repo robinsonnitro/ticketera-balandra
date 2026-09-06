@@ -437,7 +437,7 @@ function showPinGate(folio,m){
 
 async function loginWithGoogle(folio){
   sessionStorage.setItem('tbal_google_folio',folio);
-  const redirectTo=`${location.origin}${location.pathname}#/ticketera/${folio}`;
+  const redirectTo=`${location.origin}${location.pathname}`;
   const {createClient}=window.supabase;
   const sb=createClient(SB,SK);
   await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo}});
