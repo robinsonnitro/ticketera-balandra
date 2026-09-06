@@ -1856,7 +1856,7 @@ async function loadTipos(){
             </div>
             ${t.ticketeras_count>0?`<div class="prog-bar"><div class="prog-fill" style="width:${p}%"></div></div><p style="font-size:10px;color:var(--dim);margin-top:3px">Consumo: ${p}%</p>`:''}
             <div style="display:flex;gap:6px;margin-top:10px">
-              <button class="bs" style="padding:5px 12px;font-size:11px" onclick="showTipoForm('${t.id}','${(t.name||'').replace(/'/g,"\\'")}')">Editar</button>
+              <button class="bs" style="padding:5px 12px;font-size:11px" onclick="showTipoForm('${t.id}','${(t.name||'').replace(/'/g,"\\'")}',${JSON.stringify({description:t.description||'',hotel:t.hotel||'pv',validity_months:t.validity_months||6,status:t.status||'active'}).replace(/"/g,'&quot;')})">Editar</button>
               <button class="bs" style="padding:5px 12px;font-size:11px">Copiar</button>
             </div>
           </div>`;
@@ -1866,49 +1866,210 @@ async function loadTipos(){
   }catch(e){area.innerHTML=`<p class="err">Error al cargar tipos: ${e.message||''}</p>`;}
 }
 
-function showTipoForm(editId,editName){
+let _tfEditId='', _tfHotel='pv';
+
+function showTipoForm(editId, editName, editData){
+  _tfEditId=editId||''; _tfHotel='pv';
   const f=document.getElementById('tipo-form');if(!f)return;
   document.getElementById('tipos-list').style.display='none';
   f.style.display='block';
+  const d=editData||{};
   f.innerHTML=`
-    <button class="bs" style="margin-bottom:16px;font-size:12px" onclick="hideTipoForm()">← Volver</button>
-    <p style="font-size:13px;font-weight:700;color:var(--gold);margin-bottom:14px">${editId?'Editar tipo':'Nuevo tipo de ticketera'}</p>
+    <button class="bs" style="margin-bottom:16px;font-size:12px" onclick="hideTipoForm()">← Volver a tipos</button>
+    <p style="font-size:13px;font-weight:700;color:var(--gold);margin-bottom:14px">${editId?'Editar tipo: '+editName:'Nuevo tipo de ticketera'}</p>
     <div class="fld"><label class="lbl">Nombre</label><input id="tf-name" class="inp" value="${editName||''}" placeholder="Ej: Ticketera VIP"></div>
-    <div class="fld"><label class="lbl">Descripción interna (opcional)</label><input id="tf-desc" class="inp" placeholder="Descripción para el equipo"></div>
+    <div class="fld"><label class="lbl">Descripción interna (opcional)</label><input id="tf-desc" class="inp" value="${d.description||''}" placeholder="Notas para el equipo"></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-      <div class="fld"><label class="lbl">Vigencia (meses)</label><input id="tf-months" class="inp" type="number" value="6" min="1"></div>
+      <div class="fld"><label class="lbl">Vigencia (meses)</label><input id="tf-months" class="inp" type="number" value="${d.validity_months||6}" min="1"></div>
       <div class="fld"><label class="lbl">Estado</label>
         <select id="tf-status" class="inp" style="cursor:pointer">
-          <option value="active">Activa</option>
-          <option value="draft">Borrador</option>
+          <option value="active" ${(!d.status||d.status==='active')?'selected':''}>Activa</option>
+          <option value="draft" ${d.status==='draft'?'selected':''}>Borrador</option>
         </select>
       </div>
     </div>
     <div class="fld">
       <label class="lbl" style="margin-bottom:8px">¿Dónde se consume?</label>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="adm-hotel-btn on" id="tf-h-pv" onclick="selTFHotel('pv',this)">🏨 Radisson PV</button>
-        <button class="adm-hotel-btn" id="tf-h-pi" onclick="selTFHotel('pi',this)">🏨 Park Inn</button>
-        <button class="adm-hotel-btn" id="tf-h-both" onclick="selTFHotel('both',this)">✦ Ambos</button>
+        <button class="adm-hotel-btn${(!d.hotel||d.hotel==='pv')?' on':''}" id="tf-h-pv" onclick="selTFHotel('pv',this)">🏨 Radisson PV</button>
+        <button class="adm-hotel-btn${d.hotel==='pi'?' on':''}" id="tf-h-pi" onclick="selTFHotel('pi',this)">🏨 Park Inn</button>
+        <button class="adm-hotel-btn${d.hotel==='both'?' on':''}" id="tf-h-both" onclick="selTFHotel('both',this)">✦ Ambos</button>
       </div>
     </div>
-    <p style="font-size:11px;color:var(--dim);padding:10px;background:rgba(212,175,55,.05);border-radius:8px;border-left:3px solid rgba(212,175,55,.3);margin-bottom:16px">
-      Los beneficios de este tipo se configuran desde la pestaña <strong style="color:var(--gold)">Beneficios</strong>.
-    </p>
-    <div style="display:flex;gap:8px;justify-content:flex-end">
+    <div id="tf-err" class="err" style="display:none"></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-bottom:20px">
       <button class="bs" onclick="hideTipoForm()">Cancelar</button>
-      <button class="bp" style="padding:10px 24px" onclick="alert('Guardar tipo: se implementa en siguiente fase.')">Guardar tipo</button>
+      <button class="bp" id="tf-save-btn" style="padding:10px 24px" onclick="saveTipoForm()">Guardar tipo →</button>
+    </div>
+    <div id="tf-benefit-editor" style="display:none">
+      <div style="height:1px;background:var(--cardBdr);margin:4px 0 20px"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <p style="font-size:13px;font-weight:700;color:var(--gold)">Beneficios de este tipo</p>
+        <button class="bs" style="padding:6px 12px;font-size:11px" onclick="showBenefitForm()">+ Agregar beneficio</button>
+      </div>
+      <div id="tf-benefit-list"><p style="color:var(--muted);font-size:12px">Cargando beneficios...</p></div>
+      <div id="tf-benefit-form" style="display:none"></div>
     </div>`;
+  _tfHotel=d.hotel||'pv';
+  if(editId){
+    document.getElementById('tf-benefit-editor').style.display='block';
+    document.getElementById('tf-save-btn').textContent='Guardar cambios →';
+    loadTipoBenefits(editId);
+  }
+}
+
+async function saveTipoForm(){
+  const name=(document.getElementById('tf-name').value||'').trim();
+  const err=document.getElementById('tf-err');
+  err.style.display='none';
+  if(!name){err.textContent='El nombre es obligatorio.';err.style.display='block';return;}
+  const months=parseInt(document.getElementById('tf-months').value)||6;
+  const status=document.getElementById('tf-status').value;
+  const desc=(document.getElementById('tf-desc').value||'').trim();
+  const btn=document.getElementById('tf-save-btn');
+  btn.disabled=true;btn.textContent='Guardando...';
+  try{
+    const d=await rpc('balandra_save_ticketera_type',{
+      p_name:name, p_description:desc||null, p_hotel:_tfHotel,
+      p_validity_months:months, p_status:status,
+      p_id:_tfEditId||null
+    });
+    if(!d.success){err.textContent=d.error||'Error al guardar.';err.style.display='block';return;}
+    _tfEditId=d.id;
+    btn.textContent='✓ Guardado';
+    document.getElementById('tf-benefit-editor').style.display='block';
+    await loadTipoBenefits(d.id);
+  }catch(e){err.textContent='Error de conexión.';err.style.display='block';}
+  finally{if(document.getElementById('tf-save-btn'))document.getElementById('tf-save-btn').disabled=false;}
 }
 
 function hideTipoForm(){
   const f=document.getElementById('tipo-form');if(f)f.style.display='none';
   const l=document.getElementById('tipos-list');if(l)l.style.display='block';
+  loadTipos();
 }
 
 function selTFHotel(h,btn){
+  _tfHotel=h;
   ['pv','pi','both'].forEach(x=>{const b=document.getElementById('tf-h-'+x);if(b)b.classList.remove('on');});
   btn.classList.add('on');
+}
+
+/* ── Editor de beneficios por tipo ── */
+const ICON_OPTS=['🍽️','✨','🌟','🎉','🥗','🥩','🍮','☕','🧀','🍷','🍹','🥂','🏨','🛏️','🌙','⬆️','👑','🍳','🌅','🕑','🚗','🍾','🏊','🛁','🧴','🎁','💆','🎭','🎪','🍺','🥐','🦞','🍵','🎂','🥘','🍤'];
+
+async function loadTipoBenefits(typeId){
+  const area=document.getElementById('tf-benefit-list');if(!area)return;
+  area.innerHTML='<p style="color:var(--muted);font-size:12px">Cargando...</p>';
+  try{
+    const list=await rpc('balandra_get_type_benefits',{p_type_id:typeId});
+    const arr=Array.isArray(list)?list:[];
+    if(!arr.length){area.innerHTML='<p style="color:var(--muted);font-size:12px;text-align:center;padding:16px">Sin beneficios aún. Agrega el primero.</p>';return;}
+    area.innerHTML=arr.map(b=>{
+      const prereqs=b.prerequisite_ticket_numbers&&b.prerequisite_ticket_numbers.length?
+        `<span style="color:var(--dim);font-size:10px">Requiere: #${b.prerequisite_ticket_numbers.join(', #')}</span>`:'';
+      const notes=b.restriction_notes&&b.restriction_notes.length?
+        `<span style="color:var(--dim);font-size:10px">${b.restriction_notes.join(' · ')}</span>`:'';
+      return`<div style="background:rgba(255,255,255,.05);border:1px solid var(--cardBdr);border-radius:9px;padding:11px 13px;margin-bottom:8px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+          <span style="font-size:20px">${b.benefit_icon||'🎫'}</span>
+          <div style="flex:1">
+            <span style="font-size:12px;color:var(--dim);font-family:monospace">#${b.ticket_number}</span>
+            <span style="font-size:13px;font-weight:600;color:var(--white);margin-left:6px">${b.benefit_title}</span>
+          </div>
+          <div style="display:flex;gap:5px">
+            <button class="bs" style="padding:3px 9px;font-size:10px" onclick="showBenefitForm(${JSON.stringify(b).replace(/"/g,'&quot;')})">Editar</button>
+            <button class="bs" style="padding:3px 9px;font-size:10px;color:var(--red);border-color:rgba(255,95,95,.3)" onclick="deleteBenefit('${typeId}',${b.ticket_number})">✕</button>
+          </div>
+        </div>
+        <p style="font-size:11px;color:var(--muted);margin-bottom:3px">${b.benefit_description||''}</p>
+        ${prereqs}${prereqs&&notes?'<br>':''}${notes}
+      </div>`;
+    }).join('');
+  }catch{area.innerHTML='<p class="err">Error al cargar beneficios.</p>';}
+}
+
+function showBenefitForm(existingData){
+  const bf=document.getElementById('tf-benefit-form');if(!bf)return;
+  document.getElementById('tf-benefit-list').style.display='none';
+  bf.style.display='block';
+  const d=existingData&&typeof existingData==='object'?existingData:{};
+  const prereqNums=(d.prerequisite_ticket_numbers||[]).join(',');
+  const notesStr=(d.restriction_notes||[]).join('\n');
+  bf.innerHTML=`
+    <button class="bs" style="margin-bottom:14px;font-size:11px" onclick="hideBenefitForm()">← Volver a beneficios</button>
+    <p style="font-size:12px;font-weight:700;color:var(--gold);margin-bottom:12px">${d.ticket_number?'Editar beneficio #'+d.ticket_number:'Nuevo beneficio'}</p>
+    <div style="display:grid;grid-template-columns:80px 1fr;gap:10px;margin-bottom:14px">
+      <div class="fld"><label class="lbl">Nº</label><input id="bf-num" class="inp" type="number" value="${d.ticket_number||''}" min="1" placeholder="#" ${d.ticket_number?'readonly':''}></div>
+      <div class="fld"><label class="lbl">Título</label><input id="bf-title" class="inp" value="${d.benefit_title||''}" placeholder="Ej: Copa de vino de la casa"></div>
+    </div>
+    <div class="fld"><label class="lbl">Descripción (se muestra al cliente)</label><textarea id="bf-desc" class="inp" rows="3" style="resize:vertical">${d.benefit_description||''}</textarea></div>
+    <div style="display:grid;grid-template-columns:1fr 80px;gap:10px">
+      <div class="fld">
+        <label class="lbl" style="margin-bottom:8px">Ícono</label>
+        <div style="display:flex;flex-wrap:wrap;gap:5px;max-height:90px;overflow-y:auto;background:rgba(255,255,255,.03);padding:8px;border-radius:8px;border:1px solid var(--cardBdr)">
+          ${ICON_OPTS.map(ic=>`<button onclick="selBfIcon('${ic}',this)" style="font-size:18px;padding:3px 5px;background:${d.benefit_icon===ic?'rgba(212,175,55,.25)':'transparent'};border:1px solid ${d.benefit_icon===ic?'var(--goldBdr)':'transparent'};border-radius:5px;cursor:pointer" class="bf-ico-btn" data-ico="${ic}">${ic}</button>`).join('')}
+        </div>
+        <input type="hidden" id="bf-icon" value="${d.benefit_icon||'🎫'}">
+      </div>
+      <div class="fld"><label class="lbl">Color</label><input id="bf-color" class="inp" type="color" value="${d.benefit_color||'#D4AF37'}" style="padding:4px;height:50px;cursor:pointer"></div>
+    </div>
+    <div class="fld">
+      <label class="lbl">Condiciones / restricciones (una por línea)</label>
+      <textarea id="bf-notes" class="inp" rows="3" style="resize:vertical;font-size:12px" placeholder="Ej: No acumulable con otros descuentos&#10;Válido solo lunes a viernes">${notesStr}</textarea>
+    </div>
+    <div class="fld">
+      <label class="lbl" style="margin-bottom:5px">Requisitos previos — nº de beneficios que deben estar canjeados antes</label>
+      <input id="bf-prereqs" class="inp" value="${prereqNums}" placeholder="Ej: 1,3,5  (números separados por coma)">
+      <p style="font-size:10px;color:var(--dim);margin-top:4px">Deja vacío si no requiere condición previa.</p>
+    </div>
+    <div id="bf-err" class="err" style="display:none"></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button class="bs" onclick="hideBenefitForm()">Cancelar</button>
+      <button class="bp" style="padding:10px 24px" onclick="saveBenefit('${_tfEditId}',${d.ticket_number||'null'})">Guardar beneficio</button>
+    </div>`;
+}
+
+function selBfIcon(ic,btn){
+  document.querySelectorAll('.bf-ico-btn').forEach(b=>{b.style.background='transparent';b.style.borderColor='transparent';});
+  btn.style.background='rgba(212,175,55,.25)';btn.style.borderColor='var(--goldBdr)';
+  document.getElementById('bf-icon').value=ic;
+}
+
+function hideBenefitForm(){
+  document.getElementById('tf-benefit-form').style.display='none';
+  document.getElementById('tf-benefit-list').style.display='block';
+}
+
+async function saveBenefit(typeId, existingNum){
+  const num=parseInt(document.getElementById('bf-num').value)||0;
+  const title=(document.getElementById('bf-title').value||'').trim();
+  const err=document.getElementById('bf-err');err.style.display='none';
+  if(!num||num<1){err.textContent='Ingresa un número de beneficio válido.';err.style.display='block';return;}
+  if(!title){err.textContent='El título es obligatorio.';err.style.display='block';return;}
+  const desc=(document.getElementById('bf-desc').value||'').trim();
+  const icon=document.getElementById('bf-icon').value||'🎫';
+  const color=document.getElementById('bf-color').value||'#D4AF37';
+  const notesRaw=(document.getElementById('bf-notes').value||'').trim();
+  const notes=notesRaw?notesRaw.split('\n').map(l=>l.trim()).filter(l=>l):[];
+  const prereqRaw=(document.getElementById('bf-prereqs').value||'').trim();
+  const prereqs=prereqRaw?prereqRaw.split(',').map(x=>parseInt(x.trim())).filter(n=>!isNaN(n)&&n>0):[];
+  try{
+    const d=await rpc('balandra_save_type_benefit',{
+      p_type_id:typeId, p_ticket_number:num, p_benefit_title:title,
+      p_benefit_description:desc||null, p_benefit_icon:icon, p_benefit_color:color,
+      p_restriction_notes:notes, p_prerequisite_ticket_numbers:prereqs
+    });
+    if(!d.success){err.textContent=d.error||'Error al guardar.';err.style.display='block';return;}
+    hideBenefitForm();
+    await loadTipoBenefits(typeId);
+  }catch{err.textContent='Error de conexión.';err.style.display='block';}
+}
+
+async function deleteBenefit(typeId,num){
+  if(!confirm(`¿Eliminar beneficio #${num}?`))return;
+  await rpc('balandra_delete_type_benefit',{p_type_id:typeId,p_ticket_number:num});
+  await loadTipoBenefits(typeId);
 }
 
 /* ══════════════════════════
