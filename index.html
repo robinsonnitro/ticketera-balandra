@@ -474,22 +474,18 @@ function showRecoverPin(folio,m){
 <div style="max-width:340px;margin:32px auto;padding:0 4px">
   <div class="fhdr" style="text-align:center;margin-bottom:20px">
     <p class="feye">Recuperar PIN</p>
-    <p style="color:var(--muted);font-size:12px;margin-top:8px">Ingresa tu RUT y el correo o teléfono con que te registraste</p>
+    <p style="color:var(--muted);font-size:12px;margin-top:8px">Ingresa tu RUT y el correo con que te registraste</p>
   </div>
   <div class="fld">
     <label class="lbl">RUT</label>
     <input class="inp" id="rec-rut" type="text" placeholder="12.345.678-9" maxlength="12" autocomplete="off">
   </div>
   <div class="fld">
-    <label class="lbl">Correo electrónico o teléfono</label>
-    <input class="inp" id="rec-contact" type="text" placeholder="tucorreo@mail.com o +56912345678" autocomplete="off">
-  </div>
-  <div class="fld">
-    <label class="lbl">Nuevo PIN (4 dígitos)</label>
-    <input class="inp" id="rec-pin" type="password" inputmode="numeric" maxlength="4" placeholder="••••" autocomplete="off" style="text-align:center;letter-spacing:8px;font-size:22px">
+    <label class="lbl">Correo electrónico registrado</label>
+    <input class="inp" id="rec-contact" type="email" placeholder="tucorreo@mail.com" autocomplete="off">
   </div>
   <div id="rec-err" class="err" style="display:none"></div>
-  <button class="bp" id="rec-btn" onclick="doRecoverPin('${folio}')">Cambiar PIN</button>
+  <button class="bp" id="rec-btn" onclick="doRequestPinCode('${folio}')">Enviar código al correo</button>
   <p style="text-align:center;margin-top:12px">
     <a href="#" onclick="showPinGate('${folio}',document.getElementById('main'));return false;" style="color:var(--dim);font-size:12px;text-decoration:none">← Volver al ingreso</a>
   </p>
@@ -499,29 +495,69 @@ function showRecoverPin(folio,m){
   setTimeout(()=>rutEl.focus(),100);
 }
 
-async function doRecoverPin(folio){
+async function doRequestPinCode(folio){
   const rutRaw=document.getElementById('rec-rut').value.trim();
   const contact=document.getElementById('rec-contact').value.trim();
-  const newPin=document.getElementById('rec-pin').value;
   const err=document.getElementById('rec-err');
   const btn=document.getElementById('rec-btn');
   err.style.display='none';
   if(!rutRaw){err.textContent='Ingresa tu RUT';err.style.display='block';return;}
-  if(!contact){err.textContent='Ingresa tu correo o teléfono';err.style.display='block';return;}
+  if(!contact){err.textContent='Ingresa tu correo';err.style.display='block';return;}
+  btn.disabled=true;btn.textContent='Enviando código...';
+  try{
+    const rut=normRUT(rutRaw);
+    const r=await fetch(`${SB}/functions/v1/send-pin-recovery`,{
+      method:'POST',
+      headers:{apikey:SK,Authorization:'Bearer '+SK,'Content-Type':'application/json'},
+      body:JSON.stringify({rut,contact})
+    });
+    const d=await r.json();
+    if(!d.success){err.textContent=d.error||'No se pudo enviar el código';err.style.display='block';btn.disabled=false;btn.textContent='Enviar código al correo';return;}
+    showVerifyPinCode(folio,rut,d.email_mask,document.getElementById('main'));
+  }catch{err.textContent='Error de conexión';err.style.display='block';btn.disabled=false;btn.textContent='Enviar código al correo';}
+}
+
+function showVerifyPinCode(folio,rut,emailMask,m){
+  m.innerHTML=`
+<div style="max-width:340px;margin:32px auto;padding:0 4px">
+  <div class="fhdr" style="text-align:center;margin-bottom:20px">
+    <p class="feye">Verifica tu correo</p>
+    <p style="color:var(--muted);font-size:12px;margin-top:8px">Enviamos un código de 6 dígitos a<br><strong style="color:var(--gold)">${emailMask}</strong></p>
+  </div>
+  <div class="fld">
+    <label class="lbl">Código de verificación</label>
+    <input class="inp" id="vfy-code" type="text" inputmode="numeric" maxlength="6" placeholder="123456" autocomplete="off" style="text-align:center;letter-spacing:10px;font-size:28px">
+  </div>
+  <div class="fld">
+    <label class="lbl">Nuevo PIN (4 dígitos)</label>
+    <input class="inp" id="vfy-pin" type="password" inputmode="numeric" maxlength="4" placeholder="••••" autocomplete="off" style="text-align:center;letter-spacing:8px;font-size:22px">
+  </div>
+  <div id="vfy-err" class="err" style="display:none"></div>
+  <button class="bp" id="vfy-btn" onclick="doConfirmPinReset('${folio}','${rut}')">Cambiar PIN</button>
+  <p style="text-align:center;margin-top:12px">
+    <a href="#" onclick="showRecoverPin('${folio}',document.getElementById('main'));return false;" style="color:var(--dim);font-size:12px;text-decoration:none">← Reenviar código</a>
+  </p>
+</div>`;
+  setTimeout(()=>document.getElementById('vfy-code').focus(),100);
+}
+
+async function doConfirmPinReset(folio,rut){
+  const code=document.getElementById('vfy-code').value.trim();
+  const newPin=document.getElementById('vfy-pin').value;
+  const err=document.getElementById('vfy-err');
+  const btn=document.getElementById('vfy-btn');
+  err.style.display='none';
+  if(!code||code.length!==6){err.textContent='Ingresa el código de 6 dígitos';err.style.display='block';return;}
   if(!newPin||newPin.length!==4){err.textContent='El nuevo PIN debe ser de 4 dígitos';err.style.display='block';return;}
   btn.disabled=true;btn.textContent='Verificando...';
   try{
-    const rut=normRUT(rutRaw);
-    const d=await rpc('balandra_reset_pin',{p_rut:rut,p_contact:contact,p_new_pin:newPin});
-    if(!d.success){
-      err.textContent=d.error||'Los datos ingresados no coinciden con el registro';
-      err.style.display='block';btn.disabled=false;btn.textContent='Cambiar PIN';return;
-    }
+    const d=await rpc('balandra_confirm_pin_reset',{p_rut:rut,p_token:code,p_new_pin:newPin});
+    if(!d.success){err.textContent=d.error||'Código incorrecto o expirado';err.style.display='block';btn.disabled=false;btn.textContent='Cambiar PIN';return;}
     const m=document.getElementById('main');
     m.innerHTML=`<div style="max-width:340px;margin:32px auto;text-align:center;padding:0 4px">
       <div style="font-size:48px;margin-bottom:16px">✅</div>
       <p style="color:var(--gold);font-size:16px;font-weight:700;margin-bottom:8px">¡PIN actualizado!</p>
-      <p style="color:var(--muted);font-size:13px;margin-bottom:24px">Hola <strong>${d.owner_name}</strong>, tu PIN ha sido cambiado exitosamente.</p>
+      <p style="color:var(--muted);font-size:13px;margin-bottom:24px">Hola <strong>${d.owner_name}</strong>, tu PIN fue cambiado exitosamente.</p>
       <button class="bp" onclick="showPinGate('${folio}',document.getElementById('main'))">Ingresar con nuevo PIN →</button>
     </div>`;
   }catch{err.textContent='Error de conexión';err.style.display='block';btn.disabled=false;btn.textContent='Cambiar PIN';}
