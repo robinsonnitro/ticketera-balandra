@@ -295,18 +295,18 @@ window.addEventListener('load',async()=>{
 
   // Detectar callback OAuth de Google (Supabase pone access_token en el hash)
   if(location.hash&&location.hash.includes('access_token')){
+    const hashParams=new URLSearchParams(location.hash.substring(1));
+    const gToken=hashParams.get('access_token');
     const folio=sessionStorage.getItem('tbal_google_folio')||'';
     sessionStorage.removeItem('tbal_google_folio');
-    if(folio){
-      // Limpiar el hash de tokens para que no quede expuesto en URL
+    if(folio&&gToken){
       history.replaceState(null,'',location.pathname+location.search+'#/ticketera/'+folio);
       const m=document.getElementById('main');
-      const bnav=document.getElementById('bnav');
-      bnav.style.display='none';
+      document.getElementById('bnav').style.display='none';
       document.getElementById('main').className='main';
       document.getElementById('tbr').innerHTML='<button class="tbtn tbtn-d" onclick="sessionStorage.removeItem(\'tbal\');sessionStorage.removeItem(\'tbal_c\');sessionStorage.removeItem(\'tbal_google\');render()">Cerrar sesión</button>';
       m.innerHTML='<p style="color:var(--muted);text-align:center;padding:40px 0">Verificando con Google...</p>';
-      await handleGoogleCallback(folio,m);
+      await handleGoogleCallback(folio,m,gToken);
       return;
     }
   }
@@ -443,29 +443,22 @@ async function loginWithGoogle(folio){
   await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo}});
 }
 
-async function handleGoogleCallback(folio,m){
-  const {createClient}=window.supabase;
-  const sb=createClient(SB,SK);
-  const {data:{session}}=await sb.auth.getSession();
-  if(!session){
-    showPinGate(folio,m);return;
-  }
-  const token=session.access_token;
-  m.innerHTML='<p style="color:var(--muted);text-align:center;padding:40px 0">Verificando con Google...</p>';
+async function handleGoogleCallback(folio,m,gToken){
   try{
     const r=await fetch(`${SB}/rest/v1/rpc/balandra_get_ticketera_by_google`,{
       method:'POST',
-      headers:{apikey:SK,Authorization:'Bearer '+token,'Content-Type':'application/json'},
+      headers:{apikey:SK,Authorization:'Bearer '+gToken,'Content-Type':'application/json'},
       body:JSON.stringify({p_folio:folio.toUpperCase()})
     });
     const d=await r.json();
     if(!d.success){
-      m.innerHTML=`<div style="max-width:340px;margin:32px auto;text-align:center">
-        <p style="color:var(--red);margin-bottom:16px">${d.error||'No se pudo autenticar con Google'}</p>
-        <p style="color:var(--dim);font-size:12px;margin-bottom:20px">Intenta con tu RUT y PIN, o verifica que el email de tu cuenta Google sea el mismo con que te registraste.</p>
-        <button class="bp" onclick="showPinGate('${folio}',document.getElementById('main'))">← Volver al ingreso</button>
+      m.innerHTML=`<div style="max-width:340px;margin:32px auto;text-align:center;padding:0 4px">
+        <div style="font-size:40px;margin-bottom:12px">⚠️</div>
+        <p style="color:var(--red);margin-bottom:12px">${d.error||'No se pudo autenticar con Google'}</p>
+        <p style="color:var(--dim);font-size:12px;margin-bottom:20px">Verifica que el email de tu cuenta Google sea el mismo con que te registraste en la ticketera.</p>
+        <button class="bp" onclick="showPinGate('${folio}',document.getElementById('main'))">← Ingresar con RUT y PIN</button>
       </div>`;
-      await sb.auth.signOut();return;
+      return;
     }
     sessionStorage.setItem('tbal',JSON.stringify(d));
     sessionStorage.setItem('tbal_google','1');
