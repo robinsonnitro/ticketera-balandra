@@ -1079,7 +1079,7 @@ function hAdmin(){return`
     <button class="tab" id="at1" onclick="sTab('cr',this)">Nueva</button>
     <button class="tab" id="at2" onclick="sTab('li',this)">Listado</button>
     <button class="tab" id="at3" onclick="sTab('bn',this)">Beneficios</button>
-    <button class="tab" id="at4" onclick="sTab('co',this)">🏢 Corporativo</button>
+    <button class="tab" id="at4" onclick="sTab('ct',this)">🎫 Crear Ticketera</button>
   </div>
   <div id="ap0">${hDash()}</div>
   <div id="ap1" style="display:none">${hCrear()}</div>
@@ -1091,15 +1091,43 @@ function hAdmin(){return`
       <div id="benefit-types-area"><p style="color:var(--muted);font-size:12px">Cargando...</p></div>
     </div>
   </div>
-  <div id="ap4" style="display:none"><div id="corp-area"><p style="color:var(--muted)">Cargando...</p></div></div>
+  <div id="ap4" style="display:none">
+    <div style="display:flex;gap:8px;justify-content:center;margin-bottom:20px">
+      <button class="tab on" id="ct-pas" onclick="showCrearType('pas')">👤 Pasajero</button>
+      <button class="tab" id="ct-emp" onclick="showCrearType('emp')">🏢 Empresa</button>
+    </div>
+    <div id="crear-pas">
+      <div class="card card-g" style="margin-bottom:14px">
+        <div class="fld"><label class="lbl">NOMBRE</label><input id="xt-n" class="inp" placeholder="María González" autocomplete="name"></div>
+        <div class="fld"><label class="lbl">EMAIL (para tus registros)</label><input id="xt-e" class="inp" type="email" placeholder="cliente@email.com" autocomplete="email"></div>
+        <div class="fld"><label class="lbl">TELÉFONO (WhatsApp)</label><input id="xt-p" class="inp" placeholder="+56912345678" autocomplete="tel"></div>
+        <div id="xt-err" class="err" style="display:none"></div>
+        <button id="xt-btn" class="bp" onclick="doCrearPas()">Generar Ticketera</button>
+      </div>
+      <div id="xt-res"></div>
+    </div>
+    <div id="crear-emp" style="display:none">
+      <div class="card card-g" style="margin-bottom:14px">
+        <div class="fld"><label class="lbl">NOMBRE DE LA EMPRESA</label><input id="emp-nom" class="inp" placeholder="Empresa S.A."></div>
+        <div class="fld">
+          <label class="lbl">LISTA DE USUARIOS — una por línea: <code style="color:var(--gold)">Nombre, RUT, Email</code></label>
+          <textarea id="emp-lista" class="inp" rows="8" style="resize:vertical;font-family:monospace;font-size:12px" placeholder="María González, 12.345.678-9, maria@empresa.com&#10;Juan Pérez, 98.765.432-1, juan@empresa.com" oninput="updateEmpCount()"></textarea>
+          <span id="emp-count" style="font-size:11px;color:var(--dim);margin-top:4px;display:block">0 usuarios detectados</span>
+        </div>
+        <div id="emp-err" class="err" style="display:none"></div>
+        <button id="emp-btn" class="bp" onclick="crearEmpresa()">🏢 Crear Ticketeras</button>
+      </div>
+      <div id="emp-res"></div>
+    </div>
+  </div>
 </div>`}
 
 function bAdminCreate(){const b=document.getElementById('ccb');if(b)b.onclick=doCrear;}
 function sTab(n,el){
   corpWide(false); // resetear ancho al cambiar de pestaña; el form corporativo lo reactiva al abrirse
-  const mp={db:0,cr:1,li:2,bn:3,co:4},i=mp[n];
+  const mp={db:0,cr:1,li:2,bn:3,ct:4},i=mp[n];
   [0,1,2,3,4].forEach(j=>{document.getElementById('ap'+j).style.display=j===i?'block':'none';document.getElementById('at'+j).classList.toggle('on',j===i);});
-  if(n==='db')loadStats();if(n==='li')loadListado();if(n==='cr')bAdminCreate();if(n==='bn')loadBenefitTypes();if(n==='co')loadCorpList();
+  if(n==='db')loadStats();if(n==='li')loadListado();if(n==='cr')bAdminCreate();if(n==='bn')loadBenefitTypes();
 }
 function hDash(){return`
 <div class="sg">
@@ -1737,6 +1765,105 @@ function startTktAutoRefresh(folio){
 }
 
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeTktModal();});
+
+/* ══════════════════════════
+   CREAR TICKETERA (Pasajero + Empresa)
+══════════════════════════ */
+function showCrearType(t){
+  document.getElementById('crear-pas').style.display=t==='pas'?'block':'none';
+  document.getElementById('crear-emp').style.display=t==='emp'?'block':'none';
+  document.getElementById('ct-pas').classList.toggle('on',t==='pas');
+  document.getElementById('ct-emp').classList.toggle('on',t==='emp');
+}
+
+async function doCrearPas(){
+  const n=document.getElementById('xt-n').value.trim();
+  const e=document.getElementById('xt-e').value.trim();
+  const p=document.getElementById('xt-p').value.trim();
+  const err=document.getElementById('xt-err');
+  const res=document.getElementById('xt-res');
+  err.style.display='none';res.innerHTML='';
+  if(!n){err.textContent='Nombre obligatorio.';err.style.display='block';return;}
+  const btn=document.getElementById('xt-btn');
+  btn.disabled=true;btn.textContent='Creando...';
+  try{
+    const d=await rpc('balandra_create_ticketera',{p_owner_name:n,p_owner_email:e||null,p_owner_phone:p||null});
+    if(!d.success){err.textContent=d.error||'Error al crear.';err.style.display='block';return;}
+    res.innerHTML=`<div class="card card-g" style="margin-top:12px">
+      <p style="color:var(--gold);font-weight:700;font-size:15px;margin-bottom:6px">✅ Ticketera creada</p>
+      <p style="font-family:monospace;font-size:18px;letter-spacing:2px;color:var(--gold)">${d.folio}</p>
+      <p style="color:var(--dim);font-size:12px;margin-top:4px">${d.owner_name||''}</p>
+      <button class="bs" style="margin-top:10px" onclick="nav('ticketera','${d.folio}')">Ver Ticketera →</button>
+    </div>`;
+    ['xt-n','xt-e','xt-p'].forEach(id=>document.getElementById(id).value='');
+  }catch{err.textContent='Error de conexión.';err.style.display='block';}
+  finally{btn.disabled=false;btn.textContent='Generar Ticketera';}
+}
+
+function parseUserList(text){
+  return text.split('\n')
+    .map(l=>l.trim()).filter(l=>l.length>0)
+    .map(l=>{const pts=l.split(',').map(p=>p.trim());return{nombre:pts[0]||'',rut:pts[1]||'',email:pts[2]||''};})
+    .filter(u=>u.nombre&&u.rut);
+}
+
+function updateEmpCount(){
+  const users=parseUserList(document.getElementById('emp-lista').value);
+  document.getElementById('emp-count').textContent=`${users.length} usuario${users.length===1?'':'s'} detectado${users.length===1?'':'s'}`;
+}
+
+async function crearEmpresa(){
+  const empresa=document.getElementById('emp-nom').value.trim();
+  const lista=document.getElementById('emp-lista').value;
+  const users=parseUserList(lista);
+  const err=document.getElementById('emp-err');
+  err.style.display='none';
+  if(!empresa){err.textContent='Ingresa el nombre de la empresa.';err.style.display='block';return;}
+  if(!users.length){err.textContent='Ingresa al menos un usuario (Nombre, RUT, Email).';err.style.display='block';return;}
+  const btn=document.getElementById('emp-btn');
+  btn.disabled=true;btn.textContent=`Creando ${users.length} ticketeras...`;
+  try{
+    const d=await rpc('balandra_create_corporate_batch',{p_company:empresa,p_users:users});
+    if(!d.success){err.textContent=d.error||'Error al crear.';err.style.display='block';return;}
+    const rows=d.ticketeras.map(t=>`<tr style="border-top:1px solid rgba(255,255,255,.07)">
+      <td style="padding:7px 8px;color:var(--white)">${t.nombre}</td>
+      <td style="padding:7px 8px;color:var(--dim);font-family:monospace;font-size:11px">${t.rut}</td>
+      <td style="padding:7px 8px;color:var(--gold);font-family:monospace;font-weight:700">${t.folio}</td>
+      <td style="padding:7px 8px;color:var(--gold);font-family:monospace;font-weight:700">${t.pin}</td>
+      <td style="padding:7px 8px;color:var(--dim);font-size:11px">${t.email||'—'}</td>
+    </tr>`).join('');
+    document.getElementById('emp-res').innerHTML=`<div class="card card-g" style="margin-top:16px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+        <p style="color:var(--gold);font-weight:700">✅ ${d.created} ticketeras creadas · ${d.company}</p>
+        <button class="bs" onclick="copiarTablaEmp()">📋 Copiar tabla</button>
+      </div>
+      <div style="overflow-x:auto">
+        <table id="emp-tabla" style="width:100%;border-collapse:collapse;font-size:12px">
+          <thead><tr style="color:var(--dim);font-size:11px;text-transform:uppercase">
+            <th style="text-align:left;padding:6px 8px">Nombre</th>
+            <th style="text-align:left;padding:6px 8px">RUT</th>
+            <th style="text-align:left;padding:6px 8px">Folio</th>
+            <th style="text-align:left;padding:6px 8px">PIN</th>
+            <th style="text-align:left;padding:6px 8px">Email</th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+      <p style="color:var(--dim);font-size:11px;margin-top:10px">⚠ Guarda el PIN — es la clave de acceso de cada usuario a su ticketera.</p>
+    </div>`;
+    document.getElementById('emp-nom').value='';
+    document.getElementById('emp-lista').value='';
+    updateEmpCount();
+  }catch{err.textContent='Error de conexión.';err.style.display='block';}
+  finally{btn.disabled=false;btn.textContent='🏢 Crear Ticketeras';}
+}
+
+function copiarTablaEmp(){
+  const t=document.getElementById('emp-tabla');
+  if(!t)return;
+  const rows=[...t.querySelectorAll('tr')].map(r=>[...r.querySelectorAll('th,td')].map(c=>c.textContent.trim()).join('\t')).join('\n');
+  navigator.clipboard.writeText(rows).then(()=>alert('✅ Tabla copiada al portapapeles'));
+}
 </script>
 </body>
 </html>
