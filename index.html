@@ -469,6 +469,7 @@ async function handleGoogleCallback(folio,m){
     }
     sessionStorage.setItem('tbal',JSON.stringify(d));
     sessionStorage.setItem('tbal_google','1');
+    document.getElementById('tbr').innerHTML='<button class="tbtn tbtn-d" onclick="sessionStorage.removeItem(\'tbal\');sessionStorage.removeItem(\'tbal_c\');sessionStorage.removeItem(\'tbal_google\');render()">Cerrar sesión</button>';
     m.innerHTML=hTkt(d,false);
   }catch{
     m.innerHTML='<div style="text-align:center;padding:40px;color:var(--red)">Error de conexión</div>';
@@ -549,6 +550,7 @@ async function verifyGate(folio){
     if(d.folio.toUpperCase()!==folio.toUpperCase()){err.textContent='Esta ticketera no corresponde a tus credenciales';err.style.display='block';btn.disabled=false;btn.textContent='→ Ver mi Ticketera';return;}
     sessionStorage.setItem('tbal',JSON.stringify(d));
     sessionStorage.setItem('tbal_c',JSON.stringify({rut,pin}));
+    document.getElementById('tbr').innerHTML='<button class="tbtn tbtn-d" onclick="sessionStorage.removeItem(\'tbal\');sessionStorage.removeItem(\'tbal_c\');sessionStorage.removeItem(\'tbal_google\');render()">Cerrar sesión</button>';
     const main=document.getElementById('main');
     main.innerHTML='<p style="color:var(--muted);text-align:center;padding:40px 0">Cargando...</p>';
     const td=await rpc('balandra_get_ticketera',{p_folio:folio.toUpperCase()});
