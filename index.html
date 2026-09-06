@@ -14,7 +14,7 @@
 <title>Ticketera Balandra · Radisson Puerto Varas</title>
 <meta name="description" content="Ticketera Electrónica Balandra · Radisson Hotel Puerto Varas">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,400&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
 :root{
@@ -187,6 +187,65 @@ body{font-family:'Inter',sans-serif;background:var(--navy);color:var(--white);mi
 .mt20{margin-top:20px}
 .divider{width:100%;height:1px;background:var(--cardBdr);margin:16px 0}
 
+/* ── CLIENT TICKETERA v2 (diseño oscuro con QR) ── */
+.tkt-v2-user-card{background:rgba(255,255,255,.06);border:1px solid rgba(212,175,55,.3);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:12px;margin-bottom:14px}
+.tkt-v2-user-top{display:flex;justify-content:space-between;align-items:flex-start}
+.tkt-v2-user-name{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:400;color:var(--white)}
+.tkt-v2-user-name em{font-style:italic;color:#E0C490}
+.tkt-v2-st-badge{padding:3px 9px;border-radius:20px;font-size:9px;font-weight:600;letter-spacing:1px;text-transform:uppercase}
+.tkt-v2-st-active{background:rgba(92,155,107,.15);color:#5C9B6B;border:1px solid rgba(92,155,107,.3)}
+.tkt-v2-st-completed{background:rgba(212,175,55,.12);color:#D4AF37;border:1px solid rgba(212,175,55,.35)}
+.tkt-v2-prog-wrap{display:flex;flex-direction:column;gap:5px}
+.tkt-v2-prog-top{display:flex;justify-content:space-between}
+.tkt-v2-prog-lbl{font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim)}
+.tkt-v2-prog-val{font-size:12px;font-weight:600;color:var(--gold)}
+.tkt-v2-prog-bar{height:3px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden}
+.tkt-v2-prog-fill{height:100%;background:linear-gradient(to right,var(--gold),#E0C490);border-radius:2px;transition:width .6s}
+.tkt-v2-no-acum{background:rgba(212,175,55,.06);border:1px solid rgba(212,175,55,.2);border-radius:8px;padding:10px 13px;font-size:11px;color:#D4A838;line-height:1.5;display:flex;gap:8px;align-items:flex-start;margin-bottom:14px}
+.tkt-v2-no-acum span{flex-shrink:0;font-size:14px}
+.tkt-v2-sec-lbl{font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--dim);margin-bottom:10px}
+.tkt-v2-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.tkt-v2-card{background:rgba(255,255,255,.06);border:1px solid rgba(212,175,55,.25);border-radius:10px;padding:13px 11px;display:flex;flex-direction:column;gap:7px;position:relative;overflow:hidden;transition:.2s}
+.tkt-v2-card.avail{cursor:pointer}
+.tkt-v2-card.avail:hover{border-color:rgba(212,175,55,.6)}
+.tkt-v2-card.avail::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--gold);opacity:0;transition:.2s}
+.tkt-v2-card.avail:hover::before{opacity:.5}
+.tkt-v2-card.used{opacity:.35;cursor:default}
+.tkt-v2-card.locked{cursor:pointer;border-color:rgba(212,175,55,.2);opacity:.6}
+.tkt-v2-card.locked:hover{border-color:rgba(212,175,55,.45);opacity:.8}
+.tkt-v2-card-num{font-size:8px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim)}
+.tkt-v2-card-icon{font-size:20px;line-height:1}
+.tkt-v2-card-title{font-size:11px;font-weight:600;line-height:1.3;color:var(--white)}
+.tkt-v2-card-status{font-size:9px;font-weight:600;letter-spacing:.7px;text-transform:uppercase;margin-top:1px}
+.tkt-v2-status-avail{color:#5C9B6B}
+.tkt-v2-status-used{color:var(--dim)}
+.tkt-v2-status-locked{color:#C9A030}
+.tkt-v2-expiry{font-size:11px;color:var(--dim);text-align:center;padding:2px 0;margin-bottom:14px}
+/* Modal QR cliente v2 */
+#tkt-overlay{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:500;display:none;align-items:flex-end;justify-content:center}
+#tkt-overlay.show{display:flex}
+.tkt-v2-modal{background:#121212;border:1px solid rgba(212,175,55,.2);border-radius:20px 20px 0 0;width:100%;max-width:480px;padding:26px 22px 38px;display:flex;flex-direction:column;gap:16px;animation:tktmup .3s ease}
+@keyframes tktmup{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.tkt-v2-modal-handle{width:36px;height:3px;background:rgba(240,244,248,.2);border-radius:2px;margin:0 auto -4px}
+.tkt-v2-modal-icon{font-size:40px;text-align:center}
+.tkt-v2-modal-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;text-align:center;color:var(--white)}
+.tkt-v2-modal-title em{font-style:italic;color:#E0C490}
+.tkt-v2-modal-desc{font-size:13px;color:var(--muted);text-align:center;line-height:1.6}
+.tkt-v2-code-box{background:#1C1C1C;border:2px solid var(--gold);border-radius:12px;padding:20px;text-align:center;display:flex;flex-direction:column;gap:5px;cursor:pointer}
+.tkt-v2-code-box.locked{background:rgba(212,175,55,.04);border-color:rgba(212,175,55,.2);cursor:default}
+.tkt-v2-code-lbl{font-size:8px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--dim)}
+.tkt-v2-code-inst{font-size:11px;color:var(--muted);line-height:1.5}
+.tkt-v2-code-ref{font-size:10px;color:var(--dim);margin-top:4px}
+.tkt-v2-copied{font-size:10px;color:#5C9B6B;display:none}
+.tkt-v2-rest-box{background:rgba(212,175,55,.06);border:1px solid rgba(212,175,55,.2);border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:5px}
+.tkt-v2-rest-title{font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:#C9A030}
+.tkt-v2-rest-item{font-size:11px;color:#C4A040;line-height:1.4;display:flex;gap:6px}
+.tkt-v2-rest-item::before{content:'•';flex-shrink:0}
+.tkt-v2-btn-wa{padding:13px;background:#25D366;border:none;border-radius:8px;color:#fff;font-family:'Inter',sans-serif;font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;width:100%}
+.tkt-v2-btn-wa.blocked{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.11);color:var(--dim);cursor:not-allowed}
+.tkt-v2-btn-wa-reason{font-size:10px;color:var(--dim);text-align:center;font-weight:300;display:none}
+.tkt-v2-btn-close{width:100%;padding:11px;background:transparent;border:1px solid var(--cardBdr);border-radius:8px;color:var(--muted);font-family:'Inter',sans-serif;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;cursor:pointer}
+
 /* ── RESPONSIVE MOBILE ── */
 @media(max-width:800px){
   /* contenedor principal nunca se sale */
@@ -255,12 +314,42 @@ body{font-family:'Inter',sans-serif;background:var(--navy);color:var(--white);mi
   </nav>
 </div>
 
+<!-- MODAL QR CLIENTE v2 -->
+<div id="tkt-overlay" onclick="closeTktModal(event)">
+  <div class="tkt-v2-modal">
+    <div class="tkt-v2-modal-handle"></div>
+    <p class="tkt-v2-modal-icon" id="tm-icon">🎫</p>
+    <p class="tkt-v2-modal-title" id="tm-title">Beneficio</p>
+    <p class="tkt-v2-modal-desc" id="tm-desc"></p>
+    <div class="tkt-v2-code-box" id="tm-code-box" onclick="copyTktCode()">
+      <span class="tkt-v2-code-lbl">Muestra este QR al mesero</span>
+      <img id="tm-qr" src="" alt="QR" style="width:190px;height:190px;border-radius:10px;margin:8px auto;display:block;background:#fff">
+      <span class="tkt-v2-code-inst">El mesero escanea el QR con su dispositivo · Se valida automáticamente</span>
+      <span class="tkt-v2-code-ref">Código: <span id="tm-code" style="font-family:monospace;letter-spacing:2px;color:var(--gold)">——</span></span>
+      <span class="tkt-v2-copied" id="tm-copied">✓ Copiado</span>
+    </div>
+    <div class="tkt-v2-rest-box" id="tm-rest" style="display:none">
+      <p class="tkt-v2-rest-title">⚠ Condiciones específicas</p>
+      <div id="tm-rest-items"></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <button class="tkt-v2-btn-wa" id="tm-wa-btn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        Regalar este beneficio
+      </button>
+      <p class="tkt-v2-btn-wa-reason" id="tm-wa-reason"></p>
+      <button class="tkt-v2-btn-close" onclick="closeTktModal()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
 <script>
 const SB='https://wrtljewcclhqogkedsib.supabase.co';
 const SK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndydGxqZXdjY2xocW9na2Vkc2liIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY4NDAzNTUsImV4cCI6MjA4MjQxNjM1NX0.FzxNYfIHE4R5IItHR-RfR5ebXU2lKP8R6s4zGNkxY_w';
 const PW='balandra2026';
 let adminOk=false;
 let qrScanner=null;
+let tktTimer=null, tktActiveTicket=null;
 
 async function rpc(fn,p={}){
   const r=await fetch(`${SB}/rest/v1/rpc/${fn}`,{method:'POST',headers:{apikey:SK,Authorization:'Bearer '+SK,'Content-Type':'application/json'},body:JSON.stringify(p)});
@@ -319,6 +408,8 @@ window.addEventListener('load',async()=>{
 
 function render(){
   if(qrScanner){qrScanner.stop().catch(()=>{});qrScanner=null;}
+  if(tktTimer){clearInterval(tktTimer);tktTimer=null;}
+  const ol=document.getElementById('tkt-overlay');if(ol)ol.classList.remove('show');document.body.style.overflow='';
   const{p,q}=getR();
   const m=document.getElementById('main');
   const bnav=document.getElementById('bnav');
@@ -387,6 +478,7 @@ async function loadTkt(folio,m,isAdmin=false){
       m.innerHTML=`<div style="text-align:center;padding:40px"><p style="color:var(--red);font-size:15px;margin-bottom:16px">✗ ${d.error||'No encontrada'}</p>${backBtn}</div>`;return;
     }
     m.innerHTML=hTkt(d,isAdmin);
+    if(!isAdmin){renderTktGrid(d.tickets);startTktAutoRefresh(d.folio);}
   }catch{m.innerHTML='<div style="text-align:center;padding:40px;color:var(--red)">Error de conexión</div>';}
 }
 
@@ -464,6 +556,7 @@ async function handleGoogleCallback(folio,m,gToken){
     sessionStorage.setItem('tbal_google','1');
     document.getElementById('tbr').innerHTML='<button class="tbtn tbtn-d" onclick="sessionStorage.removeItem(\'tbal\');sessionStorage.removeItem(\'tbal_c\');sessionStorage.removeItem(\'tbal_google\');render()">Cerrar sesión</button>';
     m.innerHTML=hTkt(d,false);
+    renderTktGrid(d.tickets);startTktAutoRefresh(d.folio);
   }catch{
     m.innerHTML='<div style="text-align:center;padding:40px;color:var(--red)">Error de conexión</div>';
   }
@@ -610,6 +703,7 @@ async function verifyGate(folio){
     const td=await rpc('balandra_get_ticketera',{p_folio:folio.toUpperCase()});
     if(!td.success){main.innerHTML=`<div style="text-align:center;padding:40px"><p style="color:var(--red)">${td.error||'No encontrada'}</p></div>`;return;}
     main.innerHTML=hTkt(td,false);
+    renderTktGrid(td.tickets);startTktAutoRefresh(td.folio);
   }catch{err.textContent='Error de conexión';err.style.display='block';btn.disabled=false;btn.textContent='→ Ver mi Ticketera';}
 }
 
@@ -620,6 +714,45 @@ function waMsg(folio,link,name){
 
 function hTkt(t,isAdmin=false){
   const pct=Math.round((t.used_tickets/t.total_tickets)*100);
+
+  /* ── VISTA CLIENTE: diseño v2 con grid y QR modal ── */
+  if(!isAdmin){
+    const parts=(t.owner_name||'').split(' ');
+    const comp=t.status==='completed';
+    let expiry='';
+    if(t.expiry_date){const exp=new Date(t.expiry_date);expiry=`Válida hasta ${exp.toLocaleDateString('es-CL',{day:'numeric',month:'long',year:'numeric'})}`;}
+    const compBanner=comp?`<div class="gift"><div style="font-size:38px;margin-bottom:8px">🎉</div><p style="color:var(--gold);font-size:16px;font-weight:700;margin-bottom:4px">¡Ticketera Completada!</p><p style="color:var(--muted);font-size:12px">Retira tu botella de vino · Folio <strong style="color:var(--gold)">${t.folio}</strong></p></div>`:'';
+    return`${compBanner}
+<div class="tkt-v2-user-card">
+  <div class="tkt-v2-user-top">
+    <p class="tkt-v2-user-name">${parts[0]||''} <em>${parts.slice(1).join(' ')}</em></p>
+    <span class="tkt-v2-st-badge ${comp?'tkt-v2-st-completed':'tkt-v2-st-active'}">${comp?'Completada':'Activa'}</span>
+  </div>
+  <div class="tkt-v2-prog-wrap">
+    <div class="tkt-v2-prog-top">
+      <span class="tkt-v2-prog-lbl">Beneficios canjeados</span>
+      <span class="tkt-v2-prog-val" id="tkt-prog-val">${t.used_tickets} / ${t.total_tickets}</span>
+    </div>
+    <div class="tkt-v2-prog-bar"><div class="tkt-v2-prog-fill" id="tkt-prog-fill" style="width:${pct}%"></div></div>
+  </div>
+</div>
+<div class="tkt-v2-no-acum">
+  <span>⚠️</span>
+  <div><strong>Beneficios no acumulables:</strong> Solo se puede canjear 1 beneficio de descuento por boleta o mesa. Si asisten varias personas con ticketera, cada beneficio se aplica en una visita/boleta distinta.</div>
+</div>
+<p class="tkt-v2-sec-lbl">TUS ${t.total_tickets} BENEFICIOS</p>
+<div class="tkt-v2-grid" id="tkt-grid"></div>
+<p class="tkt-v2-expiry">${expiry}</p>
+<details style="background:rgba(212,175,55,.05);border:1px solid rgba(212,175,55,.15);border-radius:8px;padding:10px 14px;margin-top:4px">
+  <summary style="font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:rgba(212,175,55,.5);cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center">📋 Condiciones de uso <span style="font-size:10px">▾</span></summary>
+  <div style="margin-top:10px;display:flex;flex-direction:column;gap:5px">
+    ${['Descuento aplica sobre valor base del plato, no sobre precios de menú, promociones ni combos vigentes','No acumulable con otras promociones, descuentos o beneficios del restaurante','Solo 1 beneficio por boleta o mesa, sin importar cuántos comensales tengan ticketera','Debe indicarse al garzón antes de pedir la cuenta — no es retroactivo','No válido en días festivos, Navidad, Año Nuevo, Día de San Valentín u otras fechas especiales','No canjeable por dinero en efectivo ni transferible a otro valor','Válido únicamente en consumo presencial en el restaurante — no aplica a servicio a la habitación','Requiere consumo mínimo de $20.000 en platos de fondo','Propinas no incluidas en el descuento','En caso de regalo, el ticket se valida con la primera persona que lo utilice','Vigencia de 6 meses desde la fecha de emisión','En caso de pérdida del folio, el restaurante no se hace responsable'].map(c=>`<div class="tkt-v2-rest-item" style="color:rgba(212,175,55,.55)">${c}</div>`).join('')}
+    <div class="tkt-v2-rest-item" style="color:rgba(212,175,55,.65);border-top:1px solid rgba(212,175,55,.12);padding-top:6px;margin-top:2px">La empresa se reserva el derecho de modificar, desactivar o retirar tickets individuales o la ticketera completa en cualquier momento, sin aviso previo, por razones de no uso, falta de stock o disposición comercial</div>
+  </div>
+</details>`;
+  }
+
+  /* ── VISTA ADMIN: diseño clásico con códigos visibles ── */
   const sm={active:'ba',completed:'bc',expired:'be',gifted:'bf'};
   const sl={active:'ACTIVA',completed:'COMPLETADA',expired:'VENCIDA',gifted:'REGALADA'};
   const link=`${location.origin}${location.pathname}#/ticketera/${t.folio}`;
@@ -638,14 +771,13 @@ function hTkt(t,isAdmin=false){
           <span class="vcode ${u||dis?'dim':''}">${tk.validation_code}</span>
           ${u&&tk.used_at?`<span class="used-t">${fdt(tk.used_at)}${tk.used_by_staff?' · '+tk.used_by_staff:''}${tk.used_table?' · Mesa '+tk.used_table:''}</span>`:''}
         </div>
-        ${isAdmin&&!u?`<button class="btn-adm-tk ${dis?'btn-adm-on':'btn-adm-off'}" onclick="adminToggleTicket('${tk.validation_code}','${dis?'available':'disabled'}','${t.folio}')">
+        <button class="btn-adm-tk ${dis?'btn-adm-on':'btn-adm-off'}" onclick="adminToggleTicket('${tk.validation_code}','${dis?'available':'disabled'}','${t.folio}')">
           ${dis?'✓ Reactivar ticket':'⊘ Desactivar ticket'}
-        </button>`:''}
-        ${!isAdmin&&!u&&!dis?`<a href="https://wa.me/?text=${encodeURIComponent(`🎫 *${tk.benefit_title}*\n\nMi código de descuento en Restaurante Balandra, Radisson Puerto Varas:\n\n*${tk.validation_code}*\n\n_Preséntar al garzón antes de pedir la cuenta._`)}" target="_blank" class="tkt-wa">📲 Compartir</a>`:''}
+        </button>
       </div>
-    </div>`}).join('');
+    </div>`;}).join('');
 
-  const admPanel=isAdmin?`
+  const admPanel=`
 <div class="adm-panel">
   <p class="adm-panel-title">⚙️ Administración</p>
   <div id="adm-msg" style="display:none;font-size:12px;padding:8px 10px;border-radius:6px;margin-bottom:8px"></div>
@@ -659,7 +791,7 @@ function hTkt(t,isAdmin=false){
       ? `<button class="btn-adm-cancel" onclick="adminCancelTkt('${t.folio}')">✕ Cancelar ticketera</button>`
       : ''}
   </div>
-</div>`:'';
+</div>`;
 
   return`${comp}
 <div class="fhdr">
@@ -672,31 +804,11 @@ function hTkt(t,isAdmin=false){
     <div class="prog-bg"><div class="prog-bar" style="width:${pct}%"></div></div>
   </div>
 </div>
-
 ${admPanel}
-
 <div class="tlist">${tkts}</div>
 <div class="tc mt20" style="padding-bottom:10px">
-  <button class="bs" onclick="loadTkt('${t.folio}',document.getElementById('main'),${isAdmin})">↺ Actualizar</button>
-</div>
-<details style="background:rgba(212,175,55,.05);border:1px solid rgba(212,175,55,.15);border-radius:10px;padding:10px 14px;margin-top:4px">
-  <summary style="font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:rgba(212,175,55,.45);cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center">📋 Condiciones de uso <span>▾</span></summary>
-  <div style="margin-top:10px;display:flex;flex-direction:column;gap:5px">
-    <div style="font-size:10px;color:rgba(212,175,55,.55);line-height:1.45;display:flex;gap:6px"><span style="flex-shrink:0">•</span>Descuento aplica sobre valor base del plato, no sobre precios de menú, promociones ni combos vigentes</div>
-    <div style="font-size:10px;color:rgba(212,175,55,.55);line-height:1.45;display:flex;gap:6px"><span style="flex-shrink:0">•</span>No acumulable con otras promociones, descuentos o beneficios del restaurante</div>
-    <div style="font-size:10px;color:rgba(212,175,55,.55);line-height:1.45;display:flex;gap:6px"><span style="flex-shrink:0">•</span>Solo 1 beneficio por boleta o mesa, sin importar cuántos comensales tengan ticketera</div>
-    <div style="font-size:10px;color:rgba(212,175,55,.55);line-height:1.45;display:flex;gap:6px"><span style="flex-shrink:0">•</span>Debe indicarse al garzón antes de pedir la cuenta — no es retroactivo</div>
-    <div style="font-size:10px;color:rgba(212,175,55,.55);line-height:1.45;display:flex;gap:6px"><span style="flex-shrink:0">•</span>No válido en días festivos, Navidad, Año Nuevo, Día de San Valentín u otras fechas especiales</div>
-    <div style="font-size:10px;color:rgba(212,175,55,.55);line-height:1.45;display:flex;gap:6px"><span style="flex-shrink:0">•</span>No canjeable por dinero en efectivo ni transferible a otro valor</div>
-    <div style="font-size:10px;color:rgba(212,175,55,.55);line-height:1.45;display:flex;gap:6px"><span style="flex-shrink:0">•</span>Válido únicamente en consumo presencial en el restaurante — no aplica a servicio a la habitación</div>
-    <div style="font-size:10px;color:rgba(212,175,55,.55);line-height:1.45;display:flex;gap:6px"><span style="flex-shrink:0">•</span>Requiere consumo mínimo de $20.000 en platos de fondo</div>
-    <div style="font-size:10px;color:rgba(212,175,55,.55);line-height:1.45;display:flex;gap:6px"><span style="flex-shrink:0">•</span>Propinas no incluidas en el descuento</div>
-    <div style="font-size:10px;color:rgba(212,175,55,.55);line-height:1.45;display:flex;gap:6px"><span style="flex-shrink:0">•</span>En caso de regalo, el ticket se valida con la primera persona que lo utilice</div>
-    <div style="font-size:10px;color:rgba(212,175,55,.55);line-height:1.45;display:flex;gap:6px"><span style="flex-shrink:0">•</span>Vigencia de 6 meses desde la fecha de emisión</div>
-    <div style="font-size:10px;color:rgba(212,175,55,.55);line-height:1.45;display:flex;gap:6px"><span style="flex-shrink:0">•</span>En caso de pérdida del folio, el restaurante no se hace responsable</div>
-    <div style="font-size:10px;color:rgba(212,175,55,.65);line-height:1.45;display:flex;gap:6px;border-top:1px solid rgba(212,175,55,.12);padding-top:6px;margin-top:2px"><span style="flex-shrink:0">•</span>La empresa se reserva el derecho de modificar, desactivar o retirar tickets individuales o la ticketera completa en cualquier momento, sin aviso previo, por razones de no uso, falta de stock o disposición comercial</div>
-  </div>
-</details>`
+  <button class="bs" onclick="loadTkt('${t.folio}',document.getElementById('main'),true)">↺ Actualizar</button>
+</div>`;
 }
 
 /* ══════════════════════════
@@ -1446,6 +1558,151 @@ async function doCrear(){
   }catch{cce.textContent='Error de conexión';cce.style.display='block';}
   ccb.textContent='Generar Ticketera';ccb.disabled=false;
 }
+
+/* ══════════════════════════
+   TICKETERA v2 — GRID Y MODAL QR
+══════════════════════════ */
+function checkTktAccess(ticket,allTickets){
+  const usedNums=allTickets.filter(t=>t.status==='used').map(t=>t.ticket_number);
+  const prereqs=ticket.prerequisite_ticket_numbers||[];
+  if(prereqs.length>0){
+    const missing=prereqs.filter(n=>!usedNums.includes(n));
+    if(missing.length>0){
+      const names=missing.map(n=>{const t=allTickets.find(x=>x.ticket_number===n);return t?`#${n} ${t.benefit_title}`:`#${n}`;});
+      return{ok:false,reason:`Debes canjear primero: ${names.join(' y ')}`};
+    }
+  }
+  if(ticket.last_ticket_only){
+    const availOthers=allTickets.filter(t=>t.status==='available'&&t.ticket_number!==ticket.ticket_number);
+    if(availOthers.length>0)return{ok:false,reason:`Solo disponible cuando sea el último beneficio (quedan ${availOthers.length} por usar)`};
+  }
+  return{ok:true};
+}
+
+function renderTktGrid(tickets){
+  const grid=document.getElementById('tkt-grid');
+  if(!grid)return;
+  grid.innerHTML='';
+  tickets.forEach(t=>{
+    const used=t.status==='used';
+    const access=used?null:checkTktAccess(t,tickets);
+    const locked=!used&&access&&!access.ok;
+    const div=document.createElement('div');
+    div.className='tkt-v2-card '+(used?'used':locked?'locked':'avail');
+    let statusHtml='';
+    if(used){
+      let det=fdt(t.used_at)||'Usado';
+      if(t.used_by_staff)det+=' · '+t.used_by_staff;
+      if(t.used_table)det+=' · Mesa '+t.used_table;
+      statusHtml=`<span class="tkt-v2-card-status tkt-v2-status-used">✓ ${det}</span>`;
+    }else if(locked){
+      statusHtml=`<span class="tkt-v2-card-status tkt-v2-status-locked">🔒 Con condición</span>`;
+    }else{
+      statusHtml=`<span class="tkt-v2-card-status tkt-v2-status-avail">● Disponible</span>`;
+    }
+    div.innerHTML=`
+      <span class="tkt-v2-card-num">Beneficio #${t.ticket_number}</span>
+      <span class="tkt-v2-card-icon">${t.benefit_icon||'🎫'}</span>
+      <span class="tkt-v2-card-title">${t.benefit_title}</span>
+      ${statusHtml}`;
+    if(!used)div.onclick=()=>openTktModal(t,tickets);
+    grid.appendChild(div);
+  });
+}
+
+function openTktModal(ticket,allTickets){
+  tktActiveTicket=ticket;
+  const access=checkTktAccess(ticket,allTickets);
+  const isLocked=!access.ok;
+  document.getElementById('tm-icon').textContent=ticket.benefit_icon||'🎫';
+  document.getElementById('tm-title').innerHTML=`<em>${ticket.benefit_title}</em>`;
+  document.getElementById('tm-desc').textContent=ticket.benefit_description||'';
+  document.getElementById('tm-copied').style.display='none';
+  const codeBox=document.getElementById('tm-code-box');
+  const codeSpan=document.getElementById('tm-code');
+  const codeInst=codeBox.querySelector('.tkt-v2-code-inst');
+  const qrImg=document.getElementById('tm-qr');
+  if(isLocked){
+    codeBox.className='tkt-v2-code-box locked';
+    codeBox.onclick=null;
+    qrImg.style.display='none';
+    codeSpan.textContent='🔒';
+    codeInst.textContent='Este QR se habilitará cuando se cumplan las condiciones de uso';
+  }else{
+    codeBox.className='tkt-v2-code-box';
+    codeBox.onclick=copyTktCode;
+    qrImg.style.display='block';
+    qrImg.src=`https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${ticket.validation_code}&bgcolor=ffffff&color=0a0a0a&margin=12&qzone=1`;
+    codeSpan.textContent=ticket.validation_code||'——';
+    codeInst.textContent='El mesero escanea el QR con su dispositivo · Se valida automáticamente';
+  }
+  const notes=ticket.restriction_notes||[];
+  const restDiv=document.getElementById('tm-rest');
+  const restItems=document.getElementById('tm-rest-items');
+  if(notes.length>0){restItems.innerHTML=notes.map(n=>`<div class="tkt-v2-rest-item">${n}</div>`).join('');restDiv.style.display='block';}
+  else restDiv.style.display='none';
+  const waSvg=`<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>`;
+  const waBtn=document.getElementById('tm-wa-btn');
+  const waReason=document.getElementById('tm-wa-reason');
+  if(isLocked){
+    waBtn.innerHTML='🔒 Regalar este beneficio';
+    waBtn.className='tkt-v2-btn-wa blocked';
+    waBtn.onclick=null;
+    waReason.innerHTML=`<strong>Se habilitará cuando:</strong> ${access.reason}`;
+    waReason.style.display='block';
+  }else{
+    waBtn.innerHTML=`${waSvg} Regalar este beneficio`;
+    waBtn.className='tkt-v2-btn-wa';
+    waBtn.onclick=regalarTicket;
+    waReason.style.display='none';
+  }
+  document.getElementById('tkt-overlay').classList.add('show');
+  document.body.style.overflow='hidden';
+}
+
+function closeTktModal(e){
+  if(e&&e.target!==document.getElementById('tkt-overlay'))return;
+  document.getElementById('tkt-overlay').classList.remove('show');
+  document.body.style.overflow='';
+  tktActiveTicket=null;
+}
+
+function copyTktCode(){
+  const code=document.getElementById('tm-code').textContent;
+  if(navigator.clipboard)navigator.clipboard.writeText(code);
+  const hint=document.getElementById('tm-copied');
+  hint.style.display='block';
+  setTimeout(()=>hint.style.display='none',2000);
+}
+
+function regalarTicket(){
+  if(!tktActiveTicket)return;
+  const t=tktActiveTicket;
+  const qrUrl=`https://www.radissonpuertovaras.com/ticketera/qr.html?c=${t.validation_code}&b=${encodeURIComponent(t.benefit_title)}`;
+  const msg=encodeURIComponent('🎁 *Club Balandra – Ticket de regalo*\n\n*'+t.benefit_title+'*\n'+(t.benefit_description||'')+'\n\n👇 Toca para ver tu QR:\n'+qrUrl+'\n\n📍 Balandra · Radisson Puerto Varas\n_Muéstralo al mesero antes de pagar. Solo un uso._');
+  window.open(`https://wa.me/?text=${msg}`,'_blank');
+}
+
+function startTktAutoRefresh(folio){
+  if(tktTimer)clearInterval(tktTimer);
+  tktTimer=setInterval(async()=>{
+    if(!document.getElementById('tkt-grid')){clearInterval(tktTimer);tktTimer=null;return;}
+    if(document.getElementById('tkt-overlay')?.classList.contains('show'))return;
+    try{
+      const d=await rpc('balandra_get_ticketera',{p_folio:folio.toUpperCase()});
+      if(d.success){
+        sessionStorage.setItem('tbal',JSON.stringify(d));
+        const used=d.used_tickets||0,total=d.total_tickets||10;
+        const pv=document.getElementById('tkt-prog-val'),pf=document.getElementById('tkt-prog-fill');
+        if(pv)pv.textContent=`${used} / ${total}`;
+        if(pf)pf.style.width=`${(used/total)*100}%`;
+        renderTktGrid(d.tickets);
+      }
+    }catch{}
+  },3000);
+}
+
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeTktModal();});
 </script>
 </body>
 </html>
