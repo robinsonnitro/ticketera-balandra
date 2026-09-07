@@ -1246,12 +1246,13 @@ function hAdmin(){return`
       <button class="bs" style="margin-bottom:14px" onclick="backCrearStep1()">← Volver</button>
       <div id="ct-badges-link" style="margin-bottom:14px;display:flex;flex-wrap:wrap;gap:6px"></div>
       <div class="card card-g" style="margin-bottom:14px">
-        <p style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.6">Genera un link único para enviar en campañas de email o WhatsApp. El receptor hace clic y descarga directamente su ticketera.</p>
-        <div class="fld"><label class="lbl">NOMBRE DEL DESTINATARIO <span style="font-weight:400;color:var(--dim)">(opcional)</span></label><input id="lk-name" class="inp" placeholder="Ej: Familia Martínez, Clientes VIP..."></div>
-        <div class="fld"><label class="lbl">EMAIL <span style="font-weight:400;color:var(--dim)">(opcional, para registro)</span></label><input id="lk-email" class="inp" type="email" placeholder="cliente@email.com"></div>
-        <div class="fld"><label class="lbl">ETIQUETA DE CAMPAÑA <span style="font-weight:400;color:var(--dim)">(opcional)</span></label><input id="lk-tag" class="inp" placeholder="Ej: Verano 2026, Newsletter Mayo..."></div>
+        <p style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.6">El link lleva a un formulario donde cada persona ingresa sus propios datos y descarga su ticketera. Ideal para campañas de WhatsApp o email.</p>
+        <div class="fld">
+          <label class="lbl">NOMBRE DE CAMPAÑA <span style="font-weight:400;color:var(--dim)">(opcional — para identificar el envío)</span></label>
+          <input id="lk-tag" class="inp" placeholder="Ej: Verano 2026, Newsletter Mayo, Fono…">
+        </div>
         <div id="lk-err" class="err" style="display:none"></div>
-        <button class="bp" onclick="doCrearLink()">🔗 Generar link</button>
+        <button class="bp" onclick="doCrearLink()">🔗 Generar link de campaña</button>
       </div>
       <div id="lk-res"></div>
     </div>
@@ -2387,7 +2388,7 @@ function goCrearStep2(){
     initCrearPub();
   }else if(_crearDest==='link'){
     document.getElementById('ct-badges-link').innerHTML=badgeHtml;
-    ['lk-name','lk-email','lk-tag'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+    const lt=document.getElementById('lk-tag');if(lt)lt.value='';
     document.getElementById('lk-err').style.display='none';
     document.getElementById('lk-res').innerHTML='';
   }
@@ -2427,38 +2428,32 @@ function copyPubUrl(){
   if(el){navigator.clipboard.writeText(el.value).then(()=>{const b=event.target;b.textContent='✓ Copiado';setTimeout(()=>b.textContent='Copiar',2000);});}
 }
 
-/* ── Link directo (para campañas) ── */
+/* ── Link directo (para campañas — autogestión por el visitante) ── */
 async function doCrearLink(){
-  const name=(document.getElementById('lk-name').value||'').trim();
-  const email=(document.getElementById('lk-email').value||'').trim();
   const tag=(document.getElementById('lk-tag').value||'').trim();
   const err=document.getElementById('lk-err');err.style.display='none';
   const btn=event.target;btn.disabled=true;btn.textContent='Generando...';
   try{
-    const d=await rpc('balandra_create_ticketera_typed',{
-      p_type_id:_crearTipoId,
-      p_owner_name:name||('Link '+(tag||new Date().toLocaleDateString('es-CL'))),
-      p_owner_email:email||null,
-      p_owner_phone:null,
-      p_hotel:_crearHotel
-    });
-    if(!d.success){err.textContent=d.error||'Error al generar.';err.style.display='block';return;}
+    const d=await rpc('balandra_get_tipo_public_token',{p_type_id:_crearTipoId});
+    if(!d||!d.token){err.textContent='Error al obtener el token del tipo.';err.style.display='block';return;}
     const base=location.href.split('#')[0].replace('registro.html','index.html');
-    const link=base+'#/ticketera/'+d.folio;
-    const wa='https://wa.me/?text='+encodeURIComponent('Tu Ticketera Balandra está lista 🎫\n\nDescárgala aquí: '+link);
+    const link=base+'#/empresa/'+d.token+(tag?'?c='+encodeURIComponent(tag):'');
+    const msgWa='¡Hola! 👋 Te compartimos tu Ticketera Balandra '+HOTEL_LABEL[_crearHotel]+' 🎫\n\nIngresa tus datos y descárgala aquí:\n'+link;
+    const wa='https://wa.me/?text='+encodeURIComponent(msgWa);
     document.getElementById('lk-res').innerHTML=`
       <div class="card card-g">
-        <p style="font-size:12px;font-weight:700;color:var(--gold);margin-bottom:10px">✓ Link generado</p>
+        <p style="font-size:12px;font-weight:700;color:var(--gold);margin-bottom:6px">✓ Link listo para compartir</p>
+        <p style="font-size:11px;color:var(--muted);margin-bottom:12px">Quienes visiten este link verán un formulario para ingresar sus datos y descargar su propia ticketera.</p>
         <div style="display:flex;gap:8px;align-items:center;background:rgba(0,0,0,.2);border-radius:8px;padding:10px;margin-bottom:10px">
           <input value="${link}" readonly class="inp" style="flex:1;font-size:11px;font-family:monospace;background:transparent;border:none;padding:0;color:var(--white)" id="lk-copy-url">
-          <button class="bs" style="padding:5px 10px;font-size:11px;flex-shrink:0" onclick="navigator.clipboard.writeText(document.getElementById('lk-copy-url').value).then(()=>{this.textContent='✓';setTimeout(()=>this.textContent='Copiar',2000)})">Copiar</button>
+          <button class="bs" style="padding:5px 10px;font-size:11px;flex-shrink:0" onclick="navigator.clipboard.writeText(document.getElementById('lk-copy-url').value).then(()=>{this.textContent='✓ Copiado';setTimeout(()=>this.textContent='Copiar',2000)})">Copiar</button>
         </div>
-        ${tag?`<p style="font-size:10px;color:var(--dim);margin-bottom:8px">Campaña: <strong style="color:var(--white)">${tag}</strong> · Folio: <code>${d.folio}</code></p>`:''}
-        <a href="${wa}" target="_blank" class="bp" style="display:block;text-align:center;text-decoration:none;background:#25D366;border:none;margin-bottom:6px">📱 Enviar por WhatsApp</a>
-        <button class="bs" style="width:100%;font-size:12px" onclick="document.getElementById('lk-res').innerHTML='';document.getElementById('lk-name').value='';document.getElementById('lk-email').value=''">+ Generar otro</button>
+        ${tag?`<p style="font-size:10px;color:var(--dim);margin-bottom:10px">Campaña: <strong style="color:var(--white)">${tag}</strong></p>`:''}
+        <a href="${wa}" target="_blank" class="bp" style="display:block;text-align:center;text-decoration:none;background:#25D366;border:none;padding:12px;border-radius:10px;margin-bottom:8px;font-weight:700">📱 Compartir por WhatsApp</a>
+        <button class="bs" style="width:100%;font-size:12px" onclick="document.getElementById('lk-res').innerHTML='';document.getElementById('lk-tag').value=''">+ Generar otro (nueva campaña)</button>
       </div>`;
   }catch{err.textContent='Error de conexión.';err.style.display='block';}
-  finally{btn.disabled=false;btn.textContent='🔗 Generar link';}
+  finally{btn.disabled=false;btn.textContent='🔗 Generar link de campaña';}
 }
 
 async function doCrearPas(){
