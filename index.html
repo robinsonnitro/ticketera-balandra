@@ -905,18 +905,52 @@ async function adminToggleBenefitType(num,status,btn){
   }catch{btn.disabled=false;alert('Error de conexión');}
 }
 async function loadBenefitTypes(){
-  const area=document.getElementById('benefit-types-area');
+  const area=document.getElementById('bn-area');
   if(!area)return;
+  area.innerHTML='<p style="color:var(--muted);text-align:center;padding:20px">Cargando...</p>';
   try{
-    const tpls=await rpc('balandra_list_benefit_types');
-    if(!Array.isArray(tpls)||!tpls.length){area.innerHTML='<p style="color:var(--muted);font-size:12px">Sin datos</p>';return;}
-    area.innerHTML=tpls.map(b=>`<div class="adm-benefit-row">
-      <span class="adm-benefit-name">${b.benefit_icon||'🎫'} #${b.ticket_number} ${b.benefit_title}</span>
-      ${b.active
-        ?`<button class="btn-adm-off" onclick="adminToggleBenefitType(${b.ticket_number},'disabled',this)">⊘ Desactivar</button>`
-        :`<button class="btn-adm-on" onclick="adminToggleBenefitType(${b.ticket_number},'available',this)">✓ Activar</button>`}
-    </div>`).join('');
-  }catch{area.innerHTML='<p style="color:var(--red);font-size:12px">Error al cargar</p>';}
+    const showDraft=document.getElementById('bn-show-draft')?.checked;
+    const list=await rpc('balandra_get_ticketera_types');
+    const arr=Array.isArray(list)?list:[];
+    const filtered=showDraft?arr:arr.filter(t=>t.status==='active');
+    if(!filtered.length){
+      area.innerHTML=`<p style="color:var(--muted);text-align:center;padding:24px">${arr.length?'No hay tipos activos. Activa el checkbox para ver borradores.':'Sin tipos configurados.'}</p>`;
+      return;
+    }
+    const totalBen=filtered.reduce((s,t)=>s+(t.benefits_count||0),0);
+    area.innerHTML=`
+      <p style="font-size:11px;color:var(--dim);margin-bottom:14px">${filtered.length} tipo${filtered.length!==1?'s':''} · ${totalBen} beneficio${totalBen!==1?'s':''} en total</p>
+      ${filtered.map(t=>{
+        const bens=Array.isArray(t.benefits)?t.benefits:[];
+        return`<div style="margin-bottom:18px;border:1px solid var(--cardBdr);border-radius:12px;overflow:hidden">
+          <div style="background:rgba(255,255,255,.05);padding:11px 14px;display:flex;justify-content:space-between;align-items:center;gap:8px">
+            <div>
+              <span style="font-size:13px;font-weight:700;color:var(--white)">${t.name}</span>
+              <span style="font-size:11px;color:var(--dim);margin-left:8px">${HOTEL_LABEL[t.hotel]||t.hotel} · ${t.validity_months}m · ${t.benefits_count||0} beneficios</span>
+            </div>
+            ${statusBdg(t.status)}
+          </div>
+          ${!bens.length
+            ?`<p style="font-size:11px;color:var(--dim);padding:12px;text-align:center">Sin beneficios configurados</p>`
+            :`<div style="padding:6px 8px">${bens.map(b=>`
+              <div style="display:flex;gap:10px;padding:7px 6px;border-bottom:1px solid rgba(255,255,255,.04);align-items:flex-start">
+                <span style="font-size:16px;width:22px;text-align:center;flex-shrink:0;margin-top:1px">${b.benefit_icon||'🎫'}</span>
+                <div style="flex:1;min-width:0">
+                  <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap">
+                    <span style="font-size:11px;font-weight:700;color:var(--gold);font-family:monospace">#${b.ticket_number}</span>
+                    <span style="font-size:12px;font-weight:600;color:var(--white)">${b.benefit_title}</span>
+                    ${b.last_ticket_only?`<span style="font-size:9px;padding:1px 5px;background:rgba(255,95,95,.15);border:1px solid rgba(255,95,95,.3);border-radius:4px;color:#ff5f5f">FINAL</span>`:''}
+                    ${b.opera_rate_code?`<span style="font-size:9px;padding:1px 5px;background:rgba(212,175,55,.1);border:1px solid var(--goldBdr);border-radius:4px;color:var(--gold);font-family:monospace">${b.opera_rate_code}</span>`:''}
+                  </div>
+                  ${b.benefit_description?`<p style="font-size:10px;color:var(--muted);margin-top:1px">${b.benefit_description}</p>`:''}
+                  ${b.prerequisite_ticket_numbers?.length?`<p style="font-size:10px;color:var(--dim);margin-top:2px">⚠️ Requiere: #${b.prerequisite_ticket_numbers.join(', #')}</p>`:''}
+                  ${b.restriction_notes?.length?`<p style="font-size:10px;color:var(--dim);margin-top:1px">📋 ${b.restriction_notes.join(' · ')}</p>`:''}
+                </div>
+              </div>`).join('')}
+            </div>`}
+        </div>`;
+      }).join('')}`;
+  }catch(e){area.innerHTML='<p class="err">Error al cargar beneficios.</p>';}
 }
 
 /* ══════════════════════════
@@ -1097,11 +1131,16 @@ function hAdmin(){return`
   <div id="ap1" style="display:none"><div id="tipos-area"><p style="color:var(--muted);text-align:center;padding:20px">Cargando tipos...</p></div></div>
   <div id="ap2" style="display:none"><div id="larea"><p style="color:var(--muted)">Cargando...</p></div></div>
   <div id="ap3" style="display:none">
-    <div class="adm-global">
-      <p class="adm-global-title">🎛️ Activar / Desactivar beneficios globalmente</p>
-      <p style="color:var(--muted);font-size:11px;margin-bottom:12px">Desactivar un beneficio lo bloquea en TODAS las ticketeras activas. Los tickets ya usados no se ven afectados.</p>
-      <div id="benefit-types-area"><p style="color:var(--muted);font-size:12px">Cargando...</p></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <p style="font-size:13px;font-weight:700;color:var(--gold)">Resumen de beneficios</p>
+      <div style="display:flex;gap:6px;align-items:center">
+        <label style="font-size:11px;color:var(--muted);display:flex;align-items:center;gap:5px;cursor:pointer">
+          <input type="checkbox" id="bn-show-draft" onchange="loadBenefitTypes()" style="accent-color:var(--gold)"> Incluir borradores
+        </label>
+        <button class="bs" style="font-size:11px;padding:4px 10px" onclick="loadBenefitTypes()">↺</button>
+      </div>
     </div>
+    <div id="bn-area"><p style="color:var(--muted);text-align:center;padding:20px">Cargando...</p></div>
   </div>
   <div id="ap4" style="display:none">
     <!-- Step 1: Tipo + Destino + Hotel -->
@@ -1112,9 +1151,23 @@ function hAdmin(){return`
       </div>
       <div class="fld" style="margin-top:4px">
         <label class="lbl" style="margin-bottom:8px">¿Para quién?</label>
-        <div style="display:flex;gap:8px">
-          <button class="tab on" id="ct-dest-pas" onclick="selCrearDest('pas')">👤 Pasajero</button>
-          <button class="tab" id="ct-dest-emp" onclick="selCrearDest('emp')">🏢 Empresa</button>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+          <button class="tab on" id="ct-dest-pas" onclick="selCrearDest('pas')" style="text-align:left;padding:8px 10px">
+            <span style="font-size:13px">👤</span> <strong style="font-size:12px">Pasajero</strong><br>
+            <span style="font-size:10px;color:var(--dim);font-weight:400">Individual con nombre</span>
+          </button>
+          <button class="tab" id="ct-dest-emp" onclick="selCrearDest('emp')" style="text-align:left;padding:8px 10px">
+            <span style="font-size:13px">🏢</span> <strong style="font-size:12px">Empresa</strong><br>
+            <span style="font-size:10px;color:var(--dim);font-weight:400">Lote para colaboradores</span>
+          </button>
+          <button class="tab" id="ct-dest-pub" onclick="selCrearDest('pub')" style="text-align:left;padding:8px 10px">
+            <span style="font-size:13px">🌐</span> <strong style="font-size:12px">Acceso público</strong><br>
+            <span style="font-size:10px;color:var(--dim);font-weight:400">Web del hotel/restaurante</span>
+          </button>
+          <button class="tab" id="ct-dest-link" onclick="selCrearDest('link')" style="text-align:left;padding:8px 10px">
+            <span style="font-size:13px">🔗</span> <strong style="font-size:12px">Link directo</strong><br>
+            <span style="font-size:10px;color:var(--dim);font-weight:400">Campañas email / WhatsApp</span>
+          </button>
         </div>
       </div>
       <div class="fld" style="margin-top:4px">
@@ -1168,6 +1221,39 @@ function hAdmin(){return`
         <button id="emp-btn" class="bp" onclick="crearEmpresa()">🏢 Crear Ticketeras</button>
       </div>
       <div id="emp-res"></div>
+    </div>
+    <!-- Step 2 Acceso público -->
+    <div id="ct-step2-pub" style="display:none">
+      <button class="bs" style="margin-bottom:14px" onclick="backCrearStep1()">← Volver</button>
+      <div id="ct-badges-pub" style="margin-bottom:14px;display:flex;flex-wrap:wrap;gap:6px"></div>
+      <div class="card card-g" style="margin-bottom:14px">
+        <p style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.6">Genera un enlace permanente para que cualquier visitante del hotel o restaurante pueda descargar su ticketera. Puedes insertarlo como botón en la web o imprimirlo como QR.</p>
+        <div id="pub-loading" style="text-align:center;padding:16px;color:var(--muted);font-size:12px">Generando enlace...</div>
+        <div id="pub-result" style="display:none">
+          <div style="display:flex;gap:10px;align-items:center;background:rgba(0,0,0,.2);border-radius:8px;padding:10px;margin-bottom:12px">
+            <input id="pub-url" class="inp" readonly style="flex:1;font-size:11px;font-family:monospace;background:transparent;border:none;padding:0;color:var(--gold)">
+            <button class="bs" style="padding:6px 12px;font-size:11px;flex-shrink:0" onclick="copyPubUrl()">Copiar</button>
+          </div>
+          <div style="text-align:center;margin-bottom:12px">
+            <div id="pub-qr" style="display:inline-block;background:#fff;border-radius:12px;padding:12px"></div>
+          </div>
+          <p style="font-size:10px;color:var(--dim);text-align:center;line-height:1.6">Este enlace es permanente y reutilizable. Cada persona que lo visite podrá generar su propia ticketera.</p>
+        </div>
+      </div>
+    </div>
+    <!-- Step 2 Link directo -->
+    <div id="ct-step2-link" style="display:none">
+      <button class="bs" style="margin-bottom:14px" onclick="backCrearStep1()">← Volver</button>
+      <div id="ct-badges-link" style="margin-bottom:14px;display:flex;flex-wrap:wrap;gap:6px"></div>
+      <div class="card card-g" style="margin-bottom:14px">
+        <p style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.6">Genera un link único para enviar en campañas de email o WhatsApp. El receptor hace clic y descarga directamente su ticketera.</p>
+        <div class="fld"><label class="lbl">NOMBRE DEL DESTINATARIO <span style="font-weight:400;color:var(--dim)">(opcional)</span></label><input id="lk-name" class="inp" placeholder="Ej: Familia Martínez, Clientes VIP..."></div>
+        <div class="fld"><label class="lbl">EMAIL <span style="font-weight:400;color:var(--dim)">(opcional, para registro)</span></label><input id="lk-email" class="inp" type="email" placeholder="cliente@email.com"></div>
+        <div class="fld"><label class="lbl">ETIQUETA DE CAMPAÑA <span style="font-weight:400;color:var(--dim)">(opcional)</span></label><input id="lk-tag" class="inp" placeholder="Ej: Verano 2026, Newsletter Mayo..."></div>
+        <div id="lk-err" class="err" style="display:none"></div>
+        <button class="bp" onclick="doCrearLink()">🔗 Generar link</button>
+      </div>
+      <div id="lk-res"></div>
     </div>
   </div>
 </div>`}
@@ -2265,7 +2351,7 @@ function selCrearTipo(id,el){
 
 function selCrearDest(d){
   _crearDest=d;
-  ['pas','emp'].forEach(x=>document.getElementById('ct-dest-'+x).classList.toggle('on',x===d));
+  ['pas','emp','pub','link'].forEach(x=>{const b=document.getElementById('ct-dest-'+x);if(b)b.classList.toggle('on',x===d);});
 }
 
 function selCrearHotel(h,btn){
@@ -2280,30 +2366,36 @@ function goCrearStep2(){
   const tipoEl=document.querySelector('#ct-tipo-list .adm-tipo-row.on');
   const tipoName=tipoEl?tipoEl.querySelector('.adm-tipo-name').textContent:'Tipo seleccionado';
   const hLabel=HOTEL_LABEL[_crearHotel]||_crearHotel;
-  const badgeHtml=`<span class="bdg bc">${tipoName}</span><span class="bdg ba">${_crearDest==='pas'?'👤 Pasajero':'🏢 Empresa'}</span><span class="bdg" style="background:rgba(255,255,255,.07);border:1px solid var(--cardBdr)">${hLabel}</span>`;
+  const destLabel={pas:'👤 Pasajero',emp:'🏢 Empresa',pub:'🌐 Acceso público',link:'🔗 Link directo'}[_crearDest]||_crearDest;
+  const badgeHtml=`<span class="bdg bc">${tipoName}</span><span class="bdg ba">${destLabel}</span><span class="bdg" style="background:rgba(255,255,255,.07);border:1px solid var(--cardBdr)">${hLabel}</span>`;
+  ['pas','emp','pub','link'].forEach(x=>document.getElementById('ct-step2-'+x).style.display='none');
+  document.getElementById('ct-step2-'+_crearDest).style.display='block';
   if(_crearDest==='pas'){
-    document.getElementById('ct-step2-pas').style.display='block';
-    document.getElementById('ct-step2-emp').style.display='none';
     document.getElementById('ct-badges').innerHTML=badgeHtml;
     ['xt-n','xt-e','xt-p'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
     document.getElementById('xt-err').style.display='none';
     document.getElementById('xt-res').innerHTML='';
-  }else{
-    document.getElementById('ct-step2-emp').style.display='block';
-    document.getElementById('ct-step2-pas').style.display='none';
+  }else if(_crearDest==='emp'){
     document.getElementById('ct-badges-emp').innerHTML=badgeHtml;
     const en=document.getElementById('emp-nom');if(en)en.value='';
     const el=document.getElementById('emp-lista');if(el)el.value='';
     document.getElementById('emp-err').style.display='none';
     document.getElementById('emp-res').innerHTML='';
     updateEmpCount();
+  }else if(_crearDest==='pub'){
+    document.getElementById('ct-badges-pub').innerHTML=badgeHtml;
+    initCrearPub();
+  }else if(_crearDest==='link'){
+    document.getElementById('ct-badges-link').innerHTML=badgeHtml;
+    ['lk-name','lk-email','lk-tag'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+    document.getElementById('lk-err').style.display='none';
+    document.getElementById('lk-res').innerHTML='';
   }
 }
 
 function backCrearStep1(){
   document.getElementById('ct-step1').style.display='block';
-  document.getElementById('ct-step2-pas').style.display='none';
-  document.getElementById('ct-step2-emp').style.display='none';
+  ['pas','emp','pub','link'].forEach(x=>document.getElementById('ct-step2-'+x).style.display='none');
 }
 
 function selEmpMode(mode,btn){
@@ -2314,6 +2406,60 @@ function selEmpMode(mode,btn){
 }
 
 function showCrearType(t){/* deprecated — kept for compatibility */}
+
+/* ── Acceso público (link para web del hotel/restaurante) ── */
+async function initCrearPub(){
+  const loading=document.getElementById('pub-loading');
+  const result=document.getElementById('pub-result');
+  loading.style.display='block';result.style.display='none';
+  try{
+    const d=await rpc('balandra_get_tipo_public_token',{p_type_id:_crearTipoId});
+    if(!d||!d.token){loading.textContent='Error al generar el enlace.';return;}
+    const base=location.href.split('#')[0].replace('registro.html','index.html');
+    const url=base+'#/empresa/'+d.token;
+    document.getElementById('pub-url').value=url;
+    document.getElementById('pub-qr').innerHTML=`<img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(url)}&margin=8&bgcolor=ffffff&color=0a0a0a" style="display:block;width:180px;height:180px;border-radius:6px" alt="QR">`;
+    loading.style.display='none';result.style.display='block';
+  }catch{loading.textContent='Error de conexión.';}
+}
+function copyPubUrl(){
+  const el=document.getElementById('pub-url');
+  if(el){navigator.clipboard.writeText(el.value).then(()=>{const b=event.target;b.textContent='✓ Copiado';setTimeout(()=>b.textContent='Copiar',2000);});}
+}
+
+/* ── Link directo (para campañas) ── */
+async function doCrearLink(){
+  const name=(document.getElementById('lk-name').value||'').trim();
+  const email=(document.getElementById('lk-email').value||'').trim();
+  const tag=(document.getElementById('lk-tag').value||'').trim();
+  const err=document.getElementById('lk-err');err.style.display='none';
+  const btn=event.target;btn.disabled=true;btn.textContent='Generando...';
+  try{
+    const d=await rpc('balandra_create_ticketera_typed',{
+      p_type_id:_crearTipoId,
+      p_owner_name:name||('Link '+(tag||new Date().toLocaleDateString('es-CL'))),
+      p_owner_email:email||null,
+      p_owner_phone:null,
+      p_hotel:_crearHotel
+    });
+    if(!d.success){err.textContent=d.error||'Error al generar.';err.style.display='block';return;}
+    const base=location.href.split('#')[0].replace('registro.html','index.html');
+    const link=base+'#/ticketera/'+d.folio;
+    const wa='https://wa.me/?text='+encodeURIComponent('Tu Ticketera Balandra está lista 🎫\n\nDescárgala aquí: '+link);
+    document.getElementById('lk-res').innerHTML=`
+      <div class="card card-g">
+        <p style="font-size:12px;font-weight:700;color:var(--gold);margin-bottom:10px">✓ Link generado</p>
+        <div style="display:flex;gap:8px;align-items:center;background:rgba(0,0,0,.2);border-radius:8px;padding:10px;margin-bottom:10px">
+          <input value="${link}" readonly class="inp" style="flex:1;font-size:11px;font-family:monospace;background:transparent;border:none;padding:0;color:var(--white)" id="lk-copy-url">
+          <button class="bs" style="padding:5px 10px;font-size:11px;flex-shrink:0" onclick="navigator.clipboard.writeText(document.getElementById('lk-copy-url').value).then(()=>{this.textContent='✓';setTimeout(()=>this.textContent='Copiar',2000)})">Copiar</button>
+        </div>
+        ${tag?`<p style="font-size:10px;color:var(--dim);margin-bottom:8px">Campaña: <strong style="color:var(--white)">${tag}</strong> · Folio: <code>${d.folio}</code></p>`:''}
+        <a href="${wa}" target="_blank" class="bp" style="display:block;text-align:center;text-decoration:none;background:#25D366;border:none;margin-bottom:6px">📱 Enviar por WhatsApp</a>
+        <button class="bs" style="width:100%;font-size:12px" onclick="document.getElementById('lk-res').innerHTML='';document.getElementById('lk-name').value='';document.getElementById('lk-email').value=''">+ Generar otro</button>
+      </div>`;
+  }catch{err.textContent='Error de conexión.';err.style.display='block';}
+  finally{btn.disabled=false;btn.textContent='🔗 Generar link';}
+}
 
 async function doCrearPas(){
   const n=document.getElementById('xt-n').value.trim();
