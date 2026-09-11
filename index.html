@@ -483,6 +483,15 @@ function render(){
     return;
   }
 
+  if(p==='descuento'){
+    bnav.style.display='none';
+    m.className='main';
+    tbr.innerHTML='';
+    m.innerHTML='<p style="color:var(--muted);text-align:center;padding:40px 0">Cargando...</p>';
+    loadDescuentoPage(q,m);
+    return;
+  }
+
   // Garzón: sin nav inferior. Admin: con nav entre validar y admin
   bnav.style.display=p==='admin'?'flex':'none';
   m.className=p==='admin'?'main main-nav':'main';
@@ -632,6 +641,97 @@ async function doEmpresaReg(token,campaign){
     err.style.display='block';
     btn.disabled=false;btn.textContent='✨ Crear mi ticketera';
   }
+}
+
+/* ══════════════════════════
+   DESCUENTO MASIVO — HUÉSPED
+══════════════════════════ */
+async function loadDescuentoPage(token,m){
+  if(!token){m.innerHTML='<p style="color:var(--red);text-align:center;padding:40px">Enlace no válido.</p>';return;}
+  try{
+    const d=await rpc('balandra_get_discount_campaign',{p_token:token});
+    if(!d||d.success===false){
+      m.innerHTML=`<div style="text-align:center;padding:40px">
+        <div style="font-size:48px;margin-bottom:12px">🔒</div>
+        <p style="color:var(--red);font-size:15px;margin-bottom:8px">${d?.error||'Descuento no disponible.'}</p>
+        <p style="color:var(--dim);font-size:12px">Este link puede haber expirado o no estar disponible.</p>
+      </div>`;return;
+    }
+    const svcLabel={'restaurante':'🍽️ Restaurante','spa':'💆 Spa','bar':'🍸 Bar','habitacion':'🏨 Habitación','experiencias':'🎭 Experiencias'}[d.service_type]||d.service_type||'';
+    const hotelLabel={'pv':'Radisson Puerto Varas','pi':'Park Inn by Radisson','both':'Ambos hoteles'}[d.hotel]||d.hotel||'';
+    const conds=d.conditions?d.conditions.split('\n').filter(l=>l.trim()).map(l=>`<li style="margin-bottom:3px">${l.trim()}</li>`).join(''):'';
+    m.innerHTML=`
+      <div style="text-align:center;padding:20px 0 12px">
+        <div style="font-size:52px;margin-bottom:10px">${d.icon||'🎫'}</div>
+        <p style="font-size:9px;font-weight:700;letter-spacing:3px;color:rgba(212,175,55,.55);text-transform:uppercase;margin-bottom:6px">${hotelLabel}</p>
+        <h1 style="font-size:22px;font-weight:700;color:var(--gold);margin-bottom:6px">${d.title}</h1>
+        ${d.description?`<p style="color:var(--muted);font-size:13px;margin-bottom:8px">${d.description}</p>`:''}
+        ${svcLabel?`<span style="font-size:11px;padding:3px 10px;background:rgba(212,175,55,.1);border:1px solid var(--goldBdr);border-radius:20px;color:var(--gold)">${svcLabel}</span>`:''}
+      </div>
+      ${conds?`<div style="background:rgba(255,255,255,.04);border:1px solid var(--cardBdr);border-radius:10px;padding:12px 14px;margin:12px 0">
+        <p style="font-size:9px;font-weight:700;letter-spacing:1.5px;color:var(--dim);text-transform:uppercase;margin-bottom:8px">Condiciones</p>
+        <ul style="padding-left:16px;font-size:12px;color:var(--muted);line-height:1.8">${conds}</ul>
+      </div>`:''}
+      <div id="dsc-qr-area" style="display:none"></div>
+      <div id="dsc-form-area" style="border-top:1px solid var(--cardBdr);padding-top:18px;margin-top:8px">
+        <p style="font-size:13px;font-weight:700;color:var(--white);margin-bottom:14px">Ingresa tus datos para obtener tu descuento</p>
+        <div id="dsc-err" class="err" style="display:none;margin-bottom:12px"></div>
+        <label class="lbl">TELÉFONO WHATSAPP *</label>
+        <input id="dsc-phone" class="inp" type="tel" placeholder="+56 9 XXXX XXXX" autocomplete="tel" inputmode="numeric">
+        <label class="lbl">N° DE HABITACIÓN *</label>
+        <input id="dsc-room" class="inp" placeholder="Ej: 302" inputmode="numeric">
+        <p style="font-size:10px;color:var(--dim);margin-top:-8px;margin-bottom:14px">Máximo 2 descuentos por número de teléfono.</p>
+        <button id="dsc-btn" class="bp" onclick="doClaimVoucher('${token}')">Obtener mi QR →</button>
+      </div>`;
+  }catch(e){
+    m.innerHTML='<p style="color:var(--red);text-align:center;padding:40px">Error al cargar. Intenta de nuevo.</p>';
+  }
+}
+
+async function doClaimVoucher(token){
+  const phone=(document.getElementById('dsc-phone')?.value||'').trim();
+  const room=(document.getElementById('dsc-room')?.value||'').trim();
+  const err=document.getElementById('dsc-err');
+  const btn=document.getElementById('dsc-btn');
+  err.style.display='none';
+  if(!phone){err.textContent='El teléfono es obligatorio.';err.style.display='block';return;}
+  if(!room){err.textContent='El número de habitación es obligatorio.';err.style.display='block';return;}
+  btn.disabled=true;btn.textContent='Generando tu QR...';
+  try{
+    const d=await rpc('balandra_claim_discount_voucher',{p_token:token,p_phone:phone,p_room_number:room});
+    if(!d||d.success===false){
+      err.textContent=d?.error||'Error al generar el QR.';err.style.display='block';
+      btn.disabled=false;btn.textContent='Obtener mi QR →';return;
+    }
+    const code=d.validation_code;
+    const qrUrl=`https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=${encodeURIComponent(code)}&margin=14&bgcolor=ffffff&color=0a0a0a`;
+    document.getElementById('dsc-form-area').style.display='none';
+    const qrArea=document.getElementById('dsc-qr-area');
+    qrArea.style.display='block';
+    const used=d.status==='used';
+    qrArea.innerHTML=`
+      <div style="text-align:center;padding:8px 0 24px">
+        ${d.duplicate?`<p style="font-size:11px;color:var(--dim);margin-bottom:14px">Ya tenías un QR para este descuento — aquí está.</p>`:''}
+        ${used?`<div style="background:rgba(255,95,95,.08);border:1px solid rgba(255,95,95,.2);border-radius:10px;padding:10px;margin-bottom:14px">
+          <p style="color:var(--red);font-size:13px;font-weight:700">Este descuento ya fue utilizado.</p>
+        </div>`:''}
+        <div style="background:#fff;border-radius:20px;padding:14px;display:inline-block;box-shadow:0 0 40px rgba(212,175,55,.2);margin-bottom:16px">
+          <img src="${qrUrl}" alt="QR Descuento" style="width:230px;height:230px;display:block;border-radius:8px" id="dsc-qr-img">
+        </div>
+        <p style="font-family:'JetBrains Mono',monospace;font-size:20px;letter-spacing:4px;color:var(--gold);margin-bottom:4px">${code}</p>
+        <p style="color:var(--dim);font-size:11px;margin-bottom:20px">Presenta este código al mesero o recepcionista · Solo 1 uso</p>
+        ${!used?`<button class="bp" style="margin-bottom:10px" onclick="dscDownloadQR('${qrUrl}','${code}')">⬇ Guardar QR en mi teléfono</button>`:''}
+        <p style="font-size:10px;color:var(--dim);margin-top:4px">Captura de pantalla también funciona.</p>
+      </div>`;
+  }catch{
+    err.textContent='Error de conexión. Intenta de nuevo.';err.style.display='block';
+    btn.disabled=false;btn.textContent='Obtener mi QR →';
+  }
+}
+
+function dscDownloadQR(qrUrl,code){
+  const a=document.createElement('a');
+  a.href=qrUrl;a.download='descuento-'+code+'.png';a.target='_blank';a.click();
 }
 
 /* ══════════════════════════
@@ -1216,7 +1316,27 @@ async function doValWithCode(code){
         </div>
         <button class="bg" onclick="nav('validar')">Escanear Otro Ticket</button>
       </div></div>`;
-    }else{ve.textContent=d.error||'Código inválido';ve.style.display='block';if(qrScanner)startScanner();}
+    }else{
+      // Intentar como voucher de descuento masivo
+      const dv=await rpc('balandra_burn_discount_voucher',{p_code:code,p_garzon:staff,p_mesa:table});
+      if(dv&&dv.success){
+        vfrm.style.display='none';
+        const now2=new Date();
+        const ts2=now2.toLocaleDateString('es-CL',{day:'2-digit',month:'2-digit',year:'numeric'})+' '+now2.toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'});
+        vres.innerHTML=`<div class="card card-gr"><div class="tc" style="padding:20px 10px">
+          <div style="font-size:52px;margin-bottom:12px;line-height:1">✅</div>
+          <p style="color:var(--green);font-size:20px;font-weight:700;margin-bottom:4px">¡Descuento Validado!</p>
+          <p style="color:var(--muted);font-size:11px;margin-bottom:12px">Registrado · ${ts2}</p>
+          <p style="color:var(--white);font-size:16px;font-weight:700;margin-bottom:6px">${dv.icon||'🎫'} ${dv.title}</p>
+          ${dv.description?`<p style="color:var(--muted);font-size:13px;margin-bottom:4px">${dv.description}</p>`:''}
+          ${dv.room_number?`<p style="color:var(--dim);font-size:12px;margin-bottom:2px">Habitación: <strong style="color:var(--gold)">${dv.room_number}</strong></p>`:''}
+          <button class="bg" style="margin-top:14px" onclick="nav('validar')">Escanear Otro</button>
+        </div></div>`;
+      }else{
+        ve.textContent=(dv&&dv.already_used)?'Este descuento ya fue utilizado.':(d.error||'Código inválido');
+        ve.style.display='block';if(qrScanner)startScanner();
+      }
+    }
   }catch{ve.textContent='Error de conexión.';ve.style.display='block';if(qrScanner)startScanner();}
 }
 
@@ -1266,6 +1386,7 @@ function hAdmin(){return`
     <button class="tab" id="at2" onclick="sTab('li',this)">Listado</button>
     <button class="tab" id="at3" onclick="sTab('bn',this)">Beneficios</button>
     <button class="tab" id="at4" onclick="sTab('ct',this)">🎫 Crear</button>
+    <button class="tab" id="at5" onclick="sTab('dsc',this)">📢 Descuentos</button>
   </div>
   <div id="ap0">${hDash()}</div>
   <div id="ap1" style="display:none"><div id="tipos-area"><p style="color:var(--muted);text-align:center;padding:20px">Cargando tipos...</p></div></div>
@@ -1397,15 +1518,115 @@ function hAdmin(){return`
       <div id="lk-res"></div>
     </div>
   </div>
+  <div id="ap5" style="display:none">
+    <div id="dsc-area"><p style="color:var(--muted);text-align:center;padding:20px">Cargando...</p></div>
+  </div>
 </div>`}
+
+/* ══ DISCOUNT CAMPAIGNS ADMIN ══ */
+async function loadDiscountCampaigns(){
+  const a=document.getElementById('dsc-area');
+  if(!a)return;
+  a.innerHTML='<p style="color:var(--muted);text-align:center;padding:20px">Cargando...</p>';
+  const svc=['restaurante','spa','bar','habitación','experiencias'];
+  const svcBadge=(s)=>{const c={restaurante:'#e67e22',spa:'#8e44ad',bar:'#2980b9',habitación:'#27ae60',experiencias:'#c0392b'};return`<span style="background:${c[s]||'#555'};color:#fff;font-size:10px;padding:2px 7px;border-radius:10px;vertical-align:middle">${s}</span>`;};
+  try{
+    const list=await rpc('balandra_get_discount_campaigns',{});
+    const camps=Array.isArray(list)?list:[];
+    const baseUrl='https://www.radissonpuertovaras.com/ticketera/index.html#/descuento/';
+    const rows=camps.map(c=>`
+      <div class="card" style="margin-bottom:12px;padding:14px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;flex-wrap:wrap">
+          <div style="flex:1;min-width:0">
+            <p style="font-size:15px;font-weight:700;color:var(--white);margin-bottom:2px">${c.icon||'🎫'} ${c.title}</p>
+            ${c.description?`<p style="font-size:12px;color:var(--muted);margin-bottom:4px">${c.description}</p>`:''}
+            <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:6px">
+              ${svcBadge(c.service_type)}
+              <span style="font-size:11px;color:${c.status==='active'?'var(--green)':'var(--muted)'}">● ${c.status==='active'?'Activa':'Pausada'}</span>
+              ${c.expires_at?`<span style="font-size:11px;color:var(--dim)">Vence: ${new Date(c.expires_at).toLocaleDateString('es-CL')}</span>`:''}
+            </div>
+            <div style="display:flex;gap:14px;margin-bottom:8px">
+              <span style="font-size:12px;color:var(--muted)">QR generados: <strong style="color:var(--gold)">${c.total_claimed||0}</strong></span>
+              <span style="font-size:12px;color:var(--muted)">Quemados: <strong style="color:var(--green)">${c.total_used||0}</strong></span>
+            </div>
+            <div style="display:flex;gap:6px;align-items:center">
+              <input readonly value="${baseUrl}${c.token}" style="flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:5px 8px;font-size:10px;color:var(--muted);min-width:0">
+              <button class="bs" onclick="navigator.clipboard.writeText('${baseUrl}${c.token}').then(()=>{this.textContent='✓';setTimeout(()=>this.textContent='Copiar',1500)})">Copiar</button>
+            </div>
+          </div>
+          <button class="bs" onclick="toggleDscStatus('${c.id}','${c.status}')" style="white-space:nowrap;flex-shrink:0">${c.status==='active'?'⏸ Pausar':'▶ Activar'}</button>
+        </div>
+      </div>`).join('');
+    a.innerHTML=`
+      <div style="padding:0 0 14px">
+        <button class="bp" onclick="showDscForm()" id="dsc-btn-new">+ Nueva Campaña</button>
+      </div>
+      <div id="dsc-form" style="display:none"></div>
+      ${camps.length===0?'<p style="color:var(--muted);text-align:center;padding:20px">No hay campañas aún. Crea la primera.</p>':rows}`;
+  }catch(e){a.innerHTML=`<p style="color:var(--err);text-align:center;padding:20px">Error al cargar campañas.</p>`;}
+}
+
+function showDscForm(){
+  const f=document.getElementById('dsc-form');
+  if(!f)return;
+  f.style.display='block';
+  document.getElementById('dsc-btn-new').style.display='none';
+  f.innerHTML=`
+  <div class="card" style="margin-bottom:16px;padding:16px">
+    <p style="font-size:14px;font-weight:700;color:var(--gold);margin-bottom:12px">Nueva Campaña de Descuento</p>
+    <div class="fld"><label class="lbl">ÍCONO (emoji)</label><input id="df-icon" class="inp" placeholder="🎫" value="🎫" maxlength="4" style="width:60px"></div>
+    <div class="fld"><label class="lbl">TÍTULO *</label><input id="df-title" class="inp" placeholder="20% en Restaurante Balandra"></div>
+    <div class="fld"><label class="lbl">DESCRIPCIÓN</label><input id="df-desc" class="inp" placeholder="Válido para huéspedes del hotel"></div>
+    <div class="fld"><label class="lbl">CONDICIONES</label><textarea id="df-cond" class="inp" rows="3" placeholder="• Solo para cenas&#10;• No acumulable con otras promociones&#10;• Válido previa reserva"></textarea></div>
+    <div class="fld"><label class="lbl">SERVICIO</label>
+      <select id="df-svc" class="inp">
+        <option value="restaurante">Restaurante</option>
+        <option value="spa">Spa</option>
+        <option value="bar">Bar</option>
+        <option value="habitación">Habitación</option>
+        <option value="experiencias">Experiencias</option>
+      </select>
+    </div>
+    <div class="fld"><label class="lbl">FECHA DE VENCIMIENTO <span style="font-weight:400;color:var(--dim)">(opcional)</span></label><input id="df-exp" class="inp" type="date"></div>
+    <div id="df-err" class="err" style="display:none"></div>
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <button class="bp" onclick="doCreateDscCampaign()">Crear Campaña</button>
+      <button class="bs" onclick="document.getElementById('dsc-form').style.display='none';document.getElementById('dsc-btn-new').style.display='block'">Cancelar</button>
+    </div>
+  </div>`;
+}
+
+async function doCreateDscCampaign(){
+  const icon=document.getElementById('df-icon').value.trim()||'🎫';
+  const title=document.getElementById('df-title').value.trim();
+  const desc=document.getElementById('df-desc').value.trim();
+  const cond=document.getElementById('df-cond').value.trim();
+  const svc=document.getElementById('df-svc').value;
+  const exp=document.getElementById('df-exp').value;
+  const e=document.getElementById('df-err');
+  e.style.display='none';
+  if(!title){e.textContent='El título es obligatorio.';e.style.display='block';return;}
+  const btn=document.querySelector('#dsc-form .bp');btn.disabled=true;btn.textContent='Creando...';
+  try{
+    const r=await rpc('balandra_create_discount_campaign',{p_hotel:'pv',p_service_type:svc,p_title:title,p_description:desc||null,p_conditions:cond||null,p_icon:icon,p_expires_at:exp||null});
+    if(r&&r.id){loadDiscountCampaigns();}
+    else{e.textContent=r&&r.error?r.error:'Error al crear campaña.';e.style.display='block';btn.disabled=false;btn.textContent='Crear Campaña';}
+  }catch{e.textContent='Error de conexión.';e.style.display='block';btn.disabled=false;btn.textContent='Crear Campaña';}
+}
+
+async function toggleDscStatus(id,status){
+  const ns=status==='active'?'paused':'active';
+  try{await rpc('balandra_set_discount_campaign_status',{p_id:id,p_status:ns});loadDiscountCampaigns();}
+  catch{alert('Error al cambiar estado.');}
+}
 
 function bAdminCreate(){const b=document.getElementById('ccb');if(b)b.onclick=doCrear;}
 function sTab(n,el){
   corpWide(false);
-  const mp={db:0,tp:1,li:2,bn:3,ct:4},i=mp[n];
-  [0,1,2,3,4].forEach(j=>{document.getElementById('ap'+j).style.display=j===i?'block':'none';document.getElementById('at'+j).classList.toggle('on',j===i);});
+  const mp={db:0,tp:1,li:2,bn:3,ct:4,dsc:5},i=mp[n];
+  [0,1,2,3,4,5].forEach(j=>{document.getElementById('ap'+j).style.display=j===i?'block':'none';document.getElementById('at'+j).classList.toggle('on',j===i);});
   if(n==='db')loadStats();if(n==='li')loadListado();if(n==='bn')loadBenefitTypes();
-  if(n==='tp')loadTipos();if(n==='ct')initCrear();
+  if(n==='tp')loadTipos();if(n==='ct')initCrear();if(n==='dsc')loadDiscountCampaigns();
 }
 function hDash(){return`
 <div class="sg">
