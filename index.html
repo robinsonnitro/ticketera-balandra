@@ -1318,7 +1318,8 @@ async function doValWithCode(code){
       </div></div>`;
     }else{
       // Intentar como voucher de descuento masivo
-      const dv=await rpc('balandra_burn_discount_voucher',{p_code:code,p_garzon:staff,p_mesa:table});
+      let dv=null;
+      try{dv=await rpc('balandra_burn_discount_voucher',{p_code:code,p_garzon:staff,p_mesa:table});}catch{}
       if(dv&&dv.success){
         vfrm.style.display='none';
         const now2=new Date();
@@ -1333,7 +1334,7 @@ async function doValWithCode(code){
           <button class="bg" style="margin-top:14px" onclick="nav('validar')">Escanear Otro</button>
         </div></div>`;
       }else{
-        ve.textContent=(dv&&dv.already_used)?'Este descuento ya fue utilizado.':(d.error||'Código inválido');
+        ve.textContent=dv?.already_used?'Este descuento ya fue utilizado.':dv?.error||d.error||'Código inválido';
         ve.style.display='block';if(qrScanner)startScanner();
       }
     }
